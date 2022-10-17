@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.2.82
+// @version      1.2.83
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -264,8 +264,6 @@ const currdate = "10/17/22";
                     addClick(buttons[i+(j*buttonsPerRow)][2], () => navigateToURL(buttons[i+(j*buttonsPerRow)][1]));
                 }
             }
-            console.log(references);
-            console.log("not editing");
         }
         else { //START EDITING
             GM_setValue("isEdit",true);
@@ -280,8 +278,6 @@ const currdate = "10/17/22";
                     addClick(buttons[i+(j*buttonsPerRow)][2], () => getNewButton([buttons[i+(j*buttonsPerRow)][2]]));//refreshButton(buttons[i+(j*buttonsPerRow)][2].toString(), () => getNewButton(buttons[i+(j*buttonsPerRow)][2]));
                 }
             }
-            console.log(references);
-            console.log("editing");
         }
         return null;
     }
@@ -337,7 +333,6 @@ const currdate = "10/17/22";
         var name = prompt("Enter new title to replace " + elm.innerHTML);
         var url = prompt("Enter new URL to replace " + elm.innerHTML);
 
-        console.log(name + "\n" + url)
         if(!name || !url) {
             alert("Quick Nav Error: Bad Button Edit, one or both new button entries were left blank. Changes were not made.");
             return;
@@ -345,7 +340,6 @@ const currdate = "10/17/22";
             alert("Quick Nav Error: Bad Button Edit, invalid URL entered (must include http:// or https://). Changes were not made.");
             return;
         } else {
-            console.log("complete")
             //references[id] = () => navigateToURL(url);
             elm.innerHTML = name;
             var nid = id+"name";
@@ -353,7 +347,6 @@ const currdate = "10/17/22";
             setCookie(nid,name)
             setCookie(uid,url)
             //refreshButton(id, () => navigateToURL(url));
-            console.log(document.cookie);
         }
         return null;
     }
