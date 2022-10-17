@@ -112,7 +112,7 @@
 
     var versionStr = document.createElement('div');
     versionStr.setAttribute("id","AAQNVersion");
-    versionStr.innerHTML = ("v"+GM_info.script.version);
+    versionStr.innerHTML = ("Quick Nav v"+GM_info.script.version);
     versionStr.setAttribute("style","font-size:10px;");
     coverbox3.insertBefore(versionStr,coverbox3.firstChild);
 
