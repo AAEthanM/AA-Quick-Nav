@@ -1,12 +1,11 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.2.2
+// @version      1.2.3
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @match        https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/*
 // @icon         https://cdn.worldvectorlogo.com/logos/assa.svg
-// @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/edit/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_cookie
