@@ -4,6 +4,8 @@
 // @version      1.1.3
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
+// @downloadURL  https://github02.private.domain/raw/github-username/repo-name/master/userscript.js
+// @updateURL    https://github02.private.domain/raw/github-username/repo-name/master/userscript.js
 // @match        https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/*
 // @icon         https://cdn.worldvectorlogo.com/logos/assa.svg
 // @grant        GM_setValue
