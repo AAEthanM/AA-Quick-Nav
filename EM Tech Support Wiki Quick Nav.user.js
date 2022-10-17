@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.2.3
+// @version      1.2.5
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @match        https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/*
@@ -109,11 +109,12 @@
     coverbox4.insertBefore(defaultList,coverbox4.lastChild)
     defaultList.addEventListener("click", setDefaults, false);
     coverbox4.insertBefore(defaultList,coverbox4.lastChild);
-    
+
     var versionStr = document.createElement('div');
+    versionStr.setAttribute("id","AAQNVersion");
     versionStr.innerHTML = ("v"+GM_info.script.version);
-    versionStr.setAttribute("style","font-size:8px;");
-    coverbox2.insertBefore(versionStr,coverbox2.firstChild);
+    versionStr.setAttribute("style","font-size:10px;");
+    coverbox3.insertBefore(versionStr,coverbox3.firstChild);
 
     //Add Button for Toggling Visibility of Quick Nav, change colors when pressed, hide boxes
     var toggleStatus;
