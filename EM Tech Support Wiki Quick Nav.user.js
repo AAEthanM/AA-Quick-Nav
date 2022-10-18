@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.2.88
+// @version      1.2.89
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -12,6 +12,7 @@
 // @grant        GM_getValue
 // @grant        GM_cookie
 // @grant        GM_info
+// @grant        GM_addStyle
 // @require      http://code.jquery.com/jquery-latest.js
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
@@ -58,9 +59,15 @@ const currdate = "10/18/22";
         ["IO Persona","https://secure.intelligentopenings.com/en/partner-area/partner-area-start/information/persona/"],
         //["",""],
     ];
+
+    var errors = {
+        "editBlank": "Quick Nav Error: Bad Button Edit, one or both new button entries were left blank. Changes were not made.",
+        "editURL": "Quick Nav Error: Bad Button Edit, invalid URL entered (must include http:// or https://). Changes were not made.",
+        "toggleSet": "Quick Nav Error: Bad Toggle Button Initialization, GM_isShowing not set to boolean value.",
+        "badHide": "Quick Nav Error: Bad Hide Sequence, GM_isShowing not set to boolean value.",
+    }
     
     var references = {};
-    var newreferences = {};
 
     //Adds unique ID to each button that is generated dynamically for the main buttons
     for(let i = 0; i < preButtons.length; i++) {buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);}
@@ -77,50 +84,54 @@ const currdate = "10/18/22";
     const leftPush = -4;
     const defAttr = "font-family:Calibri;background:#F0F0F0;box-sizing:unset;flex-wrap:none;float:left;font-size:12px;position:absolute;cursor:pointer;padding:0px;z-index:99999;min-width:0px;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;";
     const insertDiv = document.getElementById('DeltaPlaceHolderLeftNavBar');
-    var s = 0; //Loop to see how many rows to create given the amount of buttons in the array
-    while(s*buttonsPerRow < buttons.length) {s = s + 1;}
+    var s = setButtonLimit();
 
-    //Bounding boxes/parent div for buttons
-    var coverbox4 = document.createElement('div');
-    coverbox4.setAttribute("id","AAQNBox4");
-    coverbox4.style.cssText = 'display:block;z-index:99997;background:none;padding:8px;position:relative;top:3px;left:-4px;min-width:100%;height:5px';
-    insertDiv.insertBefore(coverbox4,insertDiv.firstChild);
-
-    var coverbox = document.createElement('div');
-    coverbox.setAttribute("id","AAQNBox");
-    coverbox.style.cssText = navAttr.concat('border:2px solid #038387;z-index:99998;opacity:0.8;z-index:1;background:none;padding:0px;position:relative;top:-2px;left:-4px;min-width:100%;min-height:'+(s*(vScalingAttr+1)+1)+'px');
-    insertDiv.insertBefore(coverbox,insertDiv.firstChild);
-    coverbox.addEventListener( 'click', function () {}, true );
-
-    var coverbox2 = document.createElement('div');
-    coverbox2.setAttribute("id","AAQNBox2");
-    coverbox2.style.cssText = 'display:block;border:2px solid #038387;z-index:99998;opacity:0.8;z-index:1;background:none;padding:0px;position:relative;top:0px;left:-4px;min-width:100%;min-height:' + (2*vScalingAttr+hBorder-1) + 'px';
-    insertDiv.insertBefore(coverbox2,insertDiv.firstChild);
-
-    var coverbox3 = document.createElement('div');
-    coverbox3.setAttribute("id","AAQNBox3");
-    coverbox3.style.cssText = 'display:block;z-index:1;background:none;z-index:99998;padding:0px;position:relative;top:0px;left:-4px;min-width:100%;min-height:4px';
-    insertDiv.insertBefore(coverbox3,insertDiv.firstChild);
-
-    var editIndicator = document.createElement('div');
-    editIndicator.setAttribute("id", "AAQNEditIndicator");
-    editIndicator.innerHTML = "Edit Mode";
-    editIndicator.setAttribute("style", "font-family:Calibri;color:red;font-size:13px;float:left;display:none;position:absolute;left:20px;top:0px;height:2px;cursor:pointer;");
-    coverbox4.insertBefore(editIndicator,coverbox4.lastChild)
-    addClick("AAQNEditIndicator",toggleEdit)
+    var coverbox4 = addDiv("AAQNBox4","cover",'border:none;padding:8px;top:3px;height:5px',insertDiv,"first");
+    var coverbox = addDiv("AAQNBox","cover",navAttr.concat('min-height:'+(s*(vScalingAttr+1)+1)+'px'),insertDiv,"first");
+    var coverbox2 = addDiv("AAQNBox2","cover",'min-height:' + (2*vScalingAttr+hBorder-1) + 'px',insertDiv,"first");
+    var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:4px',insertDiv,"first");
+    var editText = addDiv("AAQNEditText","editingButtonsText","display:none;left:-30px;",coverbox4,"last","Editing");
+    addClick(editText.id,toggleEdit, false);
+    var vStr = "Quick Nav v" + GM_info.script.version + " " + currdate
+    var versionStr = addDiv("AAQNVersion","dummy","font-size:10px;",coverbox3,"first",vStr);
 
     var defaultList = document.createElement('button');
+    defaultList.innerHTML = "Reset";
     defaultList.setAttribute("id", "AAQNSetDefaults");
-    defaultList.innerHTML = "Reset Defaults";
-    defaultList.setAttribute("style", defAttr.concat("font-family:Calibri;color:red;font-size:10px;float:right;display:none;position:absolute;right:12px;top:0px;width:70px;height:15px;cursor:pointer;"));
+    defaultList.setAttribute("class","editingButtonsText");
+    defaultList.setAttribute("style", "float:left;height:15px;left:120px;width:20px;min-width:fit-content");
     defaultList.addEventListener("click", setDefaults, false);
     coverbox4.insertBefore(defaultList,coverbox4.lastChild);
 
-    var versionStr = document.createElement('div');
-    versionStr.setAttribute("id","AAQNVersion");
-    versionStr.innerHTML = ("Quick Nav v" + GM_info.script.version + " " + currdate);
-    versionStr.setAttribute("style","font-size:10px;");
-    coverbox3.insertBefore(versionStr,coverbox3.firstChild);
+    /*
+    var incbutton = document.createElement('button');
+    incbutton.setAttribute("id","AAQNIncButton");
+    incbutton.setAttribute("class","editingButtons");
+    incbutton.setAttribute("style","left:85px;background-image:url(https://cdn-icons-png.flaticon.com/128/1828/1828919.png);");
+    incbutton.addEventListener("click", addButton, false);
+    coverbox4.insertBefore(incbutton,coverbox4.lastChild);
+
+    var decbutton = document.createElement('button');
+    decbutton.setAttribute("id","AAQNDecButton");
+    decbutton.setAttribute("class","editingButtons");
+    decbutton.setAttribute("style","left:65px;background-image:url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHXAPDoIPop7SR4oP3dc4ICRzDkrr2Y6z_p8DW6Bg&s);");
+    decbutton.addEventListener("click", remButton, false);
+    coverbox4.insertBefore(decbutton,coverbox4.lastChild);
+    */
+
+    function addDiv(id, cls, style, loc="", itemloc="",name) {
+        var elm = document.createElement('div');
+        if(name) elm.innerHTML = name;
+        elm.setAttribute("id",id);
+        elm.setAttribute("class",cls);
+        elm.setAttribute("style",style);
+        if(loc === "") {loc = document.body.appendChild(elm);} else {
+            if(itemloc.includes("first")) {loc.insertBefore(elm,loc.firstChild);}
+            else if(itemloc.includes("last")) {loc.insertBefore(elm,loc.lastChild);}
+            else if(itemloc === "") {loc.insertBefore(elm,loc.lastChild);}
+        }
+        return elm;
+    }
 
     //Add Button for Toggling Visibility of Quick Nav, change colors when pressed, hide boxes
     var toggleStatus;
@@ -128,7 +139,7 @@ const currdate = "10/18/22";
         toggleStatus = '\u2191 Toggle Show/Hide \u2191';
     } else if(!GM_getValue("isShowing")) {
         toggleStatus = '\u2193 Toggle Show/Hide \u2193';
-    } else {toggleStatus = 'Toggle Show/Hide'; alert("Quick Nav Error: Bad Toggle Button Initialization, GM_isShowing not set to boolean value.")}
+    } else {toggleStatus = 'Toggle Show/Hide'; alert(errors.toggleSet)}
     makeButton(toggleStatus,"","AAQNButtonToggle",
                defAttr.concat(toggleAttr,"font-size:15px;width:99%;top:"+(vScalingAttr+2)+"px;left:-10px;"),
                false, coverbox2, "first");
@@ -157,8 +168,8 @@ const currdate = "10/18/22";
             else {bColorIO = "color:black;";}
             makeButton(buttons[i+(j*buttonsPerRow)][0], buttons[i+(j*buttonsPerRow)][1], buttons[i+(j*buttonsPerRow)][2],
                        defAttr.concat(navAttr,bColorIO,""+
-                                            "position:absolute;width:"+(0.98*coverbox2.offsetWidth/buttonsPerRow-2)+"px;"+
-                                            "left:"+((0.98*coverbox2.offsetWidth/buttonsPerRow*i+leftPush)+(-6))+"px;"+
+                                            "position:absolute;width:"+(coverbox2.offsetWidth/buttonsPerRow-2)+"px;"+
+                                            "left:"+((coverbox2.offsetWidth/buttonsPerRow*i+leftPush)+(-6))+"px;"+
                                             "top:"+(vScalingAttr*j+j)+"px;"),
                        true, coverbox, "last");
             addClick(buttons[i+(j*buttonsPerRow)][2],() => navigateToURL(buttons[i+(j*buttonsPerRow)][1]));
@@ -187,12 +198,6 @@ const currdate = "10/18/22";
         return null;
     }
 
-    function refreshButton(id, func) {
-        var elm = document.getElementById(id);
-        removeClick(id,references[id]);
-        return null;
-    }
-
     function navigateToURL(url) {
         window.location = url;
         return null;
@@ -210,14 +215,16 @@ const currdate = "10/18/22";
             var navBtns = document.getElementById(buttons[i][2].toString());
             if(GM_getValue("isShowing")) {navBtns.style.display = 'none';}
             else if(!GM_getValue("isShowing")) {navBtns.style.display = 'block';}
-            else {alert("Quick Nav Error: Bad Hide Sequence, GM_isShowing not set to boolean value.")}
+            else {alert(errors.badHide)}
         }
 
         var editButton = document.getElementById('AAQNEdit');
         var toggleButton = document.getElementById("AAQNButtonToggle");
         var testbox = document.getElementById("AAQNBox");
-        var editInd = document.getElementById("AAQNEditIndicator");
+        var editInd = document.getElementById("AAQNEditText");
         var setDef = document.getElementById("AAQNSetDefaults");
+        var incButton = document.getElementById("AAQNIncButton");
+        var decButton = document.getElementById("AAQNDecButton");
 
         if(GM_getValue("isShowing")) {
             toggleButton.innerHTML = '\u2193 Toggle Show/Hide \u2193';
@@ -227,6 +234,8 @@ const currdate = "10/18/22";
             editButton.style.display = 'none';
             editInd.style.display = 'none';
             setDef.style.display = 'none';
+            incButton.style.display = 'none';
+            decButton.style.display = 'none';
         }
         else {
             toggleButton.innerHTML = '\u2191 Toggle Show/Hide \u2191';
@@ -237,17 +246,23 @@ const currdate = "10/18/22";
             if(GM_getValue("isEdit")) {
                 editInd.style.display = 'block';
                 setDef.style.display = 'block';
+                incButton.style.display = 'block';
+                decButton.style.display = 'block';
             }
         }
     }
 
     function toggleEdit() {
-        var editIndicator = document.getElementById("AAQNEditIndicator");
+        var editText = document.getElementById("AAQNEditText");
         var setDef = document.getElementById("AAQNSetDefaults");
+        var incButton = document.getElementById("AAQNIncButton");
+        var decButton = document.getElementById("AAQNDecButton");
         if(GM_getValue("isEdit")) { //STOP EDITING
             GM_setValue("isEdit",false);
-            editIndicator.style.display = 'none';
+            editText.style.display = 'none';
             setDef.style.display = 'none';
+            incButton.style.display = 'none';
+            decButton.style.display = 'none';
             for(let j = 0; j < s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
                     var navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
@@ -260,14 +275,16 @@ const currdate = "10/18/22";
         }
         else { //START EDITING
             GM_setValue("isEdit",true);
-            editIndicator.style.display = 'block';
+            editText.style.display = 'block';
             setDef.style.display = 'block';
+            incButton.style.display = 'block';
+            decButton.style.display = 'block';
             for(let j = 0; j < s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
                     navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
                     navBtns.style.background = "red";
                     removeClick(buttons[i+(j*buttonsPerRow)][2],references[buttons[i+(j*buttonsPerRow)][2]]);
-                    addClick(buttons[i+(j*buttonsPerRow)][2], () => getNewButton([buttons[i+(j*buttonsPerRow)][2]]));//refreshButton(buttons[i+(j*buttonsPerRow)][2].toString(), () => getNewButton(buttons[i+(j*buttonsPerRow)][2]));
+                    addClick(buttons[i+(j*buttonsPerRow)][2], () => getNewButton([buttons[i+(j*buttonsPerRow)][2]]));
                 }
             }
         }
@@ -307,7 +324,7 @@ const currdate = "10/18/22";
     function setDefaults() {
         var test = confirm("Are you sure you want to set Quick Nav to defaults?")
         if(test) {
-            for(let i = 0; i < buttons.length*2; i++) {
+            for(let i = 0; i < buttons.length; i++) {
                 eraseCookie(buttons[i][2]+"name");
                 eraseCookie(buttons[i][2]+"url");
             }
@@ -320,10 +337,10 @@ const currdate = "10/18/22";
         var url = prompt("Enter new URL to replace " + elm.innerHTML);
 
         if(!name || !url) {
-            alert("Quick Nav Error: Bad Button Edit, one or both new button entries were left blank. Changes were not made.");
+            alert(errors.editBlank);
             return;
         } else if(!isValidHttpUrl(url)){
-            alert("Quick Nav Error: Bad Button Edit, invalid URL entered (must include http:// or https://). Changes were not made.");
+            alert(errors.editURL);
             return;
         } else {
             elm.innerHTML = name;
@@ -343,4 +360,76 @@ const currdate = "10/18/22";
         }
         return url.protocol === "http:" || url.protocol === "https:";
     }
+
+    function addButton() {
+        setButtonLimit();
+    }
+
+    function remButton() {
+        setButtonLimit();
+    }
+
+    function setButtonLimit() {
+        var s = 0; //Loop to see how many rows to create given the amount of buttons in the array
+        while(s*buttonsPerRow < buttons.length) {s = s + 1;}
+        return s;
+    }
 })();
+
+GM_addStyle ( `
+    .dummy {
+
+    }
+
+    .editingButtons {
+        display:none;
+        position:absolute;
+        width:10px;
+        height:10px;
+        top:0px;
+        padding:7px;
+        background-size:14px !important;
+        border:none;
+        min-width:1px !important;
+        min-height:1px !important;
+        cursor:pointer;
+    }
+
+    .editingButtonsText {
+        display:none;
+        position:relative;
+        height:10px;
+        top:-8px;
+        left:20px;
+        padding:0px;
+        float:left;
+        font-family:Calibri;
+        color:red;
+        font-size:13px;
+        cursor:pointer;
+        padding:0px;
+    }
+
+    .staticButtons {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        z-index: 99999;
+        cursor: pointer;
+        width: 100px;
+    }
+
+    .cover {
+        position: relative;
+        display: block;
+        z-index: 99997;
+        min-width: 100%;
+        left:0px;
+        top: 0px;
+        border: 2px solid red;
+        opacity: 0.8;
+        border: 2px solid #038387;
+    }
+
+
+` );
