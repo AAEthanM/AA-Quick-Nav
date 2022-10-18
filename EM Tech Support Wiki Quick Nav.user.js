@@ -144,7 +144,6 @@ const currdate = "10/18/22";
     }
 
     makeButton("","","AAQNEdit",
-               //toggleEdit,
                navAttr.concat("position:absolute;background-size:14px !important;padding:7px;border:none;min-width:1px !important;min-height:1px !important;left:-10px;top:0px;background-image:url(https://www.freeiconspng.com/thumbs/edit-icon-png/edit-new-icon-22.png);"),
                false, coverbox4, "first");
     addClick("AAQNEdit",toggleEdit);
@@ -163,13 +162,10 @@ const currdate = "10/18/22";
                                             "top:"+(vScalingAttr*j+j)+"px;"),
                        true, coverbox, "last");
             addClick(buttons[i+(j*buttonsPerRow)][2],() => navigateToURL(buttons[i+(j*buttonsPerRow)][1]));
-            //setCookie(buttons[i+(j*buttonsPerRow)][2].toString().concat("name"),buttons[i+(j*buttonsPerRow)][0]);
-            //setCookie(buttons[i+(j*buttonsPerRow)][2].toString().concat("url"),buttons[i+(j*buttonsPerRow)][1]);
         }
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     function makeButton(name, url, id, prop, isLink,loc = "", itemloc = "") {
-        //references[id] = func;
         var button = document.createElement("button");
         button.type = "button";
         button.innerHTML = name;
@@ -243,7 +239,6 @@ const currdate = "10/18/22";
                 setDef.style.display = 'block';
             }
         }
-        return null;
     }
 
     function toggleEdit() {
@@ -258,7 +253,6 @@ const currdate = "10/18/22";
                     var navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
                     navBtns.style.background = "#F0F0F0";
                     removeClick(buttons[i+(j*buttonsPerRow)][2],references[buttons[i+(j*buttonsPerRow)][2]]);
-                    //references[buttons[i+(j*buttonsPerRow)][2]] = () => navigateToURL(buttons[i+(j*buttonsPerRow)][1]);
                     refreshCookies();
                     addClick(buttons[i+(j*buttonsPerRow)][2], () => navigateToURL(buttons[i+(j*buttonsPerRow)][1]));
                 }
@@ -273,12 +267,10 @@ const currdate = "10/18/22";
                     navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
                     navBtns.style.background = "red";
                     removeClick(buttons[i+(j*buttonsPerRow)][2],references[buttons[i+(j*buttonsPerRow)][2]]);
-                    //references[buttons[i+(j*buttonsPerRow)][2]] = () => getNewButton(buttons[i+(j*buttonsPerRow)][2]);
                     addClick(buttons[i+(j*buttonsPerRow)][2], () => getNewButton([buttons[i+(j*buttonsPerRow)][2]]));//refreshButton(buttons[i+(j*buttonsPerRow)][2].toString(), () => getNewButton(buttons[i+(j*buttonsPerRow)][2]));
                 }
             }
         }
-        return null;
     }
 
     function setCookie(name,value,type) {
@@ -287,7 +279,6 @@ const currdate = "10/18/22";
         date.setTime(date.getTime() + (100*365*24*60*60*1000));
         expires = "; expires=" + date.toUTCString();
         document.cookie = name.concat(type||"") + "=" + (value || "") + expires + "; path=/";
-        return null;
     }
 
     function getCookie(name) {
@@ -298,12 +289,10 @@ const currdate = "10/18/22";
             while (c.charAt(0)==' ') c = c.substring(1,c.length);
             if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
         }
-        return null;
     }
 
     function eraseCookie(name) {
         document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-        return null;
     }
 
     function refreshCookies() {
@@ -313,7 +302,6 @@ const currdate = "10/18/22";
                 buttons[i][1] = getCookie(buttons[i][2].concat("url"));
             }
         }
-        return null;
     }
 
     function setDefaults() {
@@ -323,7 +311,6 @@ const currdate = "10/18/22";
                 eraseCookie(buttons[i][2]+"name");
                 eraseCookie(buttons[i][2]+"url");
             }
-            return false;
         }
     }
 
@@ -339,29 +326,21 @@ const currdate = "10/18/22";
             alert("Quick Nav Error: Bad Button Edit, invalid URL entered (must include http:// or https://). Changes were not made.");
             return;
         } else {
-            //references[id] = () => navigateToURL(url);
             elm.innerHTML = name;
             var nid = id+"name";
             var uid = id+"url"
             setCookie(nid,name)
             setCookie(uid,url)
-            //refreshButton(id, () => navigateToURL(url));
         }
-        return null;
     }
 
     function isValidHttpUrl(string) {
         let url;
-
         try {
             url = new URL(string);
         } catch (_) {
             return false;
         }
-
         return url.protocol === "http:" || url.protocol === "https:";
     }
 })();
-
-//https://stackoverflow.com/questions/13286233/pass-a-javascript-function-as-parameter
-//https://developer.mozilla.org/en-US/docs/Web/API/Document/querySelector
