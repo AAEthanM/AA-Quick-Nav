@@ -323,9 +323,10 @@ const currdate = "10/18/22";
                 eraseCookie(buttons[i][2]+"name");
                 eraseCookie(buttons[i][2]+"url");
             }
-            return null;
+            return false;
         }
         window.location = window.location.href;
+        return false;
     }
 
     function getNewButton(id) {
