@@ -323,9 +323,9 @@ const currdate = "10/17/22";
                 eraseCookie(buttons[i][2]+"name");
                 eraseCookie(buttons[i][2]+"url");
             }
-            window.location = window.location.href;
             return null;
         }
+        window.location = window.location.href;
     }
 
     function getNewButton(id) {
