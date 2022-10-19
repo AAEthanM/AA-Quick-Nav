@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.2.89
+// @version      1.2.90
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -255,14 +255,14 @@ const currdate = "10/18/22";
     function toggleEdit() {
         var editText = document.getElementById("AAQNEditText");
         var setDef = document.getElementById("AAQNSetDefaults");
-        var incButton = document.getElementById("AAQNIncButton");
-        var decButton = document.getElementById("AAQNDecButton");
+        //var incButton = document.getElementById("AAQNIncButton");
+        //var decButton = document.getElementById("AAQNDecButton");
         if(GM_getValue("isEdit")) { //STOP EDITING
             GM_setValue("isEdit",false);
             editText.style.display = 'none';
             setDef.style.display = 'none';
-            incButton.style.display = 'none';
-            decButton.style.display = 'none';
+            //incButton.style.display = 'none';
+            //decButton.style.display = 'none';
             for(let j = 0; j < s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
                     var navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
@@ -277,8 +277,8 @@ const currdate = "10/18/22";
             GM_setValue("isEdit",true);
             editText.style.display = 'block';
             setDef.style.display = 'block';
-            incButton.style.display = 'block';
-            decButton.style.display = 'block';
+            //incButton.style.display = 'block';
+            //decButton.style.display = 'block';
             for(let j = 0; j < s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
                     navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
