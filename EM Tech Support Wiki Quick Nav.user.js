@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.2.95
+// @version      1.2.97
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -64,9 +64,10 @@ const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0
 
     var errors = {
         "editBlank": "Quick Nav Error: Bad Button Edit, one or both new button entries were left blank. Changes were not made.",
-        "editURL": "Quick Nav Error: Bad Button Edit, invalid URL entered (must include http:// or https://). Changes were not made.",
+        "editURL":   "Quick Nav Error: Bad Button Edit, invalid URL entered (must include http:// or https://). Changes were not made.",
         "toggleSet": "Quick Nav Error: Bad Toggle Button Initialization, GM_isShowing not set to boolean value.",
-        "badHide": "Quick Nav Error: Bad Hide Sequence, GM_isShowing not set to boolean value.",
+        "badHide":   "Quick Nav Error: Bad Hide Sequence, GM_isShowing not set to boolean value.",
+        "WIP" :      "CAUTION: Maximum amount of buttons (for now) is 24. Please be patient while I smack my head on this some more.",
     }
     
     var references = {};
@@ -406,7 +407,10 @@ const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0
     function addButton() {
         var buttons = document.querySelectorAll('#AAQNBox button')
 
-        if(!GM_getValue("totalButtons")) {GM_setValue("totalButtons",buttons.length);}
+        if(!GM_getValue("totalButtons")) {GM_setValue("totalButtons",buttons.length);} else if(GM_getValue("totalButtons")>=buttons.length) {
+            alert(errors.WIP);
+            //getNewButton();
+        }
         GM_setValue("totalButtons",GM_getValue("totalButtons")+1);
         hideMainButtons();
         mainButtons(true);
@@ -438,7 +442,6 @@ const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0
     }
 
     function resizeBox() {
-        //(s*(vScalingAttr+1)+1)
         return ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow))+1;
     }
 
