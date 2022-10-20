@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.2.91
+// @version      1.2.95
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -17,7 +17,9 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "10/19/22";
+const currdate = "10/20/22";
+
+const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0]);
 
 (function() {
     'use strict';
@@ -68,9 +70,14 @@ const currdate = "10/19/22";
     }
     
     var references = {};
+    var buttonNames = {};
+    var buttonURLs = {};
+    var buttonIDs = {};
 
     //Adds unique ID to each button that is generated dynamically for the main buttons
-    for(let i = 0; i < preButtons.length; i++) {buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);}
+    for(let i = 0; i < preButtons.length; i++) {
+        buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
+    }
     refreshCookies();
 
     //Constants for button spacing/properties
@@ -79,48 +86,50 @@ const currdate = "10/19/22";
     GM_setValue("isEdit",false);
     var toggleAttr = firstToggleColor.concat("display:block;");
     const hScalingAttr = 45;
-    const vScalingAttr = 25;
+    const vScalingAttr = 30;
     const hBorder = 5;
     const leftPush = -4;
     const defAttr = "font-family:Calibri;background:#F0F0F0;box-sizing:unset;flex-wrap:none;float:left;font-size:12px;position:absolute;cursor:pointer;padding:0px;z-index:99999;min-width:0px;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;";
     const insertDiv = document.getElementById('DeltaPlaceHolderLeftNavBar');
     var s = setButtonLimit();
 
-    var coverbox4 = addDiv("AAQNBox4","cover",'border:none;padding:8px;top:3px;height:5px',insertDiv,"first");
-    var coverbox = addDiv("AAQNBox","cover",navAttr.concat('min-height:'+(s*(vScalingAttr+1)+1)+'px'),insertDiv,"first");
-    var coverbox2 = addDiv("AAQNBox2","cover",'min-height:' + (2*vScalingAttr+hBorder-1) + 'px',insertDiv,"first");
-    var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:4px',insertDiv,"first");
-    var editText = addDiv("AAQNEditText","editingButtonsText","display:none;left:-30px;",coverbox4,"last","Editing");
+    var coverbox4 = addDiv("AAQNBox4","cover",'border:none;padding:8px;top:3px;height:5px',insertDiv,"first","",'div');
+    var coverbox = addDiv("AAQNBox","cover",navAttr.concat('height:'+resizeBox()+'px !important;'),insertDiv,"first","",'div');
+    var coverbox2 = addDiv("AAQNBox2","cover",'min-height:' + (2*vScalingAttr+hBorder-1) + 'px',insertDiv,"first","",'div');
+    var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:4px',insertDiv,"first","",'div');
+    var editText = addDiv("AAQNEditText","editingButtonsText","display:none;left:0px;",coverbox4,"last","Editing",'div');
     addClick(editText.id,toggleEdit, false);
     var vStr = "Quick Nav v" + GM_info.script.version + " " + currdate
-    var versionStr = addDiv("AAQNVersion","dummy","font-size:10px;",coverbox3,"first",vStr);
+    var versionStr = addDiv("AAQNVersion","dummy","font-size:10px;position:absolute;word-wrap:none;top:-10px;",coverbox3,"first",vStr,'div');
 
     var defaultList = document.createElement('button');
-    defaultList.innerHTML = "Reset";
+    defaultList.innerHTML = "Reset Defaults";
     defaultList.setAttribute("id", "AAQNSetDefaults");
     defaultList.setAttribute("class","editingButtonsText");
-    defaultList.setAttribute("style", "float:left;height:15px;left:120px;width:20px;min-width:fit-content");
+    defaultList.setAttribute("style", "position:absolute;float:left;font-size:10px;height:15px;left:131px;top:-25px;width:40px;height:30px;min-width:fit-content");
     defaultList.addEventListener("click", setDefaults, false);
-    coverbox4.insertBefore(defaultList,coverbox4.lastChild);
+    coverbox3.insertBefore(defaultList,coverbox3.lastChild);
 
-    /*
+    
     var incbutton = document.createElement('button');
+    incbutton.type = "button";
     incbutton.setAttribute("id","AAQNIncButton");
     incbutton.setAttribute("class","editingButtons");
-    incbutton.setAttribute("style","left:85px;background-image:url(https://cdn-icons-png.flaticon.com/128/1828/1828919.png);");
+    incbutton.setAttribute("style","position:absolute;top:40px;left:-28px;background-image:url(https://cdn-icons-png.flaticon.com/128/1828/1828919.png);");
     incbutton.addEventListener("click", addButton, false);
-    coverbox4.insertBefore(incbutton,coverbox4.lastChild);
+    coverbox3.insertBefore(incbutton,coverbox3.lastChild);
 
     var decbutton = document.createElement('button');
+    decbutton.type = "button";
     decbutton.setAttribute("id","AAQNDecButton");
     decbutton.setAttribute("class","editingButtons");
-    decbutton.setAttribute("style","left:65px;background-image:url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHXAPDoIPop7SR4oP3dc4ICRzDkrr2Y6z_p8DW6Bg&s);");
+    decbutton.setAttribute("style","position:absolute;top:60px;left:-28px;background-image:url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHXAPDoIPop7SR4oP3dc4ICRzDkrr2Y6z_p8DW6Bg&s);");
     decbutton.addEventListener("click", remButton, false);
-    coverbox4.insertBefore(decbutton,coverbox4.lastChild);
-    */
+    coverbox3.insertBefore(decbutton,coverbox3.lastChild);
+    
 
-    function addDiv(id, cls, style, loc="", itemloc="",name) {
-        var elm = document.createElement('div');
+    function addDiv(id, cls, style, loc="", itemloc="",name,type) {
+        var elm = document.createElement(type);
         if(name) elm.innerHTML = name;
         elm.setAttribute("id",id);
         elm.setAttribute("class",cls);
@@ -146,7 +155,9 @@ const currdate = "10/19/22";
     addClick("AAQNButtonToggle",toggleVisible);
 
     //Initialize static buttons that sit over the toggle button for category selection
-    for(let i = 0; i < preButtonsStatic.length; i++) {buttonsStatic.push([preButtonsStatic[i][0],preButtonsStatic[i][1],("AAQNButton"+(preButtonsStatic[i][0])).toString()]);} //Adds unique ID to each button that is generated dynamically for static category buttons
+    for(let i = 0; i < preButtonsStatic.length; i++) {
+        buttonsStatic.push([preButtonsStatic[i][0],preButtonsStatic[i][1],("AAQNButton"+(preButtonsStatic[i][0])).toString()]);
+    } //Adds unique ID to each button that is generated dynamically for static category buttons
     for(let i = 0; i < buttonsStatic.length; i++) {
         makeButton(buttonsStatic[i][0],buttonsStatic[i][1],buttonsStatic[i][2],
                    defAttr.concat("display:inline-block;width:24%;top:0px;left:"+(hScalingAttr*i+(-10))+"px"),
@@ -155,24 +166,47 @@ const currdate = "10/19/22";
     }
 
     makeButton("","","AAQNEdit",
-               navAttr.concat("position:absolute;background-size:14px !important;padding:7px;border:none;min-width:1px !important;min-height:1px !important;left:-10px;top:0px;background-image:url(https://www.freeiconspng.com/thumbs/edit-icon-png/edit-new-icon-22.png);"),
-               false, coverbox4, "first");
+               navAttr.concat("position:absolute;float:left;background-size:14px !important;padding:7px;border:none;min-width:1px !important;min-height:1px !important;left:-28px;top:5px;background-image:url(https://www.freeiconspng.com/thumbs/edit-icon-png/edit-new-icon-22.png);"),
+               false, coverbox3, "first");
     addClick("AAQNEdit",toggleEdit);
 
-    //Main loop to instantiate the buttons that are invisible on page load, set style, color if applicable, insert in bounding box
-    for(let j = 0; j < s; j++) {
-        for(let i = 0; i < buttonsPerRow; i++) {
-            var bColorIO = "";
-            if(buttons[i+(j*buttonsPerRow)] == undefined) {break;}
-            if(buttons[i+(j*buttonsPerRow)][0].toString().includes("IO ")) {bColorIO = "color:blue;";} //Account for Intelligent Openings Links, turn them blue to note moving to external page
-            else {bColorIO = "color:black;";}
-            makeButton(buttons[i+(j*buttonsPerRow)][0], buttons[i+(j*buttonsPerRow)][1], buttons[i+(j*buttonsPerRow)][2],
-                       defAttr.concat(navAttr,bColorIO,""+
-                                            "position:absolute;width:"+(coverbox2.offsetWidth/buttonsPerRow-2)+"px;"+
-                                            "left:"+((coverbox2.offsetWidth/buttonsPerRow*i+leftPush)+(-6))+"px;"+
-                                            "top:"+(vScalingAttr*j+j)+"px;"),
-                       true, coverbox, "last");
-            addClick(buttons[i+(j*buttonsPerRow)][2],() => navigateToURL(buttons[i+(j*buttonsPerRow)][1]));
+    function mainButtons(flag) {
+        //Main loop to instantiate the buttons that are invisible on page load, set style, color if applicable, insert in bounding box
+        var totalButtonIndex = 0;
+        for(let j = 0; j < s; j++) {
+            for(let i = 0; i < buttonsPerRow; i++) {
+                if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
+                totalButtonIndex++;
+                var bColorIO = "";
+                var bAttr = "";
+                if(buttons[i+(j*buttonsPerRow)] == undefined) {break;}
+                if(buttons[i+(j*buttonsPerRow)][0].toString().includes("IO ")) {bColorIO = "color:blue;";} //Account for Intelligent Openings Links, turn them blue to note moving to external page
+                else {bColorIO = "color:black;";}
+                if(flag) bAttr = defAttr.concat("color:red;"); else bAttr = defAttr;
+                makeButton(buttons[i+(j*buttonsPerRow)][0], buttons[i+(j*buttonsPerRow)][1], buttons[i+(j*buttonsPerRow)][2],
+                           bAttr.concat(navAttr,bColorIO,""+
+                                          "position:absolute;width:"+(Math.floor(180/buttonsPerRow)-2)+"px;"+
+                                          "left:"+(Math.floor(180/buttonsPerRow)*i+leftPush+(-6))+"px;"+
+                                          "top:"+(vScalingAttr*j+j)+"px;"),
+                           true, coverbox, "last");
+                addClick(buttons[i+(j*buttonsPerRow)][2],() => navigateToURL(buttons[i+(j*buttonsPerRow)][1]));
+            }
+        }
+    }
+    mainButtons();
+
+    function hideMainButtons() {
+        var totalButtonIndex = 0;
+        var elm;
+        for(let j = 0; j < s; j++) {
+            for(let i = 0; i < buttonsPerRow; i++) {
+                if(totalButtonIndex-1 > GM_getValue("totalButtons")) {break;}
+                totalButtonIndex++;
+                if(document.getElementById(buttons[i+(j*buttonsPerRow)][2])) {
+                    elm = document.getElementById(buttons[i+(j*buttonsPerRow)][2]);
+                } else {break;}
+                elm.remove();
+            }
         }
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -188,30 +222,29 @@ const currdate = "10/19/22";
             else if(itemloc.includes("last")) {loc.insertBefore(button,loc.lastChild);}
             else if(itemloc === "") {}
         }
-        return null;
     }
 
     function addClick(id, func) {
         var button = document.getElementById(id);
         references[id] = func;
         button.addEventListener("click", func, false);
-        return null;
     }
 
     function navigateToURL(url) {
         window.location = url;
-        return null;
     }
 
     function removeClick(id, func) {
         var elm = document.getElementById(id);
         elm.removeEventListener("click",func);
-        return null;
     }
 
     //Function to toggle visibility when Show/Hide is pressed, change colors, hide boxes
     function toggleVisible() {
+        var totalButtonIndex = 0;
         for(let i =0; i < buttons.length; i++) {
+            if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
+                totalButtonIndex++;
             var navBtns = document.getElementById(buttons[i][2].toString());
             if(GM_getValue("isShowing")) {navBtns.style.display = 'none';}
             else if(!GM_getValue("isShowing")) {navBtns.style.display = 'block';}
@@ -253,18 +286,21 @@ const currdate = "10/19/22";
     }
 
     function toggleEdit() {
+        var totalButtonIndex = 0;
         var editText = document.getElementById("AAQNEditText");
         var setDef = document.getElementById("AAQNSetDefaults");
-        //var incButton = document.getElementById("AAQNIncButton");
-        //var decButton = document.getElementById("AAQNDecButton");
+        var incButton = document.getElementById("AAQNIncButton");
+        var decButton = document.getElementById("AAQNDecButton");
         if(GM_getValue("isEdit")) { //STOP EDITING
             GM_setValue("isEdit",false);
             editText.style.display = 'none';
             setDef.style.display = 'none';
-            //incButton.style.display = 'none';
-            //decButton.style.display = 'none';
+            incButton.style.display = 'none';
+            decButton.style.display = 'none';
             for(let j = 0; j < s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
+                    if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
+                    totalButtonIndex++;
                     var navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
                     navBtns.style.background = "#F0F0F0";
                     removeClick(buttons[i+(j*buttonsPerRow)][2],references[buttons[i+(j*buttonsPerRow)][2]]);
@@ -277,10 +313,12 @@ const currdate = "10/19/22";
             GM_setValue("isEdit",true);
             editText.style.display = 'block';
             setDef.style.display = 'block';
-            //incButton.style.display = 'block';
-            //decButton.style.display = 'block';
+            incButton.style.display = 'block';
+            decButton.style.display = 'block';
             for(let j = 0; j < s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
+                    if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
+                    totalButtonIndex++;
                     navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
                     navBtns.style.background = "red";
                     removeClick(buttons[i+(j*buttonsPerRow)][2],references[buttons[i+(j*buttonsPerRow)][2]]);
@@ -332,22 +370,26 @@ const currdate = "10/19/22";
     }
 
     function getNewButton(id) {
-        var elm = document.getElementById(id);
-        var name = prompt("Enter new title to replace " + elm.innerHTML);
-        var url = prompt("Enter new URL to replace " + elm.innerHTML);
-
-        if(!name || !url) {
-            alert(errors.editBlank);
-            return;
-        } else if(!isValidHttpUrl(url)){
-            alert(errors.editURL);
-            return;
+        var elm,name,url,nid,uid;
+        if(!document.getElementById(id)) {
         } else {
-            elm.innerHTML = name;
-            var nid = id+"name";
-            var uid = id+"url"
-            setCookie(nid,name)
-            setCookie(uid,url)
+            elm = document.getElementById(id);
+            name = prompt("Enter new title to replace " + elm.innerHTML);
+            url = prompt("Enter new URL to replace " + elm.innerHTML);
+
+            if(!name || !url) {
+                alert(errors.editBlank);
+                return;
+            } else if(!isValidHttpUrl(url)){
+                alert(errors.editURL);
+                return;
+            } else {
+                elm.innerHTML = name;
+                nid = id+"name";
+                uid = id+"url"
+                setCookie(nid,name)
+                setCookie(uid,url)
+            }
         }
     }
 
@@ -362,11 +404,31 @@ const currdate = "10/19/22";
     }
 
     function addButton() {
-        setButtonLimit();
+        var buttons = document.querySelectorAll('#AAQNBox button')
+
+        if(!GM_getValue("totalButtons")) {GM_setValue("totalButtons",buttons.length);}
+        GM_setValue("totalButtons",GM_getValue("totalButtons")+1);
+        hideMainButtons();
+        mainButtons(true);
+        toggleEdit();
+        toggleEdit();
+
+        coverbox.style.height = resizeBox() + "px";
     }
 
     function remButton() {
-        setButtonLimit();
+        if(!GM_getValue("totalButtons")) {
+            GM_setValue("totalButtons",buttons.length);
+        } else if(GM_getValue("totalButtons") == 1) {
+            alert("Dude, doesn't that defeat the purpose of having buttons? Last remaining button was NOT removed...");
+        } else {
+            GM_setValue("totalButtons",GM_getValue("totalButtons")-1);
+            hideMainButtons();
+            mainButtons(true);
+            toggleEdit();
+            toggleEdit();
+            coverbox.style.height = resizeBox() + "px";
+        }
     }
 
     function setButtonLimit() {
@@ -374,6 +436,12 @@ const currdate = "10/19/22";
         while(s*buttonsPerRow < buttons.length) {s = s + 1;}
         return s;
     }
+
+    function resizeBox() {
+        //(s*(vScalingAttr+1)+1)
+        return ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow))+1;
+    }
+
 })();
 
 GM_addStyle ( `
@@ -430,6 +498,5 @@ GM_addStyle ( `
         opacity: 0.8;
         border: 2px solid #038387;
     }
-
 
 ` );
