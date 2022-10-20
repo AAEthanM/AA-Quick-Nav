@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.2.97
+// @version      1.2.98
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -407,17 +407,20 @@ const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0
     function addButton() {
         var buttons = document.querySelectorAll('#AAQNBox button')
 
-        if(!GM_getValue("totalButtons")) {GM_setValue("totalButtons",buttons.length);} else if(GM_getValue("totalButtons")>=buttons.length) {
+        if(!GM_getValue("totalButtons")) {
+            GM_setValue("totalButtons",buttons.length);
+        } else if(GM_getValue("totalButtons")>=buttons.length) {
             alert(errors.WIP);
             //getNewButton();
-        }
-        GM_setValue("totalButtons",GM_getValue("totalButtons")+1);
-        hideMainButtons();
-        mainButtons(true);
-        toggleEdit();
-        toggleEdit();
+        } else {
+            GM_setValue("totalButtons",GM_getValue("totalButtons")+1);
+            hideMainButtons();
+            mainButtons(true);
+            toggleEdit();
+            toggleEdit();
 
-        coverbox.style.height = resizeBox() + "px";
+            coverbox.style.height = resizeBox() + "px";
+        }
     }
 
     function remButton() {
