@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.2.100
+// @version      1.3.01
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -18,8 +18,6 @@
 /* globals jQuery, $, waitForKeyElements*/
 
 const currdate = "10/20/22";
-
-const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0]);
 
 (function() {
     'use strict';
@@ -71,15 +69,14 @@ const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0
     }
     
     var references = {};
-    var buttonNames = {};
-    var buttonURLs = {};
-    var buttonIDs = {};
+    var defButtons = [];
 
     //Adds unique ID to each button that is generated dynamically for the main buttons
     for(let i = 0; i < preButtons.length; i++) {
         buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
+        defButtons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
     }
-    refreshCookies();
+    //refreshCookies();
 
     //Constants for button spacing/properties
     var firstToggleColor = GM_getValue("isShowing") ? "color:#C40000;" : "color:#038387;";
@@ -174,13 +171,17 @@ const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0
     function mainButtons(flag) {
         //Main loop to instantiate the buttons that are invisible on page load, set style, color if applicable, insert in bounding box
         var totalButtonIndex = 0;
-        for(let j = 0; j < s; j++) {
+        if(!GM_getValue("masterButtons")) GM_setValue("masterButtons",JSON.stringify(buttons));
+        buttons = JSON.parse(GM_getValue("masterButtons"));
+        for(let j = 0; j < setButtonLimit(); j++) {
             for(let i = 0; i < buttonsPerRow; i++) {
+                console.log("New Buttons:\n" + buttons[i+(j*buttonsPerRow)] + "\n");
                 if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
                 totalButtonIndex++;
                 var bColorIO = "";
                 var bAttr = "";
                 if(buttons[i+(j*buttonsPerRow)] == undefined) {break;}
+                console.log(i+(j*buttonsPerRow));
                 if(buttons[i+(j*buttonsPerRow)][0].toString().includes("IO ")) {bColorIO = "color:blue;";} //Account for Intelligent Openings Links, turn them blue to note moving to external page
                 else {bColorIO = "color:black;";}
                 if(flag) bAttr = defAttr.concat("color:red;"); else bAttr = defAttr;
@@ -199,15 +200,13 @@ const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0
     function hideMainButtons() {
         var totalButtonIndex = 0;
         var elm;
-        for(let j = 0; j < s; j++) {
-            for(let i = 0; i < buttonsPerRow; i++) {
+        for(let i = 0; i < JSON.parse(GM_getValue("masterButtons")).length; i++) {
                 if(totalButtonIndex-1 > GM_getValue("totalButtons")) {break;}
                 totalButtonIndex++;
-                if(document.getElementById(buttons[i+(j*buttonsPerRow)][2])) {
-                    elm = document.getElementById(buttons[i+(j*buttonsPerRow)][2]);
+                if(document.getElementById(buttons[i][2])) {
+                    elm = document.getElementById(buttons[i][2]);
                 } else {break;}
                 elm.remove();
-            }
         }
     }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -352,8 +351,11 @@ const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0
     }
 
     function refreshCookies() {
-        for(let i = 0; i < buttons.length; i++) {
-            if(getCookie(buttons[i][2].concat("name")) && getCookie(buttons[i][2].concat("url"))) {
+        var i = 0;
+        buttons = JSON.parse(GM_getValue("masterButtons"));
+        for(let i = 0; i <= GM_getValue("totalButtons")-1; i++) {//GM_getValue("totalButtons"); i++) {
+            console.log("test: " + JSON.parse(GM_getValue("masterButtons"))[i]);
+            if(getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2].concat("name")) && getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2].concat("url"))) {
                 buttons[i][0] = getCookie(buttons[i][2].concat("name"));
                 buttons[i][1] = getCookie(buttons[i][2].concat("url"));
             }
@@ -363,6 +365,8 @@ const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0
     function setDefaults() {
         var test = confirm("Are you sure you want to set Quick Nav to defaults?")
         if(test) {
+            GM_setValue("masterButtons",JSON.stringify(defButtons));
+            GM_setValue("totalButtons",24);
             for(let i = 0; i < buttons.length; i++) {
                 eraseCookie(buttons[i][2]+"name");
                 eraseCookie(buttons[i][2]+"url");
@@ -405,16 +409,36 @@ const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0
     }
 
     function addButton() {
-        console.log(GM_getValue("totalButtons"));
+        buttons = JSON.parse(GM_getValue("masterButtons"));
         if(!GM_getValue("totalButtons")) {
             GM_setValue("totalButtons",buttons.length);
         } else if(GM_getValue("totalButtons")>=buttons.length) {
-            alert(errors.WIP);
-            //getNewButton();
+            //alert(errors.WIP);
+            var title = prompt("Enter Title for new Button");
+            var url = prompt("Enter Link for new Button");
+            if(!title || !url) {
+                alert(errors.WIP);
+            } else {
+                var nid = "AAQNButton"+(buttons.length+1)+"name";
+                var uid = "AAQNButton"+(buttons.length+1)+"url"
+                buttons.push([title,url,"AAQNButton"+(buttons.length+1)]);
+                GM_setValue("masterButtons", JSON.stringify(buttons));
+                setCookie(nid,title);
+                setCookie(uid,url);
+                GM_setValue("totalButtons",GM_getValue("totalButtons")+1);
+                hideMainButtons();
+                mainButtons();
+                toggleEdit();
+                toggleEdit();
+                coverbox.style.height = resizeBox() + "px";
+            }
+
         } else {
+
             GM_setValue("totalButtons",GM_getValue("totalButtons")+1);
+            setButtonLimit();
             hideMainButtons();
-            mainButtons(true);
+            mainButtons();
             toggleEdit();
             toggleEdit();
 
@@ -438,8 +462,7 @@ const min = (...args) => args.reduce((min, num) => num < min ? num : min, args[0
     }
 
     function setButtonLimit() {
-        var s = 0; //Loop to see how many rows to create given the amount of buttons in the array
-        while(s*buttonsPerRow < buttons.length) {s = s + 1;}
+        s = Math.ceil(JSON.parse(GM_getValue("masterButtons").length)/buttonsPerRow);
         return s;
     }
 
