@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.3.01
+// @version      1.3.02
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -13,7 +13,7 @@
 // @grant        GM_cookie
 // @grant        GM_info
 // @grant        GM_addStyle
-// @require      http://code.jquery.com/jquery-latest.js
+// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
@@ -76,7 +76,10 @@ const currdate = "10/20/22";
         buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
         defButtons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
     }
-    //refreshCookies();
+    if(!GM_getValue("masterButtons")) {
+        GM_setValue("masterButtons",JSON.stringify(buttons))
+    }
+    refreshCookies();
 
     //Constants for button spacing/properties
     var firstToggleColor = GM_getValue("isShowing") ? "color:#C40000;" : "color:#038387;";
@@ -175,13 +178,11 @@ const currdate = "10/20/22";
         buttons = JSON.parse(GM_getValue("masterButtons"));
         for(let j = 0; j < setButtonLimit(); j++) {
             for(let i = 0; i < buttonsPerRow; i++) {
-                console.log("New Buttons:\n" + buttons[i+(j*buttonsPerRow)] + "\n");
                 if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
                 totalButtonIndex++;
                 var bColorIO = "";
                 var bAttr = "";
                 if(buttons[i+(j*buttonsPerRow)] == undefined) {break;}
-                console.log(i+(j*buttonsPerRow));
                 if(buttons[i+(j*buttonsPerRow)][0].toString().includes("IO ")) {bColorIO = "color:blue;";} //Account for Intelligent Openings Links, turn them blue to note moving to external page
                 else {bColorIO = "color:black;";}
                 if(flag) bAttr = defAttr.concat("color:red;"); else bAttr = defAttr;
@@ -352,12 +353,16 @@ const currdate = "10/20/22";
 
     function refreshCookies() {
         var i = 0;
-        buttons = JSON.parse(GM_getValue("masterButtons"));
-        for(let i = 0; i <= GM_getValue("totalButtons")-1; i++) {//GM_getValue("totalButtons"); i++) {
-            console.log("test: " + JSON.parse(GM_getValue("masterButtons"))[i]);
-            if(getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2].concat("name")) && getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2].concat("url"))) {
-                buttons[i][0] = getCookie(buttons[i][2].concat("name"));
-                buttons[i][1] = getCookie(buttons[i][2].concat("url"));
+        console.log("Parse:\n" + GM_getValue("masterButtons"));
+        if(!JSON.parse(GM_getValue("masterButtons"))) {
+            buttons = JSON.parse("{\n" + GM_getValue("masterButtons") + "\n}");
+        } else {
+            buttons = JSON.parse(GM_getValue("masterButtons"));
+            for(let i = 0; i <= GM_getValue("totalButtons")-1; i++) {
+                if(getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2].concat("name")) && getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2].concat("url"))) {
+                    buttons[i][0] = getCookie(buttons[i][2].concat("name"));
+                    buttons[i][1] = getCookie(buttons[i][2].concat("url"));
+                }
             }
         }
     }
