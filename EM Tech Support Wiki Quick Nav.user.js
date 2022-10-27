@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.3.03
+// @version      1.3.1
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -17,13 +17,22 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "10/20/22";
+const currdate = "10/27/22";
 
 (function() {
     'use strict';
+
+    const hScalingAttr = 45;
+    const vScalingAttr = 30;
+    const hBorder = 5;
+    const leftPush = -4;
+    const defAttr = "font-family:Calibri;background:#F0F0F0;box-sizing:unset;flex-wrap:none;float:left;font-size:12px;position:absolute;cursor:pointer;padding:0px;z-index:99999;min-width:0px;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;";
+    const insertDiv = document.getElementById('DeltaPlaceHolderLeftNavBar');
+    const buttonsPerRow = 3;
+
     var buttons = [];
     var buttonsStatic = [];
-    var buttonsPerRow = 3;
+
     var preButtonsStatic = [ //List category buttons
         ["Home","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Home.aspx"],
         ["EMS","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Electromechanical%20Product%20Lines.aspx"],
@@ -61,11 +70,13 @@ const currdate = "10/20/22";
     ];
 
     var errors = {
-        "editBlank": "Quick Nav Error: Bad Button Edit, one or both new button entries were left blank. Changes were not made.",
-        "editURL":   "Quick Nav Error: Bad Button Edit, invalid URL entered (must include http:// or https://). Changes were not made.",
-        "toggleSet": "Quick Nav Error: Bad Toggle Button Initialization, GM_isShowing not set to boolean value.",
-        "badHide":   "Quick Nav Error: Bad Hide Sequence, GM_isShowing not set to boolean value.",
-        "WIP" :      "CAUTION: Maximum amount of buttons (for now) is 24. Please be patient while I smack my head on this some more.",
+        "editBlank":     "Quick Nav Error: Bad Button Edit, one or both new button entries were left blank. Changes were not made.",
+        "editURL":       "Quick Nav Error: Bad Button Edit, invalid URL entered (must include http:// or https://). Changes were not made.",
+        "toggleSet":     "Quick Nav Error: Bad Toggle Button Initialization, GM_isShowing not set to boolean value.",
+        "badHide":       "Quick Nav Error: Bad Hide Sequence, GM_isShowing not set to boolean value.",
+        "WIP" :          "CAUTION: Maximum amount of buttons (for now) is 24. Please be patient while I smack my head on this some more.",
+        "lastButton":    "Can not remove final button from list, changes not made...",
+        "resetDefaults": "Are you sure you want to set Quick Nav to defaults?",
     }
     
     var references = {};
@@ -76,9 +87,11 @@ const currdate = "10/20/22";
         buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
         defButtons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
     }
+
     if(!GM_getValue("masterButtons")) {
         GM_setValue("masterButtons",JSON.stringify(buttons))
     }
+
     refreshCookies();
 
     //Constants for button spacing/properties
@@ -86,62 +99,34 @@ const currdate = "10/20/22";
     var navAttr = GM_getValue("isShowing") ? "display:block;" : "display:none;";
     GM_setValue("isEdit",false);
     var toggleAttr = firstToggleColor.concat("display:block;");
-    const hScalingAttr = 45;
-    const vScalingAttr = 30;
-    const hBorder = 5;
-    const leftPush = -4;
-    const defAttr = "font-family:Calibri;background:#F0F0F0;box-sizing:unset;flex-wrap:none;float:left;font-size:12px;position:absolute;cursor:pointer;padding:0px;z-index:99999;min-width:0px;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;";
-    const insertDiv = document.getElementById('DeltaPlaceHolderLeftNavBar');
     var s = setButtonLimit();
 
     var coverbox4 = addDiv("AAQNBox4","cover",'border:none;padding:8px;top:3px;height:5px',insertDiv,"first","",'div');
     var coverbox = addDiv("AAQNBox","cover",navAttr.concat('height:'+resizeBox()+'px !important;'),insertDiv,"first","",'div');
     var coverbox2 = addDiv("AAQNBox2","cover",'min-height:' + (2*vScalingAttr+hBorder-1) + 'px',insertDiv,"first","",'div');
     var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:4px',insertDiv,"first","",'div');
-    var editText = addDiv("AAQNEditText","editingButtonsText","display:none;left:0px;",coverbox4,"last","Editing",'div');
+
+    var editText = addDiv("AAQNEditText","editingButtonsText","display:none;",coverbox4,"last","Edit Mode Activated",'div');
     addClick(editText.id,toggleEdit, false);
+
     var vStr = "Quick Nav v" + GM_info.script.version + " " + currdate
     var versionStr = addDiv("AAQNVersion","dummy","font-size:10px;position:absolute;word-wrap:none;top:-10px;",coverbox3,"first",vStr,'div');
 
-    var defaultList = document.createElement('button');
-    defaultList.innerHTML = "Reset Defaults";
-    defaultList.setAttribute("id", "AAQNSetDefaults");
-    defaultList.setAttribute("class","editingButtonsText");
-    defaultList.setAttribute("style", "position:absolute;float:left;font-size:10px;height:15px;left:131px;top:-25px;width:40px;height:30px;min-width:fit-content");
-    defaultList.addEventListener("click", setDefaults, false);
-    coverbox3.insertBefore(defaultList,coverbox3.lastChild);
+    makeButton("", "", "AAQNEdit", navAttr, false, coverbox3, "first","editIcon");
+    addClick("AAQNEdit",toggleEdit);
 
-    
-    var incbutton = document.createElement('button');
-    incbutton.type = "button";
-    incbutton.setAttribute("id","AAQNIncButton");
-    incbutton.setAttribute("class","editingButtons");
-    incbutton.setAttribute("style","position:absolute;top:40px;left:-28px;background-image:url(https://cdn-icons-png.flaticon.com/128/1828/1828919.png);");
-    incbutton.addEventListener("click", addButton, false);
-    coverbox3.insertBefore(incbutton,coverbox3.lastChild);
+    makeButton("Reset Defaults","","AAQNSetDefaults","display:none",false,coverbox4,"last","defaultButton");
+    addClick("AAQNSetDefaults",setDefaults);
 
-    var decbutton = document.createElement('button');
-    decbutton.type = "button";
-    decbutton.setAttribute("id","AAQNDecButton");
-    decbutton.setAttribute("class","editingButtons");
-    decbutton.setAttribute("style","position:absolute;top:60px;left:-28px;background-image:url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHXAPDoIPop7SR4oP3dc4ICRzDkrr2Y6z_p8DW6Bg&s);");
-    decbutton.addEventListener("click", remButton, false);
-    coverbox3.insertBefore(decbutton,coverbox3.lastChild);
-    
+    makeButton("","","AAQNIncButton","top:40px;left:-28px;"+
+               "background-image:url(https://cdn-icons-png.flaticon.com/128/1828/1828919.png);"
+               ,false,coverbox3,"last","editingButtons");
+    addClick("AAQNIncButton",addButton);
 
-    function addDiv(id, cls, style, loc="", itemloc="",name,type) {
-        var elm = document.createElement(type);
-        if(name) elm.innerHTML = name;
-        elm.setAttribute("id",id);
-        elm.setAttribute("class",cls);
-        elm.setAttribute("style",style);
-        if(loc === "") {loc = document.body.appendChild(elm);} else {
-            if(itemloc.includes("first")) {loc.insertBefore(elm,loc.firstChild);}
-            else if(itemloc.includes("last")) {loc.insertBefore(elm,loc.lastChild);}
-            else if(itemloc === "") {loc.insertBefore(elm,loc.lastChild);}
-        }
-        return elm;
-    }
+    makeButton("","","AAQNDecButton","top:60px;left:-28px;"+
+               "background-image:url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHXAPDoIPop7SR4oP3dc4ICRzDkrr2Y6z_p8DW6Bg&s);"
+               ,false,coverbox3,"last","editingButtons");
+    addClick("AAQNDecButton",remButton);
 
     //Add Button for Toggling Visibility of Quick Nav, change colors when pressed, hide boxes
     var toggleStatus;
@@ -158,7 +143,9 @@ const currdate = "10/20/22";
     //Initialize static buttons that sit over the toggle button for category selection
     for(let i = 0; i < preButtonsStatic.length; i++) {
         buttonsStatic.push([preButtonsStatic[i][0],preButtonsStatic[i][1],("AAQNButton"+(preButtonsStatic[i][0])).toString()]);
-    } //Adds unique ID to each button that is generated dynamically for static category buttons
+    }
+
+    //Adds unique ID to each button that is generated dynamically for static category buttons
     for(let i = 0; i < buttonsStatic.length; i++) {
         makeButton(buttonsStatic[i][0],buttonsStatic[i][1],buttonsStatic[i][2],
                    defAttr.concat("display:inline-block;width:24%;top:0px;left:"+(hScalingAttr*i+(-10))+"px"),
@@ -166,10 +153,22 @@ const currdate = "10/20/22";
         addClick(buttonsStatic[i][2],function() {navigateToURL(buttonsStatic[i][1])});
     }
 
-    makeButton("","","AAQNEdit",
-               navAttr.concat("position:absolute;float:left;background-size:14px !important;padding:7px;border:none;min-width:1px !important;min-height:1px !important;left:-28px;top:5px;background-image:url(https://www.freeiconspng.com/thumbs/edit-icon-png/edit-new-icon-22.png);"),
-               false, coverbox3, "first");
-    addClick("AAQNEdit",toggleEdit);
+    mainButtons();
+
+    function addDiv(id, cls, style, loc="", itemloc="",name,type) {
+        var elm = document.createElement(type);
+        if(name) elm.innerHTML = name;
+        elm.setAttribute("id",id);
+        elm.setAttribute("class",cls);
+        elm.setAttribute("style",style);
+        if(loc === "") {loc = document.body.appendChild(elm);} else {
+            if(itemloc.includes("first")) {loc.insertBefore(elm,loc.firstChild);}
+            else if(itemloc.includes("last")) {loc.insertBefore(elm,loc.lastChild);}
+            else if(itemloc === "") {loc.insertBefore(elm,loc.lastChild);}
+        }
+        return elm;
+    }
+
 
     function mainButtons(flag) {
         //Main loop to instantiate the buttons that are invisible on page load, set style, color if applicable, insert in bounding box
@@ -192,11 +191,11 @@ const currdate = "10/20/22";
                                           "left:"+(Math.floor(180/buttonsPerRow)*i+leftPush+(-6))+"px;"+
                                           "top:"+(vScalingAttr*j+j)+"px;"),
                            true, coverbox, "last");
-                addClick(buttons[i+(j*buttonsPerRow)][2],() => navigateToURL(buttons[i+(j*buttonsPerRow)][1]));
+                addClick(buttons[i+(j*buttonsPerRow)][2], () => navigateToURL(buttons[i+(j*buttonsPerRow)][1]));
             }
         }
     }
-    mainButtons();
+
 
     function hideMainButtons() {
         var totalButtonIndex = 0;
@@ -210,13 +209,16 @@ const currdate = "10/20/22";
                 elm.remove();
         }
     }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    function makeButton(name, url, id, prop, isLink,loc = "", itemloc = "") {
+
+    function makeButton(name, url, id, prop, isLink, loc = "", itemloc = "", cls = "") {
         var button = document.createElement("button");
         button.type = "button";
         button.innerHTML = name;
         button.setAttribute("id", id);
         button.setAttribute("style", prop);
+        if(cls) {
+        button.setAttribute("class",cls);
+        }
         if(isLink){button.addEventListener('mousedown', e => {if (e.button === 1) {window.open(url);e.preventDefault();}});} //Add middle click function
         if(loc === "") {loc = document.body.appendChild(button);} else {
             if(itemloc.includes("first")) {loc.insertBefore(button,loc.firstChild);}
@@ -243,6 +245,9 @@ const currdate = "10/20/22";
     //Function to toggle visibility when Show/Hide is pressed, change colors, hide boxes
     function toggleVisible() {
         var totalButtonIndex = 0;
+        var toggleButton = document.getElementById("AAQNButtonToggle");
+        var setDef = document.getElementById("AAQNSetDefaults");
+
         for(let i =0; i < buttons.length; i++) {
             if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
                 totalButtonIndex++;
@@ -252,36 +257,41 @@ const currdate = "10/20/22";
             else {alert(errors.badHide)}
         }
 
-        var editButton = document.getElementById('AAQNEdit');
-        var toggleButton = document.getElementById("AAQNButtonToggle");
-        var testbox = document.getElementById("AAQNBox");
-        var editInd = document.getElementById("AAQNEditText");
-        var setDef = document.getElementById("AAQNSetDefaults");
-        var incButton = document.getElementById("AAQNIncButton");
-        var decButton = document.getElementById("AAQNDecButton");
-
+        for(let i = 0; i < document.getElementsByClassName("editIcon").length; i++) {
+            document.getElementsByClassName("editIcon")[i].style.display = "none";
+        }
         if(GM_getValue("isShowing")) {
+            for(let i = 0; i < document.getElementsByClassName("editingButtons").length; i++) {
+                document.getElementsByClassName("editingButtons")[i].style.display = "none";
+            }
+            for(let i = 0; i < document.getElementsByClassName("editingButtonsText").length; i++) {
+                document.getElementsByClassName("editingButtonsText")[i].style.display = "none";
+            }
+            for(let i = 0; i < document.getElementsByClassName("defaultButton").length; i++) {
+                document.getElementsByClassName("defaultButton")[i].style.display = "none";
+            }
             toggleButton.innerHTML = '\u2193 Toggle Show/Hide \u2193';
             toggleButton.style.color = '#038387';
             GM_setValue("isShowing",false);
             coverbox.style.display = 'none';
-            editButton.style.display = 'none';
-            editInd.style.display = 'none';
-            setDef.style.display = 'none';
-            incButton.style.display = 'none';
-            decButton.style.display = 'none';
-        }
-        else {
+        } else {
             toggleButton.innerHTML = '\u2191 Toggle Show/Hide \u2191';
             toggleButton.style.color = '#C40000';
             GM_setValue("isShowing",true);
             coverbox.style.display = 'block';
-            editButton.style.display = 'block';
+            for(let i = 0; i < document.getElementsByClassName("editIcon").length; i++) {
+                document.getElementsByClassName("editIcon")[i].style.display = "block";
+            }
             if(GM_getValue("isEdit")) {
-                editInd.style.display = 'block';
-                setDef.style.display = 'block';
-                incButton.style.display = 'block';
-                decButton.style.display = 'block';
+                for(let i = 0; i < document.getElementsByClassName("editingButtons").length; i++) {
+                    document.getElementsByClassName("editingButtons")[i].style.display = "block";
+                }
+                for(let i = 0; i < document.getElementsByClassName("editingButtonsText").length; i++) {
+                    document.getElementsByClassName("editingButtonsText")[i].style.display = "block";
+                }
+                for(let i = 0; i < document.getElementsByClassName("defaultButton").length; i++) {
+                    document.getElementsByClassName("defaultButton")[i].style.display = "block";
+                }
             }
         }
     }
@@ -353,7 +363,6 @@ const currdate = "10/20/22";
 
     function refreshCookies() {
         var i = 0;
-        console.log("Parse:\n" + GM_getValue("masterButtons"));
         if(!JSON.parse(GM_getValue("masterButtons"))) {
             buttons = JSON.parse("{\n" + GM_getValue("masterButtons") + "\n}");
         } else {
@@ -368,7 +377,7 @@ const currdate = "10/20/22";
     }
 
     function setDefaults() {
-        var test = confirm("Are you sure you want to set Quick Nav to defaults?")
+        var test = confirm(errors.resetDefaults)
         if(test) {
             GM_setValue("masterButtons",JSON.stringify(defButtons));
             GM_setValue("totalButtons",24);
@@ -376,6 +385,7 @@ const currdate = "10/20/22";
                 eraseCookie(buttons[i][2]+"name");
                 eraseCookie(buttons[i][2]+"url");
             }
+            window.location = window.location.href;
         }
     }
 
@@ -418,7 +428,6 @@ const currdate = "10/20/22";
         if(!GM_getValue("totalButtons")) {
             GM_setValue("totalButtons",buttons.length);
         } else if(GM_getValue("totalButtons")>=buttons.length) {
-            //alert(errors.WIP);
             var title = prompt("Enter Title for new Button");
             var url = prompt("Enter Link for new Button");
             if(!title || !url) {
@@ -435,6 +444,7 @@ const currdate = "10/20/22";
                 mainButtons();
                 toggleEdit();
                 toggleEdit();
+
                 coverbox.style.height = resizeBox() + "px";
             }
 
@@ -455,13 +465,14 @@ const currdate = "10/20/22";
         if(!GM_getValue("totalButtons")) {
             GM_setValue("totalButtons",buttons.length);
         } else if(GM_getValue("totalButtons") == 1) {
-            alert("Dude, doesn't that defeat the purpose of having buttons? Last remaining button was NOT removed...");
+            alert(errors.lastButton);
         } else {
             GM_setValue("totalButtons",GM_getValue("totalButtons")-1);
             hideMainButtons();
             mainButtons(true);
             toggleEdit();
             toggleEdit();
+
             coverbox.style.height = resizeBox() + "px";
         }
     }
@@ -474,6 +485,7 @@ const currdate = "10/20/22";
     function resizeBox() {
         return GM_getValue("totalButtons") ? ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow))+1 : (s*(vScalingAttr+1)+1);
     }
+    console.log(document.getElementsByClassName("editingButtons").length);
 
 })();
 
@@ -501,7 +513,7 @@ GM_addStyle ( `
         position:relative;
         height:10px;
         top:-8px;
-        left:20px;
+        left:-5px;
         padding:0px;
         float:left;
         font-family:Calibri;
@@ -520,6 +532,19 @@ GM_addStyle ( `
         width: 100px;
     }
 
+    .editIcon {
+        position:         absolute;
+        float:            left;
+        background-size:  14px !important;
+        padding:          7px;
+        border:           none;
+        min-width:        1px !important;
+        min-height:       1px !important;
+        left:             -28px;
+        top:              5px;
+        background-image: url(https://www.freeiconspng.com/thumbs/edit-icon-png/edit-new-icon-22.png);
+    }
+
     .cover {
         position: relative;
         display: block;
@@ -532,4 +557,18 @@ GM_addStyle ( `
         border: 2px solid #038387;
     }
 
+    .defaultButton {
+        padding:0px;
+        color:red;
+        display:none;
+        position:absolute;
+        float:left;
+        font-size:10px;
+        height:15px;
+        left:111px;
+        top:-2px;
+        min-width:30px;
+        height:20px;
+        min-width:fit-content;
+    }
 ` );
