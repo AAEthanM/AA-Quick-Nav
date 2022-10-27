@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.3.37
+// @version      1.3.4
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -21,7 +21,8 @@ const currdate = "10/27/22";
 
 (function() {
     'use strict';
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Constants for later access
     const hScalingAttr = 45;
     const vScalingAttr = 30;
     const hBorder = 5;
@@ -82,19 +83,18 @@ const currdate = "10/27/22";
     var references = {};
     var defButtons = [];
 
-    //Adds unique ID to each button that is generated dynamically for the main buttons
-    for(let i = 0; i < preButtons.length; i++) {
-        buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
-        defButtons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
-    }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Functional Code, Run at Startup
 
+    //If cookie does not exist, create it
     if(!GM_getValue("masterButtons")) {
         GM_setValue("masterButtons",JSON.stringify(buttons))
     }
 
+    //Refresh Cookies before actions take place
     refreshCookies();
 
-    //Constants for button spacing/properties
+    //Creation of area box, static buttons within, add event listeners for clicks
     var firstToggleColor = GM_getValue("isShowing") ? "color:#C40000;" : "color:#038387;";
     var navAttr = GM_getValue("isShowing") ? "display:block;" : "display:none;";
     GM_setValue("isEdit",false);
@@ -128,19 +128,16 @@ const currdate = "10/27/22";
                ,false,coverbox3,"last","editingButtons");
     addClick("AAQNDecButton",remButton);
 
-    //Add Button for Toggling Visibility of Quick Nav, change colors when pressed, hide boxes
-    var toggleStatus;
-    if(GM_getValue("isShowing")) {
-        toggleStatus = '\u2191 Toggle Show/Hide \u2191';
-    } else if(!GM_getValue("isShowing")) {
-        toggleStatus = '\u2193 Toggle Show/Hide \u2193';
-    } else {toggleStatus = 'Toggle Show/Hide'; alert(errors.toggleSet)}
-    makeButton(toggleStatus,"","AAQNButtonToggle",
-               defAttr.concat(toggleAttr,"font-size:15px;width:99%;top:"+(vScalingAttr+2)+"px;left:-10px;"),
-               false, coverbox2, "first");
-    addClick("AAQNButtonToggle",toggleVisible);
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Looping code for dynamically generated buttons, visible status, ID creation
 
-    //Initialize static buttons that sit over the toggle button for category selection
+    //Adds unique ID to each button that is generated dynamically for the main buttons, adds new dimension to default array
+    for(let i = 0; i < preButtons.length; i++) {
+        buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
+        defButtons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
+    }
+
+    //Adds unique ID to each static button that sit over the toggle button for category selection
     for(let i = 0; i < preButtonsStatic.length; i++) {
         buttonsStatic.push([preButtonsStatic[i][0],preButtonsStatic[i][1],("AAQNButton"+(preButtonsStatic[i][0])).toString()]);
     }
@@ -153,25 +150,25 @@ const currdate = "10/27/22";
         addClick(buttonsStatic[i][2],function() {navigateToURL(buttonsStatic[i][1])});
     }
 
+    //Add Button for Toggling Visibility of Quick Nav, change colors when pressed, hide boxes
+    var toggleStatus;
+    if(GM_getValue("isShowing")) {
+        toggleStatus = '\u2191 Toggle Show/Hide \u2191'; //Change direction of arrows depending on cascade status
+    } else if(!GM_getValue("isShowing")) {
+        toggleStatus = '\u2193 Toggle Show/Hide \u2193';
+    } else {toggleStatus = 'Toggle Show/Hide'; alert(errors.toggleSet)}
+    makeButton(toggleStatus,"","AAQNButtonToggle",
+               defAttr.concat(toggleAttr,"font-size:15px;width:99%;top:"+(vScalingAttr+2)+"px;left:-10px;"),
+               false, coverbox2, "first");
+    addClick("AAQNButtonToggle",toggleVisible);
+
     mainButtons();
 
-    function addDiv(id, cls, style, loc="", itemloc="",name,type) {
-        var elm = document.createElement(type);
-        if(name) elm.innerHTML = name;
-        elm.setAttribute("id",id);
-        elm.setAttribute("class",cls);
-        elm.setAttribute("style",style);
-        if(loc === "") {loc = document.body.appendChild(elm);} else {
-            if(itemloc.includes("first")) {loc.insertBefore(elm,loc.firstChild);}
-            else if(itemloc.includes("last")) {loc.insertBefore(elm,loc.lastChild);}
-            else if(itemloc === "") {loc.insertBefore(elm,loc.lastChild);}
-        }
-        return elm;
-    }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Function Access
 
-
+    //Main loop to instantiate the buttons that are invisible on page load, set style, color if applicable, insert in bounding box
     function mainButtons(flag) {
-        //Main loop to instantiate the buttons that are invisible on page load, set style, color if applicable, insert in bounding box
         var totalButtonIndex = 0;
         if(!GM_getValue("masterButtons")) GM_setValue("masterButtons",JSON.stringify(buttons));
         buttons = JSON.parse(GM_getValue("masterButtons"));
@@ -187,16 +184,31 @@ const currdate = "10/27/22";
                 if(flag) bAttr = defAttr.concat("color:red;"); else bAttr = defAttr;
                 makeButton(buttons[i+(j*buttonsPerRow)][0], buttons[i+(j*buttonsPerRow)][1], buttons[i+(j*buttonsPerRow)][2],
                            bAttr.concat(navAttr,bColorIO,""+
-                                          "position:absolute;width:"+(Math.floor(180/buttonsPerRow)-2)+"px;"+
-                                          "left:"+(Math.floor(180/buttonsPerRow)*i+leftPush+(-6))+"px;"+
-                                          "top:"+(vScalingAttr*j+j)+"px;"),
+                                        "position:absolute;width:"+(Math.floor(180/buttonsPerRow)-2)+"px;"+
+                                        "left:"+(Math.floor(180/buttonsPerRow)*i+leftPush+(-6))+"px;"+
+                                        "top:"+(vScalingAttr*j+j)+"px;"),
                            true, coverbox, "last");
                 addClick(buttons[i+(j*buttonsPerRow)][2], () => navigateToURL(buttons[i+(j*buttonsPerRow)][1]));
             }
         }
     }
 
+    //Dynamically add div with function, size, location, and ID
+    function addDiv(id, cls, style, loc="", itemloc="",name,type) {
+        var elm = document.createElement(type);
+        if(name) elm.innerHTML = name;
+        elm.setAttribute("id",id);
+        elm.setAttribute("class",cls);
+        elm.setAttribute("style",style);
+        if(loc === "") {loc = document.body.appendChild(elm);} else {
+            if(itemloc.includes("first")) {loc.insertBefore(elm,loc.firstChild);}
+            else if(itemloc.includes("last")) {loc.insertBefore(elm,loc.lastChild);}
+            else if(itemloc === "") {loc.insertBefore(elm,loc.lastChild);}
+        }
+        return elm;
+    }
 
+    //Hide main buttons as a transition to updating them with new info
     function hideMainButtons() {
         var totalButtonIndex = 0;
         var elm;
@@ -210,15 +222,16 @@ const currdate = "10/27/22";
         }
     }
 
+    //Create button with specifications, prop will override CSS style in cls
     function makeButton(name, url, id, prop, isLink, loc = "", itemloc = "", cls = "") {
         var button = document.createElement("button");
         button.type = "button";
         button.innerHTML = name;
         button.setAttribute("id", id);
-        button.setAttribute("style", prop);
         if(cls) {
         button.setAttribute("class",cls);
         }
+        button.setAttribute("style", prop);
         if(isLink){button.addEventListener('mousedown', e => {if (e.button === 1) {window.open(url);e.preventDefault();}});} //Add middle click function
         if(loc === "") {loc = document.body.appendChild(button);} else {
             if(itemloc.includes("first")) {loc.insertBefore(button,loc.firstChild);}
@@ -227,16 +240,19 @@ const currdate = "10/27/22";
         }
     }
 
+    //Add event listener to button with desired anonymous function
     function addClick(id, func) {
         var button = document.getElementById(id);
         references[id] = func;
         button.addEventListener("click", func, false);
     }
 
+    //Navigate to specified URL, used in anonymous functions to not be called on instantiation
     function navigateToURL(url) {
         window.location = url;
     }
 
+    //Remove event listener from specified button
     function removeClick(id, func) {
         var elm = document.getElementById(id);
         elm.removeEventListener("click",func);
@@ -296,6 +312,7 @@ const currdate = "10/27/22";
         }
     }
 
+    //Toggle Edit Mode, color buttons for visiblity, auto-update box size based on amount of visible buttons
     function toggleEdit() {
         var totalButtonIndex = 0;
         var editText = document.getElementById("AAQNEditText");
@@ -339,6 +356,7 @@ const currdate = "10/27/22";
         }
     }
 
+    //Set cookie for value access across page reloads
     function setCookie(name,value,type) {
         var expires = "";
         var date = new Date();
@@ -347,6 +365,7 @@ const currdate = "10/27/22";
         document.cookie = name.concat(type||"") + "=" + (value || "") + expires + "; path=/";
     }
 
+    //Get cookie value across page reloads
     function getCookie(name) {
         var nameEQ = name + "=";
         var ca = document.cookie.split(';');
@@ -357,10 +376,12 @@ const currdate = "10/27/22";
         }
     }
 
+    //Erase cookies when setting defaults buttons
     function eraseCookie(name) {
         document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     }
 
+    //Refresh Cookies to have the storage arrays access fresh data when reloading page
     function refreshCookies() {
         var i = 0;
         if(!JSON.parse(GM_getValue("masterButtons"))) {
@@ -376,6 +397,7 @@ const currdate = "10/27/22";
         }
     }
 
+    //Return button array to defaults, without using cookies for button data
     function setDefaults() {
         var test = confirm(errors.resetDefaults)
         if(test) {
@@ -389,6 +411,7 @@ const currdate = "10/27/22";
         }
     }
 
+    //Prompt for new button/change existing button details
     function getNewButton(id) {
         var elm,name,url,nid,uid;
         if(!document.getElementById(id)) {
@@ -413,6 +436,7 @@ const currdate = "10/27/22";
         }
     }
 
+    //Checks if given URL is valid to be added to buttons
     function isValidHttpUrl(string) {
         let url;
         try {
@@ -423,6 +447,7 @@ const currdate = "10/27/22";
         return url.protocol === "http:" || url.protocol === "https:";
     }
 
+    //Increment amount of buttons
     function addButton() {
         buttons = JSON.parse(GM_getValue("masterButtons"));
         if(!GM_getValue("totalButtons")) {
@@ -461,6 +486,7 @@ const currdate = "10/27/22";
         }
     }
 
+    //Decrement amount of buttons
     function remButton() {
         if(!GM_getValue("totalButtons")) {
             GM_setValue("totalButtons",buttons.length);
@@ -477,11 +503,13 @@ const currdate = "10/27/22";
         }
     }
 
+    //Function to globally set how many rows of buttons there are according to how many total and how many buttons per row are visible
     function setButtonLimit() {
         s = Math.ceil(JSON.parse(GM_getValue("masterButtons").length)/buttonsPerRow);
         return s;
     }
 
+    //Update size of bounding box to account for total amount of buttons
     function resizeBox() {
         return GM_getValue("totalButtons") ? ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow))+1 : (s*(vScalingAttr+1)+1);
     }
@@ -489,6 +517,8 @@ const currdate = "10/27/22";
 
 })();
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//CSS Styles for HTML Elements
 GM_addStyle ( `
     .dummy {
 
