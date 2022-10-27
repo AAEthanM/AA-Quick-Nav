@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.3.41
+// @version      1.3.42
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -27,7 +27,7 @@ const currdate = "10/27/22";
     const vScalingAttr = 30;
     const hBorder = 5;
     const leftPush = -4;
-    const defAttr = "font-family:Calibri;background:#F0F0F0;box-sizing:unset;flex-wrap:none;float:left;font-size:12px;position:absolute;cursor:pointer;padding:0px;z-index:99999;min-width:0px;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;";
+    const defAttr = "font-family:Calibri;background:#F0F0F0;box-sizing:unset;flex-wrap:none;float:left;font-size:12px;position:absolute;cursor:pointer;padding:0px;z-index:1500;min-width:0px;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;";
     const insertDiv = document.getElementById('DeltaPlaceHolderLeftNavBar');
     const buttonsPerRow = 3;
 
@@ -557,7 +557,7 @@ GM_addStyle ( `
         position: absolute;
         top: 0px;
         right: 0px;
-        z-index: 99999;
+        z-index: 1500;
         cursor: pointer;
         width: 100px;
     }
@@ -578,7 +578,7 @@ GM_addStyle ( `
     .cover {
         position: relative;
         display: block;
-        z-index: 99997;
+        z-index: 1500;
         min-width: 100%;
         left:0px;
         top: 0px;
