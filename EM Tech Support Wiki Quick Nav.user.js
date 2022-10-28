@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.3.43
+// @version      1.3.44
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -379,15 +379,12 @@ const currdate = "10/28/22";
             GM_setValue("masterButtons",JSON.stringify(buttons))
         }
         buttons = JSON.parse(GM_getValue("masterButtons"));
-        console.log("buttons:\n" + buttons);
         for(let i = 0; i < GM_getValue("totalButtons"); i++) {
-            console.log("test\n" + i + "\n" + getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"name"));
             if(getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"name") && getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"url")) {
                 buttons[i][0] = getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"name");
                 buttons[i][1] = getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"url");
             }
         }
-        console.log("test:\n" + buttons);
     }
 
     //Return button array to defaults, without using cookies for button data
@@ -505,7 +502,6 @@ const currdate = "10/28/22";
     function resizeBox() {
         return GM_getValue("totalButtons") ? ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow))+1 : (s*(vScalingAttr+1)+1);
     }
-    console.log(document.getElementsByClassName("editingButtons").length);
 
 })();
 
