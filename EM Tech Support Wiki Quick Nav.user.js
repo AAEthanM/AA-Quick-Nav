@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.3.42
+// @version      1.3.43
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -21,8 +21,8 @@ const currdate = "10/27/22";
 
 (function() {
     'use strict';
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Constants for later access
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Constants for later access
     const hScalingAttr = 45;
     const vScalingAttr = 30;
     const hBorder = 5;
@@ -40,7 +40,7 @@ const currdate = "10/27/22";
         ["ACS","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Access%20Control%20Product%20Lines.aspx"],
         ["EACI","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Enterprise%20Access%20Control%20Information.aspx"],
     ];
-    
+
     var preButtons = [ //List main butons
         ["80 Series","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/80%20Series.aspx"],
         ["56-","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/56-.aspx"],
@@ -79,20 +79,12 @@ const currdate = "10/27/22";
         "lastButton":    "Can not remove final button from list, changes not made...",
         "resetDefaults": "Are you sure you want to set Quick Nav to defaults?",
     }
-    
+
     var references = {};
     var defButtons = [];
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Functional Code, Run at Startup
-
-    //If cookie does not exist, create it
-    if(!GM_getValue("masterButtons")) {
-        GM_setValue("masterButtons",JSON.stringify(buttons))
-    }
-
-    //Refresh Cookies before actions take place
-    refreshCookies();
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Functional Code, Run at Startup
 
     //Creation of area box, static buttons within, add event listeners for clicks
     var firstToggleColor = GM_getValue("isShowing") ? "color:#C40000;" : "color:#038387;";
@@ -128,8 +120,8 @@ const currdate = "10/27/22";
                ,false,coverbox3,"last","editingButtons");
     addClick("AAQNDecButton",remButton);
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Looping code for dynamically generated buttons, visible status, ID creation
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Looping code for dynamically generated buttons, visible status, ID creation
 
     //Adds unique ID to each button that is generated dynamically for the main buttons, adds new dimension to default array
     for(let i = 0; i < preButtons.length; i++) {
@@ -162,16 +154,16 @@ const currdate = "10/27/22";
                false, coverbox2, "first");
     addClick("AAQNButtonToggle",toggleVisible);
 
+    //Refresh Cookies before actions take place
+    refreshCookies();
     mainButtons();
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Function Access
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //Function Access
 
     //Main loop to instantiate the buttons that are invisible on page load, set style, color if applicable, insert in bounding box
     function mainButtons(flag) {
         var totalButtonIndex = 0;
-        if(!GM_getValue("masterButtons")) GM_setValue("masterButtons",JSON.stringify(buttons));
-        buttons = JSON.parse(GM_getValue("masterButtons"));
         for(let j = 0; j < setButtonLimit(); j++) {
             for(let i = 0; i < buttonsPerRow; i++) {
                 if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
@@ -213,12 +205,12 @@ const currdate = "10/27/22";
         var totalButtonIndex = 0;
         var elm;
         for(let i = 0; i < JSON.parse(GM_getValue("masterButtons")).length; i++) {
-                if(totalButtonIndex-1 > GM_getValue("totalButtons")) {break;}
-                totalButtonIndex++;
-                if(document.getElementById(buttons[i][2])) {
-                    elm = document.getElementById(buttons[i][2]);
-                } else {break;}
-                elm.remove();
+            if(totalButtonIndex-1 > GM_getValue("totalButtons")) {break;}
+            totalButtonIndex++;
+            if(document.getElementById(buttons[i][2])) {
+                elm = document.getElementById(buttons[i][2]);
+            } else {break;}
+            elm.remove();
         }
     }
 
@@ -229,7 +221,7 @@ const currdate = "10/27/22";
         button.innerHTML = name;
         button.setAttribute("id", id);
         if(cls) {
-        button.setAttribute("class",cls);
+            button.setAttribute("class",cls);
         }
         button.setAttribute("style", prop);
         if(isLink){button.addEventListener('mousedown', e => {if (e.button === 1) {window.open(url);e.preventDefault();}});} //Add middle click function
@@ -266,7 +258,7 @@ const currdate = "10/27/22";
 
         for(let i =0; i < buttons.length; i++) {
             if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
-                totalButtonIndex++;
+            totalButtonIndex++;
             var navBtns = document.getElementById(buttons[i][2].toString());
             if(GM_getValue("isShowing")) {navBtns.style.display = 'none';}
             else if(!GM_getValue("isShowing")) {navBtns.style.display = 'block';}
@@ -383,18 +375,19 @@ const currdate = "10/27/22";
 
     //Refresh Cookies to have the storage arrays access fresh data when reloading page
     function refreshCookies() {
-        var i = 0;
         if(!JSON.parse(GM_getValue("masterButtons"))) {
-            buttons = JSON.parse("{\n" + GM_getValue("masterButtons") + "\n}");
-        } else {
-            buttons = JSON.parse(GM_getValue("masterButtons"));
-            for(let i = 0; i <= GM_getValue("totalButtons")-1; i++) {
-                if(getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2].concat("name")) && getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2].concat("url"))) {
-                    buttons[i][0] = getCookie(buttons[i][2].concat("name"));
-                    buttons[i][1] = getCookie(buttons[i][2].concat("url"));
-                }
+            GM_setValue("masterButtons",JSON.stringify(buttons))
+        }
+        buttons = JSON.parse(GM_getValue("masterButtons"));
+        console.log("buttons:\n" + buttons);
+        for(let i = 0; i < GM_getValue("totalButtons"); i++) {
+            console.log("test\n" + i + "\n" + getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"name"));
+            if(getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"name") && getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"url")) {
+                buttons[i][0] = getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"name");
+                buttons[i][1] = getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"url");
             }
         }
+        console.log("test:\n" + buttons);
     }
 
     //Return button array to defaults, without using cookies for button data
@@ -449,7 +442,6 @@ const currdate = "10/27/22";
 
     //Increment amount of buttons
     function addButton() {
-        buttons = JSON.parse(GM_getValue("masterButtons"));
         if(!GM_getValue("totalButtons")) {
             GM_setValue("totalButtons",buttons.length);
         } else if(GM_getValue("totalButtons")>=buttons.length) {
