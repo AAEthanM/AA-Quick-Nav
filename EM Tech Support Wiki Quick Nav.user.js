@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.3.46
+// @version      1.3.5
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -14,13 +14,13 @@
 // @grant        GM_info
 // @grant        GM_addStyle
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
+// @require      https://userscripts-mirror.org/scripts/source/107941.user.js
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
 const currdate = "10/28/22";
 
 (function() {
-    'use strict';
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Constants for later access
     const hScalingAttr = 45;
@@ -30,6 +30,7 @@ const currdate = "10/28/22";
     const defAttr = "font-family:Calibri;background:#F0F0F0;box-sizing:unset;flex-wrap:none;float:left;font-size:12px;position:absolute;cursor:pointer;padding:0px;z-index:1500;min-width:0px;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;";
     const insertDiv = document.getElementById('DeltaPlaceHolderLeftNavBar');
     const buttonsPerRow = 3;
+    const frequentPagesCount = 5;
 
     var buttons = [];
     var buttonsStatic = [];
@@ -93,12 +94,12 @@ const currdate = "10/28/22";
     var toggleAttr = firstToggleColor.concat("display:block;");
     var s = setButtonLimit();
 
-    var coverbox4 = addDiv("AAQNBox4","cover",'border:none;padding:8px;top:3px;height:5px',insertDiv,"first","",'div');
+    var coverbox4 = addDiv("AAQNBox4","cover",'border:none;padding:8px;top:3px;height:'+vScalingAttr+"px;min-width:90.5%;",insertDiv,"first","",'div');
     var coverbox = addDiv("AAQNBox","cover",navAttr.concat('height:'+resizeBox()+'px !important;'),insertDiv,"first","",'div');
     var coverbox2 = addDiv("AAQNBox2","cover",'min-height:' + (2*vScalingAttr+hBorder-1) + 'px',insertDiv,"first","",'div');
     var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:4px',insertDiv,"first","",'div');
 
-    var editText = addDiv("AAQNEditText","editingButtonsText","display:none;",coverbox4,"last","Edit Mode Activated",'div');
+    var editText = addDiv("AAQNEditText","editingButtonsText","display:none;",coverbox4,"first","Edit Mode Activated",'div');
     addClick(editText.id,toggleEdit, false);
 
     var vStr = "Quick Nav v" + GM_info.script.version + " " + currdate
@@ -107,7 +108,7 @@ const currdate = "10/28/22";
     makeButton("", "", "AAQNEdit", navAttr, false, coverbox3, "first","editIcon");
     addClick("AAQNEdit",toggleEdit);
 
-    makeButton("Reset Defaults","","AAQNSetDefaults","display:none",false,coverbox4,"last","defaultButton");
+    makeButton("Default","","AAQNSetDefaults","display:none;padding:0px;width:40px;",false,coverbox4,"last","defaultButton");
     addClick("AAQNSetDefaults",setDefaults);
 
     makeButton("","","AAQNIncButton","top:40px;left:-28px;"+
@@ -179,7 +180,7 @@ const currdate = "10/28/22";
                                         "position:absolute;width:"+(Math.floor(180/buttonsPerRow)-2)+"px;"+
                                         "left:"+(Math.floor(180/buttonsPerRow)*i+leftPush+(-6))+"px;"+
                                         "top:"+(vScalingAttr*j+j)+"px;"),
-                           true, coverbox, "last");
+                           true, coverbox, "last","buttonDummy");
                 addClick(buttons[i+(j*buttonsPerRow)][2], () => navigateToURL(buttons[i+(j*buttonsPerRow)][1]));
             }
         }
@@ -385,6 +386,7 @@ const currdate = "10/28/22";
                 buttons[i][1] = getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"url");
             }
         }
+        GM_setValue("masterButtons",JSON.stringify(buttons));
     }
 
     //Return button array to defaults, without using cookies for button data
@@ -409,7 +411,6 @@ const currdate = "10/28/22";
             elm = document.getElementById(id);
             name = prompt("Enter new title to replace " + elm.innerHTML);
             url = prompt("Enter new URL to replace " + elm.innerHTML);
-
             if(!name || !url) {
                 alert(errors.editBlank);
                 return;
@@ -438,12 +439,17 @@ const currdate = "10/28/22";
     }
 
     //Increment amount of buttons
-    function addButton() {
+    function addButton(pmt=true,name,link) {
         if(!GM_getValue("totalButtons")) {
             GM_setValue("totalButtons",buttons.length);
         } else if(GM_getValue("totalButtons")>=buttons.length) {
-            var title = prompt("Enter Title for new Button");
-            var url = prompt("Enter Link for new Button");
+            if(pmt) {
+                var title = prompt("Enter Title for new Button");
+                var url = prompt("Enter Link for new Button");
+            } else {
+                title = name;
+                url = link;
+            }
             if(!title || !url) {
                 alert(errors.editBlank);
             } else {
@@ -483,6 +489,17 @@ const currdate = "10/28/22";
             alert(errors.lastButton);
         } else {
             GM_setValue("totalButtons",GM_getValue("totalButtons")-1);
+            var delButton = document.getElementById("AAQNTest");
+            var elm = JSON.parse(GM_getValue("masterButtons"));
+            var slt = elm[GM_getValue("totalButtons")]
+            var del = document.getElementById(elm[elm.length-1][2]);
+            del.remove();
+            elm.splice(elm.length-1,1);
+            GM_setValue("masterButtons",JSON.stringify(elm));
+            eraseCookie("AAQNButton" + (GM_getValue("totalButtons") + 1) + "url");
+            eraseCookie("AAQNButton" + (GM_getValue("totalButtons") + 1) + "name");
+            refreshCookies();
+
             hideMainButtons();
             mainButtons(true);
             toggleEdit();
@@ -512,6 +529,10 @@ GM_addStyle ( `
 
     }
 
+    .buttonDummy {
+
+    }
+
     .editingButtons {
         display:none;
         position:absolute;
@@ -528,10 +549,10 @@ GM_addStyle ( `
 
     .editingButtonsText {
         display:none;
-        position:relative;
+        position:absolute;
         height:10px;
-        top:-8px;
-        left:-5px;
+        top:0px;
+        left:0px;
         padding:0px;
         float:left;
         font-family:Calibri;
@@ -573,6 +594,7 @@ GM_addStyle ( `
         border: 2px solid red;
         opacity: 0.8;
         border: 2px solid #038387;
+        min-width: 100%;
     }
 
     .defaultButton {
