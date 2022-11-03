@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.4.11
+// @version      1.4.12
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -320,6 +320,7 @@ const currdate = "11/3/22";
         var setDef = document.getElementById("AAQNSetDefaults");
         var incButton = document.getElementById("AAQNIncButton");
         var decButton = document.getElementById("AAQNDecButton");
+        var clearBtn = document.getElementById("AALCClearStored");
         if(GM_getValue("isEdit")) { //STOP EDITING
             GM_setValue("isEdit",false);
             suggestionbox.style.height = suggestionbox.style.height-40;
@@ -327,6 +328,7 @@ const currdate = "11/3/22";
             setDef.style.display = 'none';
             incButton.style.display = 'none';
             decButton.style.display = 'none';
+            clearBtn.style.display = 'none';
             for(let j = 0; j < s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
                     if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
@@ -346,6 +348,7 @@ const currdate = "11/3/22";
             setDef.style.display = 'block';
             incButton.style.display = 'block';
             decButton.style.display = 'block';
+            clearBtn.style.display = 'block';
             for(let j = 0; j < s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
                     if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
@@ -585,14 +588,20 @@ const currdate = "11/3/22";
 
     var boxText;
     var suggestionbox = addDiv("AALCSuggestionBox","",
-                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(shownButtons.length*40+40)+"px;min-width:109.5%;",
+                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(shownButtons.length*40+40+10)+"px;min-width:109.5%;",
                                coverbox4,"last","<b><u>Suggested Buttons:</b></u><br></br>",'div');
     var suggestionTitle = addDiv("AALCSuggestionTitle","",
-                                 "position:relative;",
+                                 "position:relative;top:10px;",
                                  suggestionbox,"last","",'div');
+    makeButton("Clear Suggested","","AALCClearStored","color:red;display:none;position:absolute;font-size:9px;left:110px;top:-5px;width:15px;height:25px;padding:0px;",false,suggestionbox,"first","");
+    var clearBtn = document.getElementById("AALCClearStored");
+    addClick("AALCClearStored",() => {
+        deleteLinks();
+    });
     var sideBarSpacing = addDiv("AALCSpacing","","height:20px;",coverbox4,"last","",'div');
 
     if(!shownButtons.length) suggestionTitle.innerHTML = refreshFrequent();
+
     function refreshFrequent(amt=shownButtons.length) {
         boxText = "";
         var pageCount = Math.min(amt,frequentPagesCount);
@@ -607,11 +616,11 @@ const currdate = "11/3/22";
     //refreshFrequent();
 
     for(let i = 0; i < shownButtons.length; i++) {
-        var elmt = addDiv("AALCShown"+(i+1),"suggestionList","top:"+(20+(40*i))+"px;",suggestionbox,"last",shownButtons[i][0],'div');
+        var elmt = addDiv("AALCShown"+(i+1),"suggestionList","top:"+(40+(40*i))+"px;",suggestionbox,"last",shownButtons[i][0],'div');
         console.log(elmt[i]);
 
-        makeButton("Add","","AALCAdd"+(i+1),"min-width:15px;height:20px;padding:0px;position:absolute;float:right;top:"+(20+(40*i))+"px;right:2px;",false,suggestionbox,"last","");
-        makeButton("Ignore","","AALCIgnore"+(i+1),"min-width:15px;height:20px;padding:0px;position:absolute;float:right;top:"+(20+(40*i))+"px;right:28px;",false,suggestionbox,"last","");
+        makeButton("Add","","AALCAdd"+(i+1),"min-width:15px;height:20px;padding:0px;position:absolute;float:right;top:"+(40+(40*i))+"px;right:2px;",false,suggestionbox,"last","");
+        makeButton("Ignore","","AALCIgnore"+(i+1),"min-width:15px;height:20px;padding:0px;position:absolute;float:right;top:"+(40+(40*i))+"px;right:28px;",false,suggestionbox,"last","");
         addClick("AALCAdd"+(i+1),() => {
             var testelm1 = document.getElementById("AALCAdd"+(i+1));
             var testelm2 = document.getElementById("AALCShown"+(i+1));
@@ -644,15 +653,8 @@ const currdate = "11/3/22";
 
     GM_SuperValue.set("linksStored",linksStored);
 
-    var deleteRecord = document.createElement('button');
-    deleteRecord.setAttribute("id","AALCDelete");
-    deleteRecord.setAttribute("style","position:absolute;top:0px;left:0px");
-    deleteRecord.innerHTML = "Delete Stored Links";
-    deleteRecord.addEventListener("click",deleteLinks,false);
-    document.body.appendChild(deleteRecord);
-
     function deleteLinks() {
-        if(confirm("CLEAR ALL DATA????")) {
+        if(confirm("Clear suggested link data? This is reset all link counts and reset all ignored links.")) {
             GM_deleteValue("linksStored");
             window.location = currURL;
         }
