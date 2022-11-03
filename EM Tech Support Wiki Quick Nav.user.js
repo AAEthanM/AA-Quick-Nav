@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.4.01
+// @version      1.4.11
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -610,17 +610,33 @@ const currdate = "11/3/22";
         var elmt = addDiv("AALCShown"+(i+1),"suggestionList","top:"+(20+(40*i))+"px;",suggestionbox,"last",shownButtons[i][0],'div');
         console.log(elmt[i]);
 
-        makeButton("Add","","AALCTest"+(i+1),"min-width:15px;height:20px;padding:0px;position:absolute;float:right;top:"+(20+(40*i))+"px;right:10px;",false,suggestionbox,"last","");
-        //makeButton("Ignore","","AALCTest"+(i+1),"min-width:15px;height:20px;padding:0px;position:absolute;float:right;top:"+(20+(40*i))+"px;right:40px;",false,suggestionbox,"last","");
-        addClick("AALCTest"+(i+1),() => {
-            var testelm1 = document.getElementById("AALCTest"+(i+1));
+        makeButton("Add","","AALCAdd"+(i+1),"min-width:15px;height:20px;padding:0px;position:absolute;float:right;top:"+(20+(40*i))+"px;right:2px;",false,suggestionbox,"last","");
+        makeButton("Ignore","","AALCIgnore"+(i+1),"min-width:15px;height:20px;padding:0px;position:absolute;float:right;top:"+(20+(40*i))+"px;right:28px;",false,suggestionbox,"last","");
+        addClick("AALCAdd"+(i+1),() => {
+            var testelm1 = document.getElementById("AALCAdd"+(i+1));
             var testelm2 = document.getElementById("AALCShown"+(i+1));
+            var testelm3 = document.getElementById("AALCIgnore"+(i+1));
             testelm1.remove();
             testelm2.remove();
+            testelm3.remove();
             shownButtons.splice(shownButtons.length,1)
             addButton(false,shownButtons[i][0],linksStored[locateEntry(linksStored,shownButtons[i][0])][2]);
             linksSorted = sortLinks();
             suggestionTitle.innerHTML = refreshFrequent(shownButtons.length-1);
+            window.location = window.location.href;
+        });
+        addClick("AALCIgnore"+(i+1),() => {
+            var testelm1 = document.getElementById("AALCAdd"+(i+1));
+            var testelm2 = document.getElementById("AALCShown"+(i+1));
+            var testelm3 = document.getElementById("AALCIgnore"+(i+1));
+            testelm1.remove();
+            testelm2.remove();
+            testelm3.remove();
+            shownButtons.splice(shownButtons.length,1)
+            linksSorted = sortLinks();
+            suggestionTitle.innerHTML = refreshFrequent(shownButtons.length-1);
+            linksStored[locateEntry(linksStored,testelm2.innerHTML)][3] = true;
+            GM_SuperValue.set("linksStored",linksStored);
             window.location = window.location.href;
         });
 
@@ -743,7 +759,7 @@ GM_addStyle ( `
         display:none;
         position:absolute;
         float:left;
-        font-size:10px;
+        font-size:11px;
         height:15px;
         left:113px;
         top:-2px;
@@ -756,7 +772,7 @@ GM_addStyle ( `
         position:absolute;
         height: 20px;
         padding: 0px;
-        font-size:11px;
-        width:80%;
+        font-size:10px;
+        width:75%;
     }
 ` );
