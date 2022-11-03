@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.3.5
+// @version      1.4
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -18,7 +18,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "10/28/22";
+const currdate = "11/3/22";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -94,12 +94,15 @@ const currdate = "10/28/22";
     var toggleAttr = firstToggleColor.concat("display:block;");
     var s = setButtonLimit();
 
-    var coverbox4 = addDiv("AAQNBox4","cover",'border:none;padding:8px;top:3px;height:'+vScalingAttr+"px;min-width:90.5%;",insertDiv,"first","",'div');
+    var coverbox4 = addDiv("AAQNBox4","cover","border:2px solid #038387;padding:8px;top:0px;height:fit-content;min-width:91%;",insertDiv,"first","",'div');
+    if(GM_getValue("isShowing")) {coverbox4.style.display = 'block';}
+            else if(!GM_getValue("isShowing")) {coverbox4.style.display = 'none';}
+            else {alert(errors.badHide)}
     var coverbox = addDiv("AAQNBox","cover",navAttr.concat('height:'+resizeBox()+'px !important;'),insertDiv,"first","",'div');
     var coverbox2 = addDiv("AAQNBox2","cover",'min-height:' + (2*vScalingAttr+hBorder-1) + 'px',insertDiv,"first","",'div');
     var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:4px',insertDiv,"first","",'div');
 
-    var editText = addDiv("AAQNEditText","editingButtonsText","display:none;",coverbox4,"first","Edit Mode Activated",'div');
+    var editText = addDiv("AAQNEditText","editingButtonsText","top:5px;left:5px;display:none;",coverbox4,"first","Edit Mode Activated",'div');
     addClick(editText.id,toggleEdit, false);
 
     var vStr = "Quick Nav v" + GM_info.script.version + " " + currdate
@@ -108,7 +111,7 @@ const currdate = "10/28/22";
     makeButton("", "", "AAQNEdit", navAttr, false, coverbox3, "first","editIcon");
     addClick("AAQNEdit",toggleEdit);
 
-    makeButton("Default","","AAQNSetDefaults","display:none;padding:0px;width:40px;",false,coverbox4,"last","defaultButton");
+    makeButton("Default","","AAQNSetDefaults","display:none;top:4px;width:50px;",false,coverbox4,"last","defaultButton");
     addClick("AAQNSetDefaults",setDefaults);
 
     makeButton("","","AAQNIncButton","top:40px;left:-28px;"+
@@ -153,6 +156,8 @@ const currdate = "10/28/22";
     makeButton(toggleStatus,"","AAQNButtonToggle",
                defAttr.concat(toggleAttr,"font-size:15px;width:99%;top:"+(vScalingAttr+2)+"px;left:-10px;"),
                false, coverbox2, "first");
+    var toggleButton = document.getElementById("AAQNButtonToggle");
+    toggleButton.style.fontSize = "15px";
     addClick("AAQNButtonToggle",toggleVisible);
 
     //Refresh Cookies before actions take place
@@ -219,6 +224,7 @@ const currdate = "10/28/22";
     function makeButton(name, url, id, prop, isLink, loc = "", itemloc = "", cls = "") {
         var button = document.createElement("button");
         button.type = "button";
+        if(name.length>14) prop+="font-size:9px;";
         button.innerHTML = name;
         button.setAttribute("id", id);
         if(cls) {
@@ -283,11 +289,13 @@ const currdate = "10/28/22";
             toggleButton.style.color = '#038387';
             GM_setValue("isShowing",false);
             coverbox.style.display = 'none';
+            coverbox4.style.display = 'none';
         } else {
             toggleButton.innerHTML = '\u2191 Toggle Show/Hide \u2191';
             toggleButton.style.color = '#C40000';
             GM_setValue("isShowing",true);
             coverbox.style.display = 'block';
+            coverbox4.style.display = 'block';
             for(let i = 0; i < document.getElementsByClassName("editIcon").length; i++) {
                 document.getElementsByClassName("editIcon")[i].style.display = "block";
             }
@@ -314,6 +322,7 @@ const currdate = "10/28/22";
         var decButton = document.getElementById("AAQNDecButton");
         if(GM_getValue("isEdit")) { //STOP EDITING
             GM_setValue("isEdit",false);
+            suggestionbox.style.height = suggestionbox.style.height-40;
             editText.style.display = 'none';
             setDef.style.display = 'none';
             incButton.style.display = 'none';
@@ -332,6 +341,7 @@ const currdate = "10/28/22";
         }
         else { //START EDITING
             GM_setValue("isEdit",true);
+            suggestionbox.style.height = suggestionbox.style.height+40;
             editText.style.display = 'block';
             setDef.style.display = 'block';
             incButton.style.display = 'block';
@@ -520,6 +530,136 @@ const currdate = "10/28/22";
         return GM_getValue("totalButtons") ? ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow))+1 : (s*(vScalingAttr+1)+1);
     }
 
+    //ASSA ABLOY Link Counter Add-on
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    var currURL = window.location.href.toString();
+    var nameURL = formatEntry(currURL.substring(82,window.location.href.toString().length-5));
+    console.log(nameURL);
+    var linksStored = GM_SuperValue.get("linksStored");
+
+
+    function sortLinks() {
+        linksStored = GM_SuperValue.get("linksStored");
+        if(!linksStored) {
+            linksStored = [[nameURL,0,currURL]];
+        }
+
+        for(let i = 0; i < linksStored.length; i=i+1) {
+            if(linksStored[i][0]==nameURL) {
+                linksStored[i][1]++;
+                break;
+            } else {
+                if(i==linksStored.length-1&&!currURL.includes("osssearchresults")) {
+                    linksStored.push([nameURL,0,currURL])
+                }
+            }
+        }
+
+        return linksStored.sort(function(a, b) {return b[1] - a[1];});
+    }
+    var linksSorted = sortLinks();
+
+    function filterLink(j, arr) {
+        var links = JSON.parse(GM_getValue("masterButtons")).concat(buttonsStatic);
+        for(let i = 0; i < links.length; i++) {
+            if(links[i][1] == arr[j][2]) {
+                arr[j][3] = true;
+            }
+        }
+    }
+
+    for(let i = 0; i < linksSorted.length; i++) {
+        filterLink(i,linksSorted);
+    }
+
+    var shownButtons = [];
+    for(let i = 0; i < linksSorted.length; i++) {
+        if(!linksSorted[i][3]) {
+            shownButtons.push([linksSorted[i][0],linksSorted[i][1]]);
+        }
+    }
+
+    for(let i = 0; i < shownButtons.length; i++) {
+        console.log(shownButtons[i]);
+    }
+
+    var boxText;
+    var suggestionbox = addDiv("AALCSuggestionBox","",
+                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(shownButtons.length*40+40)+"px;min-width:109.5%;",
+                               coverbox4,"last","<b><u>Suggested Buttons:</b></u><br></br>",'div');
+    var suggestionTitle = addDiv("AALCSuggestionTitle","",
+                                 "position:relative;",
+                                 suggestionbox,"last","",'div');
+    var sideBarSpacing = addDiv("AALCSpacing","","height:20px;",coverbox4,"last","",'div');
+
+    if(!shownButtons.length) suggestionTitle.innerHTML = refreshFrequent();
+    function refreshFrequent(amt=shownButtons.length) {
+        boxText = "";
+        var pageCount = Math.min(amt,frequentPagesCount);
+        console.log("Page: " + pageCount);
+        if(!pageCount) {
+            return "No recent pages found.";
+        } else {
+            return ""
+        }
+    }
+
+    //refreshFrequent();
+
+    for(let i = 0; i < shownButtons.length; i++) {
+        var elmt = addDiv("AALCShown"+(i+1),"suggestionList","top:"+(20+(40*i))+"px;",suggestionbox,"last",shownButtons[i][0],'div');
+        console.log(elmt[i]);
+
+        makeButton("Add","","AALCTest"+(i+1),"min-width:15px;height:20px;padding:0px;position:absolute;float:right;top:"+(20+(40*i))+"px;right:10px;",false,suggestionbox,"last","");
+        makeButton("Ignore","","AALCTest"+(i+1),"min-width:15px;height:20px;padding:0px;position:absolute;float:right;top:"+(20+(40*i))+"px;right:40px;",false,suggestionbox,"last","");
+        addClick("AALCTest"+(i+1),() => {
+            var testelm1 = document.getElementById("AALCTest"+(i+1));
+            var testelm2 = document.getElementById("AALCShown"+(i+1));
+            testelm1.remove();
+            testelm2.remove();
+            shownButtons.splice(shownButtons.length,1)
+            addButton(false,shownButtons[i][0],linksStored[locateEntry(linksStored,shownButtons[i][0])][2]);
+            linksSorted = sortLinks();
+            suggestionTitle.innerHTML = refreshFrequent(shownButtons.length-1);
+            window.location = window.location.href;
+        });
+
+    }
+
+    GM_SuperValue.set("linksStored",linksStored);
+
+    var deleteRecord = document.createElement('button');
+    deleteRecord.setAttribute("id","AALCDelete");
+    deleteRecord.setAttribute("style","position:absolute;top:0px;left:0px");
+    deleteRecord.innerHTML = "Delete Stored Links";
+    deleteRecord.addEventListener("click",deleteLinks,false);
+    document.body.appendChild(deleteRecord);
+
+    function deleteLinks() {
+        if(confirm("CLEAR ALL DATA????")) {
+            GM_deleteValue("linksStored");
+            window.location = currURL;
+        }
+    }
+
+    function formatEntry(str) {
+        while(str.includes("%20")) {
+            str = str.toString().replace("%20"," ");
+        }
+        while(str.includes("%27")) {
+            str = str.toString().replace("%27","\'");
+        }
+        return str;
+    }
+
+    function locateEntry(arr, str) {
+        for(let i = 0; i < arr.length; i++) {
+            if(arr[i][0] == str) {
+                return i;
+            }
+        }
+    }
+
 })();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -605,10 +745,18 @@ GM_addStyle ( `
         float:left;
         font-size:10px;
         height:15px;
-        left:111px;
+        left:113px;
         top:-2px;
         min-width:30px;
         height:20px;
         min-width:fit-content;
+    }
+
+    .suggestionList {
+        position:absolute;
+        height: 20px;
+        padding: 0px;
+        font-size:11px;
+        width:80%;
     }
 ` );
