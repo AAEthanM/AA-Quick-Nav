@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.4.15
+// @version      1.4.16
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -588,7 +588,7 @@ const currdate = "11/3/22";
 
     var boxText;
     var suggestionbox = addDiv("AALCSuggestionBox","",
-                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(shownButtons.length*40+40+10)+"px;min-width:109.5%;",
+                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+40+10)+"px;min-width:109.5%;",
                                coverbox4,"last","<b><u>Suggested Buttons:</b></u><br></br>",'div');
     var suggestionTitle = addDiv("AALCSuggestionTitle","",
                                  "position:relative;top:10px;",
@@ -615,7 +615,7 @@ const currdate = "11/3/22";
 
     //refreshFrequent();
 
-    for(let i = 0; i < shownButtons.length; i++) {
+    for(let i = 0; i < Math.min(frequentPagesCount,shownButtons.length); i++) {
         var elmt = addDiv("AALCShown"+(i+1),"suggestionList","top:"+(40+(40*i))+"px;",suggestionbox,"last","<u>"+shownButtons[i][0]+"</u>",'div');
         addClick("AALCShown"+(i+1),() => {
             window.location = linksStored[locateEntry(linksStored,shownButtons[i][0])][2];
