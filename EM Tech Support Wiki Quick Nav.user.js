@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.4.22
+// @version      1.4.23
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -248,7 +248,7 @@ const currdate = "11/7/22";
     GM_SuperValue.set("linksStored",linksStored);
 
     makeButton("Add Current Page","","AALCAddCurrent","font-size:12px;padding:0px;position:relative;float:right;right:-2px;display:" +
-               (pageFound(JSON.parse(GM_getValue("masterButtons")),currURL) ? "none" : "block") +";"
+               (pageFound(JSON.parse(GM_getValue("masterButtons")).concat(shownButtons),currURL) ? "none" : "block") +";"
                ,false,coverbox3,"first");
     var addCurrent = document.getElementById("AALCAddCurrent");
     addCurrent.style.fontSize = "11px";
@@ -664,8 +664,13 @@ const currdate = "11/7/22";
     }
 
     function pageFound(arr,url) {
+        for(let i = 0; i < buttonsStatic.length; i++) {
+            if(currURL == buttonsStatic[i][1]) {
+                return true;
+            }
+        }
         for(let i = 0; i < arr.length; i++) {
-            if(currURL == JSON.parse(GM_getValue("masterButtons"))[i][1]) {
+            if(currURL == arr[i][1]) {
                 return true;
             }
         }
