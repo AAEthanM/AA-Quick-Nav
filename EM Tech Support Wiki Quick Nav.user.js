@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.4.21
+// @version      1.4.22
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -18,7 +18,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "11/3/22";
+const currdate = "11/7/22";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -96,17 +96,17 @@ const currdate = "11/3/22";
 
     var coverbox4 = addDiv("AAQNBox4","cover","border:2px solid #038387;padding:8px;top:0px;height:fit-content;min-width:91%;",insertDiv,"first","",'div');
     if(GM_getValue("isShowing")) {coverbox4.style.display = 'block';}
-            else if(!GM_getValue("isShowing")) {coverbox4.style.display = 'none';}
-            else {alert(errors.badHide)}
+    else if(!GM_getValue("isShowing")) {coverbox4.style.display = 'none';}
+    else {alert(errors.badHide)}
     var coverbox = addDiv("AAQNBox","cover",navAttr.concat('height:'+resizeBox()+'px !important;'),insertDiv,"first","",'div');
     var coverbox2 = addDiv("AAQNBox2","cover",'min-height:' + (2*vScalingAttr+hBorder-1) + 'px',insertDiv,"first","",'div');
-    var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:4px',insertDiv,"first","",'div');
+    var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:20px',insertDiv,"first","",'div');
 
     var editText = addDiv("AAQNEditText","editingButtonsText","top:5px;left:5px;display:none;",coverbox4,"first","Edit Mode Activated",'div');
     addClick(editText.id,toggleEdit, false);
 
-    var vStr = "Quick Nav v" + GM_info.script.version + " " + currdate
-    var versionStr = addDiv("AAQNVersion","dummy","font-size:10px;position:absolute;word-wrap:none;top:-10px;",coverbox3,"first",vStr,'div');
+    var vStr = "Quick Nav v" + GM_info.script.version + "<br></br>" + currdate
+    var versionStr = addDiv("AAQNVersion","dummy","line-height:50%;display:block;margin-bottom:0em;font-size:10px;position:absolute;top:0px;",coverbox3,"first",vStr,'div');
 
     makeButton("", "", "AAQNEdit", navAttr, false, coverbox3, "first","editIcon");
     addClick("AAQNEdit",toggleEdit);
@@ -163,6 +163,98 @@ const currdate = "11/3/22";
     //Refresh Cookies before actions take place
     refreshCookies();
     mainButtons();
+
+
+    //ASSA ABLOY Link Counter Add-on
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    var currURL = window.location.href.toString();
+    var nameURL = formatEntry(currURL.substring(82,window.location.href.toString().length-5));
+    var linksStored = GM_SuperValue.get("linksStored");
+
+    var linksSorted = sortLinks();
+
+    for(let i = 0; i < linksSorted.length; i++) {
+        filterLink(i,linksSorted);
+    }
+
+    var shownButtons = [];
+    for(let i = 0; i < linksSorted.length; i++) {
+        if(!linksSorted[i][3]) {
+            shownButtons.push([linksSorted[i][0],linksSorted[i][1]]);
+        }
+    }
+
+    var boxText;
+    var suggestionbox = addDiv("AALCSuggestionBox","",
+                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+40+10)+"px;min-width:109.5%;",
+                               coverbox4,"last","<b><u>Suggested Buttons:</b></u><br></br>",'div');
+    var suggestionTitle = addDiv("AALCSuggestionTitle","",
+                                 "position:relative;top:10px;",
+                                 suggestionbox,"last","",'div');
+    makeButton("Clear Suggested","","AALCClearStored","color:red;display:none;position:absolute;font-size:9px;left:110px;top:-5px;width:15px;height:25px;padding:0px;",false,suggestionbox,"first","");
+    var clearBtn = document.getElementById("AALCClearStored");
+    addClick("AALCClearStored",() => {
+        deleteLinks();
+    });
+    var sideBarSpacing = addDiv("AALCSpacing","","height:20px;",coverbox4,"last","",'div');
+
+    if(!shownButtons.length) suggestionTitle.innerHTML = refreshFrequent();
+
+    for(let i = 0; i < Math.min(frequentPagesCount,shownButtons.length); i++) {
+        var elmt = addDiv("AALCShown"+(i+1),"suggestionList","top:"+(40+(40*i))+"px;",suggestionbox,"last","<u>"+shownButtons[i][0]+"</u>",'div');
+        addClick("AALCShown"+(i+1),() => {
+            window.location = linksStored[locateEntry(linksStored,shownButtons[i][0])][2];
+        });
+        document.getElementById("AALCShown"+(i+1)).addEventListener('mousedown', e => {
+            if (e.button === 1) {
+                window.open(linksStored[locateEntry(linksStored,shownButtons[i][0])][2]);
+                e.preventDefault();
+            }
+        });
+
+        makeButton("Add","","AALCAdd"+(i+1),"top:"+(40+(40*i))+"px;right:2px;",false,suggestionbox,"last","suggestionChange");
+        makeButton("Ignore","","AALCIgnore"+(i+1),"top:"+(40+(40*i))+"px;right:28px;",false,suggestionbox,"last","suggestionChange");
+        addClick("AALCAdd"+(i+1),() => {
+            var testelm1 = document.getElementById("AALCAdd"+(i+1));
+            var testelm2 = document.getElementById("AALCShown"+(i+1));
+            var testelm3 = document.getElementById("AALCIgnore"+(i+1));
+            testelm1.remove();
+            testelm2.remove();
+            testelm3.remove();
+            shownButtons.splice(shownButtons.length,1)
+            addButton(false,shownButtons[i][0],linksStored[locateEntry(linksStored,shownButtons[i][0])][2]);
+            linksSorted = sortLinks();
+            suggestionTitle.innerHTML = refreshFrequent(shownButtons.length-1);
+            window.location = window.location.href;
+        });
+        addClick("AALCIgnore"+(i+1),() => {
+            var testelm1 = document.getElementById("AALCAdd"+(i+1));
+            var testelm2 = document.getElementById("AALCShown"+(i+1));
+            var testelm3 = document.getElementById("AALCIgnore"+(i+1));
+            testelm1.remove();
+            testelm2.remove();
+            testelm3.remove();
+            shownButtons.splice(shownButtons.length,1)
+            linksSorted = sortLinks();
+            suggestionTitle.innerHTML = refreshFrequent(shownButtons.length-1);
+
+            linksStored[locateEntry(linksStored,testelm2.innerHTML.replace("<u>","").replace("</u>",""))][3] = true;
+            GM_SuperValue.set("linksStored",linksStored);
+            window.location = window.location.href;
+        });
+
+    }
+
+    GM_SuperValue.set("linksStored",linksStored);
+
+    makeButton("Add Current Page","","AALCAddCurrent","font-size:12px;padding:0px;position:relative;float:right;right:-2px;display:" +
+               (pageFound(JSON.parse(GM_getValue("masterButtons")),currURL) ? "none" : "block") +";"
+               ,false,coverbox3,"first");
+    var addCurrent = document.getElementById("AALCAddCurrent");
+    addCurrent.style.fontSize = "11px";
+    addClick("AALCAddCurrent",() => {
+        addCurrentPage();
+    });
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Function Access
@@ -533,14 +625,6 @@ const currdate = "11/3/22";
         return GM_getValue("totalButtons") ? ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow))+1 : (s*(vScalingAttr+1)+1);
     }
 
-    //ASSA ABLOY Link Counter Add-on
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    var currURL = window.location.href.toString();
-    var nameURL = formatEntry(currURL.substring(82,window.location.href.toString().length-5));
-    console.log(nameURL);
-    var linksStored = GM_SuperValue.get("linksStored");
-
-    console.log(currURL.substring(currURL.length-5,currURL.length)==".aspx");
     function sortLinks() {
         linksStored = GM_SuperValue.get("linksStored");
         if(!linksStored) {
@@ -557,10 +641,8 @@ const currdate = "11/3/22";
                 }
             }
         }
-
         return linksStored.sort(function(a, b) {return b[1] - a[1];});
     }
-    var linksSorted = sortLinks();
 
     function filterLink(j, arr) {
         var links = JSON.parse(GM_getValue("masterButtons")).concat(buttonsStatic);
@@ -571,41 +653,9 @@ const currdate = "11/3/22";
         }
     }
 
-    for(let i = 0; i < linksSorted.length; i++) {
-        filterLink(i,linksSorted);
-    }
-
-    var shownButtons = [];
-    for(let i = 0; i < linksSorted.length; i++) {
-        if(!linksSorted[i][3]) {
-            shownButtons.push([linksSorted[i][0],linksSorted[i][1]]);
-        }
-    }
-
-    for(let i = 0; i < shownButtons.length; i++) {
-        console.log(shownButtons[i]);
-    }
-
-    var boxText;
-    var suggestionbox = addDiv("AALCSuggestionBox","",
-                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+40+10)+"px;min-width:109.5%;",
-                               coverbox4,"last","<b><u>Suggested Buttons:</b></u><br></br>",'div');
-    var suggestionTitle = addDiv("AALCSuggestionTitle","",
-                                 "position:relative;top:10px;",
-                                 suggestionbox,"last","",'div');
-    makeButton("Clear Suggested","","AALCClearStored","color:red;display:none;position:absolute;font-size:9px;left:110px;top:-5px;width:15px;height:25px;padding:0px;",false,suggestionbox,"first","");
-    var clearBtn = document.getElementById("AALCClearStored");
-    addClick("AALCClearStored",() => {
-        deleteLinks();
-    });
-    var sideBarSpacing = addDiv("AALCSpacing","","height:20px;",coverbox4,"last","",'div');
-
-    if(!shownButtons.length) suggestionTitle.innerHTML = refreshFrequent();
-
     function refreshFrequent(amt=shownButtons.length) {
         boxText = "";
         var pageCount = Math.min(amt,frequentPagesCount);
-        console.log("Page: " + pageCount);
         if(!pageCount) {
             return "No recent pages found.";
         } else {
@@ -613,50 +663,22 @@ const currdate = "11/3/22";
         }
     }
 
-    //refreshFrequent();
-
-    for(let i = 0; i < Math.min(frequentPagesCount,shownButtons.length); i++) {
-        var elmt = addDiv("AALCShown"+(i+1),"suggestionList","top:"+(40+(40*i))+"px;",suggestionbox,"last","<u>"+shownButtons[i][0]+"</u>",'div');
-        addClick("AALCShown"+(i+1),() => {
-            window.location = linksStored[locateEntry(linksStored,shownButtons[i][0])][2];
-        });
-        document.getElementById("AALCShown"+(i+1)).addEventListener('mousedown', e => {if (e.button === 1) {window.open(linksStored[locateEntry(linksStored,shownButtons[i][0])][2]);e.preventDefault();}});
-        console.log(elmt[i]);
-
-        makeButton("Add","","AALCAdd"+(i+1),"min-width:15px;height:20px;padding:0px;position:absolute;float:right;top:"+(40+(40*i))+"px;right:2px;",false,suggestionbox,"last","");
-        makeButton("Ignore","","AALCIgnore"+(i+1),"min-width:15px;height:20px;padding:0px;position:absolute;float:right;top:"+(40+(40*i))+"px;right:28px;",false,suggestionbox,"last","");
-        addClick("AALCAdd"+(i+1),() => {
-            var testelm1 = document.getElementById("AALCAdd"+(i+1));
-            var testelm2 = document.getElementById("AALCShown"+(i+1));
-            var testelm3 = document.getElementById("AALCIgnore"+(i+1));
-            testelm1.remove();
-            testelm2.remove();
-            testelm3.remove();
-            shownButtons.splice(shownButtons.length,1)
-            addButton(false,shownButtons[i][0],linksStored[locateEntry(linksStored,shownButtons[i][0])][2]);
-            linksSorted = sortLinks();
-            suggestionTitle.innerHTML = refreshFrequent(shownButtons.length-1);
-            window.location = window.location.href;
-        });
-        addClick("AALCIgnore"+(i+1),() => {
-            var testelm1 = document.getElementById("AALCAdd"+(i+1));
-            var testelm2 = document.getElementById("AALCShown"+(i+1));
-            var testelm3 = document.getElementById("AALCIgnore"+(i+1));
-            testelm1.remove();
-            testelm2.remove();
-            testelm3.remove();
-            shownButtons.splice(shownButtons.length,1)
-            linksSorted = sortLinks();
-            suggestionTitle.innerHTML = refreshFrequent(shownButtons.length-1);
-
-            linksStored[locateEntry(linksStored,testelm2.innerHTML.replace("<u>","").replace("</u>",""))][3] = true;
-            GM_SuperValue.set("linksStored",linksStored);
-            window.location = window.location.href;
-        });
-
+    function pageFound(arr,url) {
+        for(let i = 0; i < arr.length; i++) {
+            if(currURL == JSON.parse(GM_getValue("masterButtons"))[i][1]) {
+                return true;
+            }
+        }
+        return false
     }
 
-    GM_SuperValue.set("linksStored",linksStored);
+    function addCurrentPage(name, url) {
+        if(!pageFound(JSON.parse(GM_getValue("masterButtons")),currURL)) {
+            addButton(false,document.getElementById("DeltaPlaceHolderPageTitleInTitleArea").innerText,currURL);
+            linksStored.splice(locateEntry(linksStored,nameURL));
+            window.location = window.location.href;
+        }
+    }
 
     function deleteLinks() {
         if(confirm("Clear suggested link data? This is reset all link counts and reset all ignored links.")) {
@@ -783,5 +805,13 @@ GM_addStyle ( `
         font-size: 10px;
         width: 66%;
         cursor: pointer;
+    }
+
+    .suggestionChange {
+        min-width:15px;
+        height:20px;
+        padding:0px;
+        position:absolute;
+        float:right;
     }
 ` );
