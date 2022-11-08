@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         AA EMTS Dashboard Adjuster
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.11
 // @description  try to take over the world!
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-Quick-Nav/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -58,7 +58,7 @@
         var pageContent = document.getElementById("page-content");
         pageContent.style.top = "-30px";
         pageContent.style.left = "-30px";
-        pageContent.style.width = "102.1%";
+        pageContent.style.width = "102%";
 
         var colorbar = document.getElementsByClassName("c-dashboard__chart-color-bar");
         for(let i = 0; i < colorbar.length; i++) {
