@@ -6,7 +6,7 @@
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
 // @updateURL    https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
-// @match        https://webapp.brightmetrics.com/UI-2/pages/Dashboard.aspx
+// @match        https://webapp.brightmetrics.com/UI-2/pages/Dashboard.aspx*
 // @icon         https://cdn.worldvectorlogo.com/logos/assa.svg
 // @grant        none
 // ==/UserScript==
