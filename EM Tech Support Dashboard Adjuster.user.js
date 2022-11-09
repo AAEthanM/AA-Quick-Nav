@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    http://tampermonkey.net/
-// @version      0.12
+// @version      0.13
 // @description  try to take over the world!
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -30,35 +30,32 @@
         "-130px", //TPS New Haven
         "-130px", //TPS Berlin
     ];
+    var changesTop = [
+        ["graph18","-10px",],
+        ["graph19","-93px"],
+    ];
 
-    window.setTimeout(adjust,5000);
-    window.setTimeout(adjust,10000);
+    for(let i = 0; i < 10; i++) {
+        window.setTimeout(adjust,1000*i);
+    }
 
     function adjust() {
         for(let i = 0; i < changesHeight.length; i++) {
-            console.log(changesHeight[i][0]);
-            var elm = document.getElementById(changesHeight[i][0].toString());
-            elm.style.height = changesHeight[i][1]+"px";
+            var heightelm = document.getElementById(changesHeight[i][0].toString());
+            heightelm.style.height = changesHeight[i][1]+"px";
         }
         for(let i = 1; i <= changesTier2.length; i++) {
             var tier2spacing = document.getElementsByClassName("ui-selectee");
-            console.log(tier2spacing);
             tier2spacing[i].style.top = changesTier2[i-1];
         }
-
-        var graph18 = document.getElementById("graph18");
-        var graph19 = document.getElementById("graph19");
-
-        graph18.style.top = "-10px";
-        graph18.style.position = "relative";
-
-        graph19.style.top = "-93px";
-        graph19.style.position = "relative";
+        for(let i = 0; i < changesTop.length; i++) {
+            var topelm = document.getElementById(changesTop[i][0].toString());
+            topelm.style.height = changesTop[i][1];
+            topelm.style.position = "relative";
+        }
 
         var pageContent = document.getElementById("page-content");
-        pageContent.style.top = "-30px";
-        pageContent.style.left = "-30px";
-        pageContent.style.width = "102%";
+        pageContent.setAttribute("style","top:-30px;left:-30px;width:102%;");
 
         var colorbar = document.getElementsByClassName("c-dashboard__chart-color-bar");
         for(let i = 0; i < colorbar.length; i++) {
