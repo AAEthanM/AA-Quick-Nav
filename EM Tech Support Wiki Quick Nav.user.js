@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.4.32
+// @version      1.4.33
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -18,7 +18,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "11/7/22";
+const currdate = "11/9/22";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,7 +92,6 @@ const currdate = "11/7/22";
     var navAttr = GM_getValue("isShowing") ? "display:block;" : "display:none;";
     GM_setValue("isEdit",false);
     var toggleAttr = firstToggleColor.concat("display:block;");
-    var s = setButtonLimit();
 
     var coverbox4 = addDiv("AAQNBox4","cover","border:2px solid #038387;padding:8px;top:0px;height:fit-content;min-width:91%;",insertDiv,"first","",'div');
     if(GM_getValue("isShowing")) {coverbox4.style.display = 'block';}
@@ -132,6 +131,16 @@ const currdate = "11/7/22";
         buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
         defButtons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
     }
+    try {
+        tryParseJSONObject(JSON.parse(GM_getValue("masterButtons")));
+    } catch(errror) {
+        GM_setValue("masterButtons",JSON.stringify(buttons));
+    }
+    if(!tryParseJSONObject(JSON.parse(GM_getValue("masterButtons")))) {
+        GM_setValue("masterButtons",JSON.stringify(buttons));
+    }
+
+    var s = setButtonLimit();
 
     //Adds unique ID to each static button that sit over the toggle button for category selection
     for(let i = 0; i < preButtonsStatic.length; i++) {
@@ -619,7 +628,15 @@ const currdate = "11/7/22";
 
     //Function to globally set how many rows of buttons there are according to how many total and how many buttons per row are visible
     function setButtonLimit() {
-        s = Math.ceil(JSON.parse(GM_getValue("masterButtons").length)/buttonsPerRow);
+        try {
+            var a = JSON.parse(GM_getValue("masterButtons"));
+            if(!a.length) {
+                GM_setValue("masterButtons",JSON.stringify(buttons));
+            }
+        } catch(error) {
+            GM_setValue("masterButtons",JSON.stringify(buttons));
+        }
+        s = Math.ceil(JSON.parse(GM_getValue("masterButtons")).length/buttonsPerRow);
         return s;
     }
 
@@ -707,6 +724,23 @@ const currdate = "11/7/22";
             }
         }
     }
+
+    function tryParseJSONObject(jsonString) {
+        try {
+            var o = JSON.parse(jsonString);
+
+            // Handle non-exception-throwing cases:
+            // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
+            // but... JSON.parse(null) returns null, and typeof null === "object",
+            // so we must check for that, too. Thankfully, null is falsey, so this suffices:
+            if (o && typeof o === "object") {
+                return o;
+            }
+        }
+        catch (e) { }
+
+        return false;
+    };
 
 })();
 
