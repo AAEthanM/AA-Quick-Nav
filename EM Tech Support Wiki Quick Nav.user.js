@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    http://tampermonkey.net/
-// @version      1.4.31
+// @version      1.4.32
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -481,8 +481,11 @@ const currdate = "11/7/22";
 
     //Refresh Cookies to have the storage arrays access fresh data when reloading page
     function refreshCookies() {
-        if(!JSON.parse(GM_getValue("masterButtons"))) {
-            GM_setValue("masterButtons",JSON.stringify(buttons))
+        try {
+            var a = JSON.parse(GM_getValue("masterButtons"));
+        } catch(error) {
+            alert(error);
+            GM_setValue("masterButtons",JSON.stringify(buttons));
         }
         buttons = JSON.parse(GM_getValue("masterButtons"));
         for(let i = 0; i < GM_getValue("totalButtons"); i++) {
