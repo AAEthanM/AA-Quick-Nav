@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    http://tampermonkey.net/
-// @version      0.14
+// @version      0.15
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
