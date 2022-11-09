@@ -1,19 +1,17 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    http://tampermonkey.net/
-// @version      0.13
+// @version      0.14
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
 // @updateURL    https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
-// @match        https://webapp.brightmetrics.com/UI-2/pages/Dashboard.aspx?dashtoken=3b760263-9d0b-4dfc-a4a2-0b716bafb205/3ae5c019-1390-4f1b-93dd-46f4e065cbb7
+// @match        https://webapp.brightmetrics.com/UI-2/pages/Dashboard.aspx
 // @icon         https://cdn.worldvectorlogo.com/logos/assa.svg
 // @grant        none
 // ==/UserScript==
-
 (function() {
     'use strict';
-
     var changesHeight = [
         ["graph8",368],
         ["chart_l83glbs1-ej9pm0fe3b",132],
@@ -34,11 +32,7 @@
         ["graph18","-10px",],
         ["graph19","-93px"],
     ];
-
-    for(let i = 0; i < 10; i++) {
-        window.setTimeout(adjust,1000*i);
-    }
-
+    for(let i = 0; i < 10; i++) {window.setTimeout(adjust,1000*i);}
     function adjust() {
         for(let i = 0; i < changesHeight.length; i++) {
             var heightelm = document.getElementById(changesHeight[i][0].toString());
@@ -53,14 +47,11 @@
             topelm.style.height = changesTop[i][1];
             topelm.style.position = "relative";
         }
-
         var pageContent = document.getElementById("page-content");
         pageContent.setAttribute("style","top:-30px;left:-30px;width:102%;");
-
         var colorbar = document.getElementsByClassName("c-dashboard__chart-color-bar");
         for(let i = 0; i < colorbar.length; i++) {
             colorbar[i].style.height = "0px";
         }
     }
-
 })();
