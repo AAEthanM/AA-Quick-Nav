@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.4.40
+// @version      1.4.51
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -18,7 +18,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "11/9/22";
+const currdate = "11/7/22";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,14 +84,15 @@ const currdate = "11/9/22";
     var references = {};
     var defButtons = [];
 
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Functional Code, Run at Startup
-
     //Creation of area box, static buttons within, add event listeners for clicks
     var firstToggleColor = GM_getValue("isShowing") ? "color:#C40000;" : "color:#038387;";
     var navAttr = GM_getValue("isShowing") ? "display:block;" : "display:none;";
     GM_setValue("isEdit",false);
     var toggleAttr = firstToggleColor.concat("display:block;");
+    var s = setButtonLimit();
 
     var coverbox4 = addDiv("AAQNBox4","cover","border:2px solid #038387;padding:8px;top:0px;height:fit-content;min-width:91%;",insertDiv,"first","",'div');
     if(GM_getValue("isShowing")) {coverbox4.style.display = 'block';}
@@ -131,16 +132,6 @@ const currdate = "11/9/22";
         buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
         defButtons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
     }
-    try {
-        tryParseJSONObject(JSON.parse(GM_getValue("masterButtons")));
-    } catch(errror) {
-        GM_setValue("masterButtons",JSON.stringify(buttons));
-    }
-    if(!tryParseJSONObject(JSON.parse(GM_getValue("masterButtons")))) {
-        GM_setValue("masterButtons",JSON.stringify(buttons));
-    }
-
-    var s = setButtonLimit();
 
     //Adds unique ID to each static button that sit over the toggle button for category selection
     for(let i = 0; i < preButtonsStatic.length; i++) {
@@ -172,7 +163,6 @@ const currdate = "11/9/22";
     //Refresh Cookies before actions take place
     refreshCookies();
     mainButtons();
-
 
     //ASSA ABLOY Link Counter Add-on
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -222,7 +212,7 @@ const currdate = "11/9/22";
         });
 
         makeButton("Add","","AALCAdd"+(i+1),"top:"+(40+(40*i))+"px;right:2px;",false,suggestionbox,"last","suggestionChange");
-        makeButton("Ignore","","AALCIgnore"+(i+1),"top:"+(40+(40*i))+"px;right:25px;",false,suggestionbox,"last","suggestionChange");
+        makeButton("Ignore","","AALCIgnore"+(i+1),"top:"+(40+(40*i))+"px;right:28px;",false,suggestionbox,"last","suggestionChange");
         addClick("AALCAdd"+(i+1),() => {
             var testelm1 = document.getElementById("AALCAdd"+(i+1));
             var testelm2 = document.getElementById("AALCShown"+(i+1));
@@ -264,7 +254,6 @@ const currdate = "11/9/22";
     addClick("AALCAddCurrent",() => {
         addCurrentPage();
     });
-    console.log();
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Function Access
 
@@ -490,19 +479,13 @@ const currdate = "11/9/22";
 
     //Refresh Cookies to have the storage arrays access fresh data when reloading page
     function refreshCookies() {
-        try {
-            var a = JSON.parse(GM_getValue("masterButtons"));
-        } catch(error) {
-            alert(error);
+        if(!parseJSONSafely(GM_getValue("masterButtons"))) {
             GM_setValue("masterButtons",JSON.stringify(buttons));
-        }
-        if(!GM_getValue("totalButtons")) {
-            GM_setValue("totalButtons",JSON.parse(GM_getValue("masterButtons")).length);
-            alert("test");
-            window.location = window.location.href;
+            GM_setValue("totalButtons",buttons.length);
         }
         buttons = JSON.parse(GM_getValue("masterButtons"));
-        for(let i = 0; i < GM_getValue("totalButtons"); i++) {
+        console.log(JSON.parse(GM_getValue("masterButtons")));
+        for(let i = 0; i < JSON.parse(GM_getValue("masterButtons")).length; i++) {
             if(getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"name") && getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"url")) {
                 buttons[i][0] = getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"name");
                 buttons[i][1] = getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"url");
@@ -562,9 +545,7 @@ const currdate = "11/9/22";
 
     //Increment amount of buttons
     function addButton(pmt=true,name,link) {
-        if(!GM_getValue("totalButtons")) {
-            GM_setValue("totalButtons",buttons.length);
-        } else if(GM_getValue("totalButtons")>=buttons.length) {
+        if(GM_getValue("totalButtons")>=buttons.length) {
             if(pmt) {
                 var title = prompt("Enter Title for new Button");
                 var url = prompt("Enter Link for new Button");
@@ -633,15 +614,7 @@ const currdate = "11/9/22";
 
     //Function to globally set how many rows of buttons there are according to how many total and how many buttons per row are visible
     function setButtonLimit() {
-        try {
-            var a = JSON.parse(GM_getValue("masterButtons"));
-            if(!a.length) {
-                GM_setValue("masterButtons",JSON.stringify(buttons));
-            }
-        } catch(error) {
-            GM_setValue("masterButtons",JSON.stringify(buttons));
-        }
-        s = Math.ceil(JSON.parse(GM_getValue("masterButtons")).length/buttonsPerRow);
+        s = Math.ceil(JSON.parse(GM_getValue("masterButtons").length)/buttonsPerRow);
         return s;
     }
 
@@ -730,22 +703,17 @@ const currdate = "11/9/22";
         }
     }
 
-    function tryParseJSONObject(jsonString) {
+    function parseJSONSafely(str) {
         try {
-            var o = JSON.parse(jsonString);
-
-            // Handle non-exception-throwing cases:
-            // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
-            // but... JSON.parse(null) returns null, and typeof null === "object",
-            // so we must check for that, too. Thankfully, null is falsey, so this suffices:
-            if (o && typeof o === "object") {
-                return o;
-            }
+            return JSON.parse(str)
         }
-        catch (e) { }
-
-        return false;
-    };
+        catch (e) {
+            // Return a default object, or null based on use case.
+            return false;
+        }
+    }
+    console.log(parseJSONSafely(GM_getValue("masterButtons")));
+    console.log(parseJSONSafely(""));
 
 })();
 
@@ -753,13 +721,9 @@ const currdate = "11/9/22";
 //CSS Styles for HTML Elements
 GM_addStyle ( `
     .dummy {
-
     }
-
     .buttonDummy {
-
     }
-
     .editingButtons {
         display:none;
         position:absolute;
@@ -773,7 +737,6 @@ GM_addStyle ( `
         min-height:1px !important;
         cursor:pointer;
     }
-
     .editingButtonsText {
         display:none;
         position:absolute;
@@ -788,7 +751,6 @@ GM_addStyle ( `
         cursor:pointer;
         padding:0px;
     }
-
     .staticButtons {
         position: absolute;
         top: 0px;
@@ -797,7 +759,6 @@ GM_addStyle ( `
         cursor: pointer;
         width: 100px;
     }
-
     .editIcon {
         position:         absolute;
         float:            left;
@@ -810,7 +771,6 @@ GM_addStyle ( `
         top:              5px;
         background-image: url(https://www.freeiconspng.com/thumbs/edit-icon-png/edit-new-icon-22.png);
     }
-
     .cover {
         position: relative;
         display: block;
@@ -823,7 +783,6 @@ GM_addStyle ( `
         border: 2px solid #038387;
         min-width: 100%;
     }
-
     .defaultButton {
         padding:0px;
         color:red;
@@ -838,7 +797,6 @@ GM_addStyle ( `
         height:20px;
         min-width:fit-content;
     }
-
     .suggestionList {
         position: absolute;
         color: blue;
@@ -848,7 +806,6 @@ GM_addStyle ( `
         width: 66%;
         cursor: pointer;
     }
-
     .suggestionChange {
         min-width:15px;
         height:20px;
