@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.4.53
+// @version      1.4.54
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -18,7 +18,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "11/10/22";
+const currdate = "11/16/22";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +84,17 @@ const currdate = "11/10/22";
     var references = {};
     var defButtons = [];
 
+    //Adds unique ID to each button that is generated dynamically for the main buttons, adds new dimension to default array
+    for(let i = 0; i < preButtons.length; i++) {
+        buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
+        defButtons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
+    }
+
+    if(!parseJSONSafely(GM_getValue("masterButtons"))) {
+        GM_setValue("masterButtons",JSON.stringify(buttons));
+        GM_setValue("totalButtons",buttons.length);
+    }
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Functional Code, Run at Startup
@@ -126,12 +137,6 @@ const currdate = "11/10/22";
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Looping code for dynamically generated buttons, visible status, ID creation
-
-    //Adds unique ID to each button that is generated dynamically for the main buttons, adds new dimension to default array
-    for(let i = 0; i < preButtons.length; i++) {
-        buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
-        defButtons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
-    }
 
     //Adds unique ID to each static button that sit over the toggle button for category selection
     for(let i = 0; i < preButtonsStatic.length; i++) {
@@ -479,10 +484,6 @@ const currdate = "11/10/22";
 
     //Refresh Cookies to have the storage arrays access fresh data when reloading page
     function refreshCookies() {
-        if(!parseJSONSafely(GM_getValue("masterButtons"))) {
-            GM_setValue("masterButtons",JSON.stringify(buttons));
-            GM_setValue("totalButtons",buttons.length);
-        }
         buttons = JSON.parse(GM_getValue("masterButtons"));
         console.log(JSON.parse(GM_getValue("masterButtons")));
         for(let i = 0; i < JSON.parse(GM_getValue("masterButtons")).length; i++) {
@@ -614,7 +615,7 @@ const currdate = "11/10/22";
 
     //Function to globally set how many rows of buttons there are according to how many total and how many buttons per row are visible
     function setButtonLimit() {
-        s = Math.ceil(JSON.parse(GM_getValue("masterButtons").length)/buttonsPerRow);
+        s = Math.ceil(JSON.parse(GM_getValue("masterButtons")).length/buttonsPerRow);
         return s;
     }
 
