@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.4.56
+// @version      1.4.57
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -10,10 +10,11 @@
 // @icon         https://cdn.worldvectorlogo.com/logos/assa.svg
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @grant        GM_SuperValue
 // @grant        GM_cookie
 // @grant        GM_info
 // @grant        GM_addStyle
-// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js
+// @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require      https://userscripts-mirror.org/scripts/source/107941.user.js
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
