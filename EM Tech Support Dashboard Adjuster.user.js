@@ -64,7 +64,7 @@
     window.setTimeout(execute,6000);
     function execute() {
         totalTasa();
-        // adjust();
+        adjust();
         window.setTimeout(execute,1000);
     }
 
@@ -76,23 +76,23 @@
         var leftTable1 = leftTable.children[0].children[0].children[0].children[0];
         globalFrac[0] = leftTable1;
         var leftTable1num = leftTable1.children[8].innerText;
-        var leftTable1den = leftTable1.children[4].innerText;
+        var leftTable1den = leftTable1.children[6].innerText;
 
 
         var leftTable2 = leftTable.children[0].children[0].children[0].children[1];
         globalFrac[1] = leftTable2;
         var leftTable2num = leftTable2.children[8].innerText;
-        var leftTable2den = leftTable2.children[4].innerText;
+        var leftTable2den = leftTable2.children[6].innerText;
 
         var leftTable3 = leftTable.children[0].children[0].children[0].children[2];
         globalFrac[2] = leftTable3;
         var leftTable3num = leftTable3.children[8].innerText;
-        var leftTable3den = leftTable3.children[4].innerText;
+        var leftTable3den = leftTable3.children[6].innerText;
 
         var leftTable4 = leftTable.children[0].children[0].children[0].children[3];
         globalFrac[3] = leftTable4;
         var leftTable4num = leftTable4.children[8].innerText;
-        var leftTable4den = leftTable4.children[4].innerText;
+        var leftTable4den = leftTable4.children[6].innerText;
 
         var leftTable1PerElm = leftTable1.children[10];
         var leftTable1PerStr = leftTable1PerElm.innerText.substring(leftTable1PerElm.innerText.length-1,0)
