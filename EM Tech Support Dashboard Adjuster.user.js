@@ -168,7 +168,7 @@
         var loggedin = sortByColumn(trimLoggedOut(names),6);
         var idleonly = isolateIdle(loggedin);
 
-        amNext(idleonly, "Anthony R");
+        amNext(idleonly, "");
 
         for(let i = 1; i < globalFrac[0].childElementCount-1; i++) {
             if(i==6) {
