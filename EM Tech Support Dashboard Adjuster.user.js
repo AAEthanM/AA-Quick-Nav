@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.16
+// @version      0.17
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -76,23 +76,23 @@
         var leftTable1 = leftTable.children[0].children[0].children[0].children[0];
         globalFrac[0] = leftTable1;
         var leftTable1num = leftTable1.children[8].innerText;
-        var leftTable1den = leftTable1.children[6].innerText;
+        var leftTable1den = leftTable1.children[4].innerText;
 
 
         var leftTable2 = leftTable.children[0].children[0].children[0].children[1];
         globalFrac[1] = leftTable2;
         var leftTable2num = leftTable2.children[8].innerText;
-        var leftTable2den = leftTable2.children[6].innerText;
+        var leftTable2den = leftTable2.children[4].innerText;
 
         var leftTable3 = leftTable.children[0].children[0].children[0].children[2];
         globalFrac[2] = leftTable3;
         var leftTable3num = leftTable3.children[8].innerText;
-        var leftTable3den = leftTable3.children[6].innerText;
+        var leftTable3den = leftTable3.children[4].innerText;
 
         var leftTable4 = leftTable.children[0].children[0].children[0].children[3];
         globalFrac[3] = leftTable4;
         var leftTable4num = leftTable4.children[8].innerText;
-        var leftTable4den = leftTable4.children[6].innerText;
+        var leftTable4den = leftTable4.children[4].innerText;
 
         var leftTable1PerElm = leftTable1.children[10];
         var leftTable1PerStr = leftTable1PerElm.innerText.substring(leftTable1PerElm.innerText.length-1,0)
@@ -168,10 +168,10 @@
         var loggedin = sortByColumn(trimLoggedOut(names),6);
         var idleonly = isolateIdle(loggedin);
 
-        amNext(idleonly);
+        amNext(idleonly, "Anthony R");
 
         for(let i = 1; i < globalFrac[0].childElementCount-1; i++) {
-            if(i==4) {
+            if(i==6) {
             } else {
                 globalFrac[0].children[i].setAttribute("style","display:none");
                 globalFrac[1].children[i].setAttribute("style","display:none");
@@ -179,18 +179,18 @@
                 globalFrac[3].children[i].setAttribute("style","display:none");
             }
         }
-        globalFrac[0].children[4].innerText = globalFrac[0].children[8].innerText + "/" + globalFrac[0].children[6].innerText;
-        globalFrac[1].children[4].innerText = globalFrac[1].children[8].innerText + "/" + globalFrac[1].children[6].innerText;
-        globalFrac[2].children[4].innerText = globalFrac[2].children[8].innerText + "/" + globalFrac[2].children[6].innerText;
-        globalFrac[3].children[4].innerText = globalFrac[3].children[8].innerText + "/" + globalFrac[3].children[6].innerText;
+        globalFrac[0].children[6].innerText = globalFrac[0].children[8].innerText + "/" + globalFrac[0].children[4].innerText;
+        globalFrac[1].children[6].innerText = globalFrac[1].children[8].innerText + "/" + globalFrac[1].children[4].innerText;
+        globalFrac[2].children[6].innerText = globalFrac[2].children[8].innerText + "/" + globalFrac[2].children[4].innerText;
+        globalFrac[3].children[6].innerText = globalFrac[3].children[8].innerText + "/" + globalFrac[3].children[4].innerText;
     }
 
-    function amNext(arr) {
+    function amNext(arr, name) {
         if(arr.length == 0) {
         } else {
             if(!GM_getValue("amINext")) {
                 try {
-                    if(arr[arr.length-1][0] == "Ethan M.") {
+                    if(arr[arr.length-1][0] == name) {
                         GM_setValue("amINext",true);
                         GM_notification(notificationDetails);
                         dingSound();
@@ -203,7 +203,7 @@
             }
 
             if(GM_getValue("amINext")) {
-                if(arr[arr.length-1][0] != "Ethan M.") {
+                if(arr[arr.length-1][0] != name) {
                     GM_setValue("amINext",false);
                 }
             }
