@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.17
+// @version      0.19
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -21,11 +21,19 @@
 (function() {
     'use strict';
 
+    var agentName;
+
     var globalFrac = [];
 
-    var notificationDetails = {
+    var amNextNotify = {
         text: 'You are next in line for a call by idle duration! Prepare for your phone to ring soon.',
         title: 'ShoreTel Caller Queue Warning',
+        timeout: 120000,
+    };
+
+    var chatAlertNotify = {
+        text: 'You are receiving a chat! Answer it in ShoreTel!',
+        title: 'ShoreTel Chat Alert',
         timeout: 120000,
     };
 
@@ -48,17 +56,6 @@
     var changesTop = [
         ["graph18","-10px",],
         ["graph19","-93px"],
-    ];
-
-    var agents = [
-        "Alfred G",
-        "Anthony R",
-        "Darryl M",
-        "Ethan M.",
-        "Greg S",
-        "Jackie G",
-        "Luz G",
-        "William N",
     ];
 
     window.setTimeout(execute,6000);
@@ -101,6 +98,9 @@
         var leftTablenum = parseInt(leftTable1num) + parseInt(leftTable2num) + parseInt(leftTable3num) + parseInt(leftTable4num);
         var leftTableden = parseInt(leftTable1den) + parseInt(leftTable2den) + parseInt(leftTable3den) + parseInt(leftTable4den);
         var leftTablefrac = (leftTablenum/leftTableden*100).toString();
+        if(isNaN(leftTablefrac)) {
+            leftTablefrac = 100;
+        }
         var leftTablefracStr = leftTablefrac.substring(0,leftTablefrac.indexOf(".")+4);
 
         if(!document.getElementById("TotalTASADisplay")) {
@@ -114,6 +114,7 @@
     }
 
     function adjust() {
+
         var box = document.getElementById("chart_graph8");
         var titlesElm = box.children[0].children[0].children[0].children[0]; //Title Bar
         var titles = [];
@@ -164,11 +165,14 @@
                             namesElm.children[j].children[9].innerText,]);
             }
         }
+
         var durationsSorted = sortByColumn(names,6);
         var loggedin = sortByColumn(trimLoggedOut(names),6);
         var idleonly = isolateIdle(loggedin);
-
-        amNext(idleonly, "");
+        console.log(GM_getValue("currentUser"));
+        if(GM_getValue("currentUser")===undefined) {
+            agentNaming(loggedin);
+        }
 
         for(let i = 1; i < globalFrac[0].childElementCount-1; i++) {
             if(i==6) {
@@ -179,10 +183,28 @@
                 globalFrac[3].children[i].setAttribute("style","display:none");
             }
         }
+
         globalFrac[0].children[6].innerText = globalFrac[0].children[8].innerText + "/" + globalFrac[0].children[4].innerText;
         globalFrac[1].children[6].innerText = globalFrac[1].children[8].innerText + "/" + globalFrac[1].children[4].innerText;
         globalFrac[2].children[6].innerText = globalFrac[2].children[8].innerText + "/" + globalFrac[2].children[4].innerText;
         globalFrac[3].children[6].innerText = globalFrac[3].children[8].innerText + "/" + globalFrac[3].children[4].innerText;
+
+        amNext(idleonly, agentName);
+        chatAlert(loggedin, GM_getValue("currentAgent"));
+
+        if(!document.getElementById("changeUserButton")) {
+            var changeUser = document.createElement("button");
+            changeUser.setAttribute("id","changeUserButton");
+            changeUser.setAttribute("style","position:absolute;float:bottom;left:345px;bottom:0px;z-index:99999;width:80px;height:48px;font-size:20px;");
+            changeUser.innerHTML = "Change User";
+            changeUser.addEventListener("mousedown", () => {agentNaming(loggedin,true);}, false);
+            document.body.appendChild(changeUser);
+            var username = document.createElement("div");
+            username.setAttribute("id","changeUserText");
+            username.setAttribute("style","position:absolute;float:bottom;left:428px;bottom:-5px;z-index:99999;width:120px;height:48px;color:#000;background-color:yellow;padding:3px;font-size:18px;text-align:center");
+            username.innerHTML = "Welcome, " + GM_getValue("currentAgent");
+            document.body.appendChild(username);
+        }
     }
 
     function amNext(arr, name) {
@@ -192,7 +214,7 @@
                 try {
                     if(arr[arr.length-1][0] == name) {
                         GM_setValue("amINext",true);
-                        GM_notification(notificationDetails);
+                        GM_notification(amNextNotify);
                         dingSound();
                     } else {
                         GM_setValue("amINext",false);
@@ -202,10 +224,8 @@
                 }
             }
 
-            if(GM_getValue("amINext")) {
-                if(arr[arr.length-1][0] != name) {
-                    GM_setValue("amINext",false);
-                }
+            if(GM_getValue("amINext") && arr[arr.length-1][0] != name) {
+                GM_setValue("amINext",false);
             }
         }
     }
@@ -213,6 +233,14 @@
     function dingSound() {
         var player = document.createElement('audio');
         player.src = 'https://www.myinstants.com/media/sounds/ding-sound-effect_2.mp3';
+        player.preload = 'auto';
+        player.volume = 0.15;
+        player.play();
+    }
+
+    function dongSound() {
+        var player = document.createElement('audio');
+        player.src = "https://proxy.notificationsounds.com/message-tones/relax-message-tone/download/file-sounds-1217-relax.mp3";
         player.preload = 'auto';
         player.volume = 0.15;
         player.play();
@@ -249,13 +277,6 @@
         return a;
     }
 
-    function refreshStatus(arr) {
-        for(let i = 0; i < arr.length; i++) {
-            var a = locateEntry(arr,agents[i],0);
-            GM_setValue(agents[i]+"Status",getStatus(arr,agents[i]));
-        }
-    }
-
     function getStatus(arr, name) {
         var a = locateEntry(arr, name, 0);
         return arr[a][1];
@@ -285,6 +306,35 @@
             var f = str.substring(indices[0]+1,str.length);
             var g = parseInt(e)*60+parseInt(f);
             return g;
+        }
+    }
+    function chatAlert(arr, name) {
+        var index = locateEntry(arr,name,0);
+        var agentState = arr[index][1];
+        if(agentState == "Chat Alerting" && !GM_getValue("chatAlert")) {
+            GM_setValue("chatAlert",true);
+            GM_notification(chatAlertNotify);
+            dongSound();
+        } else {
+            GM_setValue("chatAlert",false);
+        }
+    }
+
+    function agentNaming(arr, flag) {
+        console.log(arr);
+        if(GM_getValue("currentAgent")===undefined||flag) {
+            agentName = prompt("Who are you?");
+            if(locateEntry(arr,agentName,0)) {
+                GM_setValue("currentAgent", agentName);
+                var username = document.getElementById("changeUserText");
+                username.innerHTML = "Welcome, " + agentName;
+                return agentName;
+            } else {
+                alert("User not found. Please enter name as seen on Dashboard.");
+                agentNaming(arr);
+            }
+        } else {
+            agentName = GM_getValue("currentAgent");
         }
     }
 
