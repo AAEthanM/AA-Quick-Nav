@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.19
+// @version      0.21
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -20,6 +20,8 @@
 /* globals jQuery, $, waitForKeyElements*/
 (function() {
     'use strict';
+
+    GM_setValue("currentAgent",undefined);
 
     var agentName;
 
@@ -170,6 +172,11 @@
         var loggedin = sortByColumn(trimLoggedOut(names),6);
         var idleonly = isolateIdle(loggedin);
         console.log(GM_getValue("currentUser"));
+
+        if(!document.getElementById("changeUserButton")) {
+            updateName(loggedin);
+        }
+
         if(GM_getValue("currentUser")===undefined) {
             agentNaming(loggedin);
         }
@@ -192,19 +199,7 @@
         amNext(idleonly, agentName);
         chatAlert(loggedin, GM_getValue("currentAgent"));
 
-        if(!document.getElementById("changeUserButton")) {
-            var changeUser = document.createElement("button");
-            changeUser.setAttribute("id","changeUserButton");
-            changeUser.setAttribute("style","position:absolute;float:bottom;left:345px;bottom:0px;z-index:99999;width:80px;height:48px;font-size:20px;");
-            changeUser.innerHTML = "Change User";
-            changeUser.addEventListener("mousedown", () => {agentNaming(loggedin,true);}, false);
-            document.body.appendChild(changeUser);
-            var username = document.createElement("div");
-            username.setAttribute("id","changeUserText");
-            username.setAttribute("style","position:absolute;float:bottom;left:428px;bottom:-5px;z-index:99999;width:120px;height:48px;color:#000;background-color:yellow;padding:3px;font-size:18px;text-align:center");
-            username.innerHTML = "Welcome, " + GM_getValue("currentAgent");
-            document.body.appendChild(username);
-        }
+        
     }
 
     function amNext(arr, name) {
@@ -324,11 +319,12 @@
         console.log(arr);
         if(GM_getValue("currentAgent")===undefined||flag) {
             agentName = prompt("Who are you?");
+            console.log(agentName);
             if(locateEntry(arr,agentName,0)) {
                 GM_setValue("currentAgent", agentName);
                 var username = document.getElementById("changeUserText");
                 username.innerHTML = "Welcome, " + agentName;
-                return agentName;
+                window.location = window.location.href;
             } else {
                 alert("User not found. Please enter name as seen on Dashboard.");
                 agentNaming(arr);
@@ -336,6 +332,20 @@
         } else {
             agentName = GM_getValue("currentAgent");
         }
+    }
+
+    function updateName(arr) {
+        var changeUser = document.createElement("button");
+        changeUser.setAttribute("id","changeUserButton");
+        changeUser.setAttribute("style","position:absolute;float:bottom;left:345px;bottom:0px;z-index:99999;width:80px;height:48px;font-size:20px;");
+        changeUser.innerHTML = "Change User";
+        changeUser.addEventListener("mousedown", () => {agentNaming(arr,true);}, false);
+        document.body.appendChild(changeUser);
+        var username = document.createElement("div");
+        username.setAttribute("id","changeUserText");
+        username.setAttribute("style","position:absolute;float:bottom;left:428px;bottom:-5px;z-index:99999;width:120px;height:48px;color:#000;background-color:yellow;padding:3px;font-size:18px;text-align:center");
+        username.innerHTML = "Welcome, " + GM_getValue("currentAgent");
+        document.body.appendChild(username);
     }
 
 })();
