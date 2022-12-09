@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.22
+// @version      0.23
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -169,7 +169,6 @@
         var durationsSorted = sortByColumn(names,6);
         var loggedin = sortByColumn(trimLoggedOut(names),6);
         var idleonly = isolateIdle(loggedin);
-        console.log(GM_getValue("currentUser"));
 
         if(!document.getElementById("changeUserButton")) {
             updateName(loggedin);
@@ -314,10 +313,8 @@
     }
 
     function agentNaming(arr, flag) {
-        console.log(arr);
         if(GM_getValue("currentAgent")===undefined||flag) {
             agentName = prompt("Who are you?");
-            console.log(agentName);
             if(locateEntry(arr,agentName,0)) {
                 GM_setValue("currentAgent", agentName);
                 var username = document.getElementById("changeUserText");
