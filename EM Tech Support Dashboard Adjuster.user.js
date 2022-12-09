@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.21
+// @version      0.22
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -20,8 +20,6 @@
 /* globals jQuery, $, waitForKeyElements*/
 (function() {
     'use strict';
-
-    GM_setValue("currentAgent",undefined);
 
     var agentName;
 
