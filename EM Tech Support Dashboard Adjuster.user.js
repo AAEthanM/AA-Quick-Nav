@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.23
+// @version      0.24
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -21,6 +21,7 @@
 (function() {
     'use strict';
 
+    var adjustWindow = false;
     var agentName;
 
     var globalFrac = [];
@@ -61,7 +62,7 @@
     window.setTimeout(execute,6000);
     function execute() {
         totalTasa();
-        adjust();
+        if(adjustWindow) adjust();
         window.setTimeout(execute,1000);
     }
 
@@ -95,13 +96,13 @@
         var leftTable1PerStr = leftTable1PerElm.innerText.substring(leftTable1PerElm.innerText.length-1,0)
         var rightTable = statTables[1];
 
-        var leftTablenum = parseInt(leftTable1num) + parseInt(leftTable2num) + parseInt(leftTable3num) + parseInt(leftTable4num);
-        var leftTableden = parseInt(leftTable1den) + parseInt(leftTable2den) + parseInt(leftTable3den) + parseInt(leftTable4den);
+        var leftTablenum = 5;//parseInt(leftTable1num) + parseInt(leftTable2num) + parseInt(leftTable3num) + parseInt(leftTable4num);
+        var leftTableden = 7;//parseInt(leftTable1den) + parseInt(leftTable2den) + parseInt(leftTable3den) + parseInt(leftTable4den);
         var leftTablefrac = (leftTablenum/leftTableden*100).toString();
         if(isNaN(leftTablefrac)) {
             leftTablefrac = 100;
         }
-        var leftTablefracStr = leftTablefrac.substring(0,leftTablefrac.indexOf(".")+4);
+        var leftTablefracStr = leftTablefrac.substring(0,6);
 
         if(!document.getElementById("TotalTASADisplay")) {
             var totalDisplayElm = document.createElement("div");
@@ -174,7 +175,7 @@
             updateName(loggedin);
         }
 
-        if(GM_getValue("currentUser")===undefined) {
+        if(GM_getValue("currentUser")===undefined&&adjustWindow) {
             agentNaming(loggedin);
         }
 
