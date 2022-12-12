@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.24
+// @version      0.25
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -96,8 +96,8 @@
         var leftTable1PerStr = leftTable1PerElm.innerText.substring(leftTable1PerElm.innerText.length-1,0)
         var rightTable = statTables[1];
 
-        var leftTablenum = 5;//parseInt(leftTable1num) + parseInt(leftTable2num) + parseInt(leftTable3num) + parseInt(leftTable4num);
-        var leftTableden = 7;//parseInt(leftTable1den) + parseInt(leftTable2den) + parseInt(leftTable3den) + parseInt(leftTable4den);
+        var leftTablenum = parseInt(leftTable1num) + parseInt(leftTable2num) + parseInt(leftTable3num) + parseInt(leftTable4num);
+        var leftTableden = parseInt(leftTable1den) + parseInt(leftTable2den) + parseInt(leftTable3den) + parseInt(leftTable4den);
         var leftTablefrac = (leftTablenum/leftTableden*100).toString();
         if(isNaN(leftTablefrac)) {
             leftTablefrac = 100;
