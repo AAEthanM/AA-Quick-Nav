@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.25
+// @version      0.26
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -102,7 +102,7 @@
         if(isNaN(leftTablefrac)) {
             leftTablefrac = 100;
         }
-        var leftTablefracStr = leftTablefrac.substring(0,6);
+        var leftTablefracStr = leftTablefrac.toString().substring(0,Math.min(leftTablefrac.toString().length,6));
 
         if(!document.getElementById("TotalTASADisplay")) {
             var totalDisplayElm = document.createElement("div");
@@ -149,7 +149,7 @@
         for(let i = 0; i < titlesElm.childElementCount; i++) {
             titles.push(titlesElm.children[i].innerText);
         }
-        
+
         for(let i = 0; i < 1; i++) {
             for(let j = 0; j < namesElm.childElementCount; j++) {
                 names.push([namesElm.children[j].children[0].innerText,
@@ -197,7 +197,7 @@
         amNext(idleonly, agentName);
         chatAlert(loggedin, GM_getValue("currentAgent"));
 
-        
+
     }
 
     function amNext(arr, name) {
@@ -305,8 +305,8 @@
         var index = locateEntry(arr,name,0);
         var agentState = arr[index][1];
         if(agentState == "Chat Alerting" && !GM_getValue("chatAlert")) {
+            if(!GM_getValue("chatAlert")) GM_notification(chatAlertNotify);
             GM_setValue("chatAlert",true);
-            GM_notification(chatAlertNotify);
             dongSound();
         } else {
             GM_setValue("chatAlert",false);
