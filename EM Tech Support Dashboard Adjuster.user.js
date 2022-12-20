@@ -104,7 +104,7 @@
         if(isNaN(leftTablefrac)) {
             leftTablefrac = 100;
         }
-        var leftTablefracStr = leftTablefrac.toString().substring(0,Math.min(leftTablefrac.toString().length,6));
+        var leftTablefracStr = leftTablefrac.toString().substring(0,Math.min(leftTablefrac.toString().length,4));
 
         if(!document.getElementById("TotalTASADisplay")) {
             var totalDisplayElm = document.createElement("div");
