@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.27
+// @version      0.30
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -22,6 +22,7 @@
     'use strict';
 
     var adjustWindow = false;
+    var useNotifcations = false;
     var agentName;
 
     var globalFrac = [];
@@ -69,31 +70,32 @@
 
     function totalTasa() {
         var statTables = document.getElementsByClassName("c-tbl c-tbl--centered c-text-chart--board");
+        var statTables2 = document.getElementsByClassName("c-text-chart--board__value-header");
+        console.log(statTables);
+        console.log(statTables2);
         var fraction = [];
         var leftTable = statTables[0];
         var leftTable1 = leftTable.children[0].children[0].children[0].children[0];
         globalFrac[0] = leftTable1;
-        var leftTable1num = leftTable1.children[8].innerText;
+        var leftTable1num = leftTable1.children[6].innerText;
         var leftTable1den = leftTable1.children[4].innerText;
 
 
         var leftTable2 = leftTable.children[0].children[0].children[0].children[1];
         globalFrac[1] = leftTable2;
-        var leftTable2num = leftTable2.children[8].innerText;
+        var leftTable2num = leftTable2.children[6].innerText;
         var leftTable2den = leftTable2.children[4].innerText;
 
         var leftTable3 = leftTable.children[0].children[0].children[0].children[2];
         globalFrac[2] = leftTable3;
-        var leftTable3num = leftTable3.children[8].innerText;
+        var leftTable3num = leftTable3.children[6].innerText;
         var leftTable3den = leftTable3.children[4].innerText;
 
         var leftTable4 = leftTable.children[0].children[0].children[0].children[3];
         globalFrac[3] = leftTable4;
-        var leftTable4num = leftTable4.children[8].innerText;
+        var leftTable4num = leftTable4.children[6].innerText;
         var leftTable4den = leftTable4.children[4].innerText;
 
-        var leftTable1PerElm = leftTable1.children[10];
-        var leftTable1PerStr = leftTable1PerElm.innerText.substring(leftTable1PerElm.innerText.length-1,0)
         var rightTable = statTables[1];
 
         var leftTablenum = parseInt(leftTable1num) + parseInt(leftTable2num) + parseInt(leftTable3num) + parseInt(leftTable4num);
@@ -180,7 +182,7 @@
         }
 
         for(let i = 1; i < globalFrac[0].childElementCount-1; i++) {
-            if(i==6) {
+            if(i==1) {
             } else {
                 globalFrac[0].children[i].setAttribute("style","display:none");
                 globalFrac[1].children[i].setAttribute("style","display:none");
@@ -188,14 +190,17 @@
                 globalFrac[3].children[i].setAttribute("style","display:none");
             }
         }
-
-        globalFrac[0].children[6].innerText = globalFrac[0].children[8].innerText + "/" + globalFrac[0].children[4].innerText;
-        globalFrac[1].children[6].innerText = globalFrac[1].children[8].innerText + "/" + globalFrac[1].children[4].innerText;
-        globalFrac[2].children[6].innerText = globalFrac[2].children[8].innerText + "/" + globalFrac[2].children[4].innerText;
-        globalFrac[3].children[6].innerText = globalFrac[3].children[8].innerText + "/" + globalFrac[3].children[4].innerText;
+        console.log(globalFrac[0].children);
+        globalFrac[0].children[6].setAttribute("style","display:none");
+        globalFrac[1].children[6].setAttribute("style","display:none");
+        globalFrac[2].children[6].setAttribute("style","display:none");
+        globalFrac[3].children[6].setAttribute("style","display:none");
+        globalFrac[0].children[1].innerText = globalFrac[0].children[6].innerText + "/" + globalFrac[0].children[4].innerText;
+        globalFrac[1].children[1].innerText = globalFrac[1].children[6].innerText + "/" + globalFrac[1].children[4].innerText;
+        globalFrac[2].children[1].innerText = globalFrac[2].children[6].innerText + "/" + globalFrac[2].children[4].innerText;
+        globalFrac[3].children[1].innerText = globalFrac[3].children[6].innerText + "/" + globalFrac[3].children[4].innerText;
 
         amNext(idleonly, agentName);
-        console.log(loggedin);
         chatAlert(loggedin, GM_getValue("currentAgent"));
 
 
@@ -338,17 +343,19 @@
     }
 
     function updateName(arr) {
-        var changeUser = document.createElement("button");
-        changeUser.setAttribute("id","changeUserButton");
-        changeUser.setAttribute("style","position:absolute;float:bottom;left:345px;bottom:0px;z-index:99999;width:80px;height:48px;font-size:20px;");
-        changeUser.innerHTML = "Change User";
-        changeUser.addEventListener("mousedown", () => {agentNaming(arr,true);}, false);
-        document.body.appendChild(changeUser);
-        var username = document.createElement("div");
-        username.setAttribute("id","changeUserText");
-        username.setAttribute("style","position:absolute;float:bottom;left:428px;bottom:-5px;z-index:99999;width:120px;height:48px;color:#000;background-color:yellow;padding:3px;font-size:18px;text-align:center");
-        username.innerHTML = "Welcome, " + GM_getValue("currentAgent");
-        document.body.appendChild(username);
+        if(useNotifcations) {
+            var changeUser = document.createElement("button");
+            changeUser.setAttribute("id","changeUserButton");
+            changeUser.setAttribute("style","position:absolute;float:bottom;left:380px;bottom:0px;z-index:99999;width:80px;height:48px;font-size:20px;");
+            changeUser.innerHTML = "Change User";
+            changeUser.addEventListener("mousedown", () => {agentNaming(arr,true);}, false);
+            document.body.appendChild(changeUser);
+            var username = document.createElement("div");
+            username.setAttribute("id","changeUserText");
+            username.setAttribute("style","position:absolute;float:bottom;left:470px;bottom:-5px;z-index:99999;width:120px;height:48px;color:#000;background-color:yellow;padding:3px;font-size:18px;text-align:center");
+            username.innerHTML = "Welcome, " + GM_getValue("currentAgent");
+            document.body.appendChild(username);
+        }
     }
 
 })();
