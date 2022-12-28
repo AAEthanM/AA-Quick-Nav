@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.31
+// @version      0.32
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -22,7 +22,7 @@
     'use strict';
 
     var adjustWindow = false;
-    var useNotifcations = false;
+    var useNotifcations = true;
     var agentName;
 
     var globalFrac = [];
@@ -202,6 +202,9 @@
 
         amNext(idleonly, agentName);
         chatAlert(loggedin, GM_getValue("currentAgent"));
+        OOSAlert(loggedin, GM_getValue("currentAgent"));
+        ForcedRelAlert(loggedin, GM_getValue("currentAgent"));
+        console.log(loggedin);
 
 
     }
@@ -314,13 +317,49 @@
         } else {
             agentState = "";
         }
-        if(agentState == "Chat Alerting" && !GM_getValue("chatAlert")) {
+        if(agentState == "Chat Alerting") {
             if(!GM_getValue("chatAlert")) {
                 //GM_notification(chatAlertNotify);
                 GM_setValue("chatAlert",true);
                 dongSound();
             } else {
                 GM_setValue("chatAlert",false);
+            }
+        }
+    }
+
+    function OOSAlert(arr, name) {
+        var index = locateEntry(arr,name,0);
+        if(arr.length>0) {
+        var agentState = arr[index][3];
+        } else {
+            agentState = "";
+        }
+        if(agentState == "OOS") { //&& !GM_getValue("OOSAlert")) {
+            if(!GM_getValue("OOSAlert")) {
+                //GM_notification(chatAlertNotify);
+                GM_setValue("OOSAlert",true);
+                dongSound();
+            } else {
+                GM_setValue("OOSAlert",false);
+            }
+        }
+    }
+
+    function ForcedRelAlert(arr, name) {
+        var index = locateEntry(arr,name,0);
+        if(arr.length>0) {
+        var agentState = arr[index][3];
+        } else {
+            agentState = "";
+        }
+        if(agentState == "Forced Release") { //&& !GM_getValue("ForcedRelAlert")) {
+            if(!GM_getValue("ForcedRelAlert")) {
+                //GM_notification(chatAlertNotify);
+                GM_setValue("ForcedRelAlert",true);
+                dongSound();
+            } else {
+                GM_setValue("ForcedRelAlert",false);
             }
         }
     }
