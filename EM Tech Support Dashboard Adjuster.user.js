@@ -22,9 +22,6 @@
 (function() {
     'use strict';
     var agentName;
-    GM.deleteValue("notifyUser");
-    GM.deleteValue("adjustToggle");
-    GM.deleteValue("currentAgent");
     try {
         GM_getValue("notifyUser");
     } catch (e) {
