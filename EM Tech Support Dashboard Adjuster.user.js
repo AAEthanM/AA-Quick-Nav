@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.33
+// @version      0.34
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -11,6 +11,7 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_cookie
+// @grant        GM_SuperValue
 // @grant        GM_info
 // @grant        GM_addStyle
 // @grant        GM_notification
@@ -21,6 +22,9 @@
 (function() {
     'use strict';
     var agentName;
+    GM.deleteValue("notifyUser");
+    GM.deleteValue("adjustToggle");
+    GM.deleteValue("currentAgent");
     try {
         GM_getValue("notifyUser");
     } catch (e) {
@@ -32,6 +36,14 @@
     } catch (e) {
         GM_setValue("adjustToggle",false);
         console.log(e);
+    }
+
+    if(GM_getValue("notifyUser")===undefined) {
+        GM_setValue("notifyUser",false);
+    }
+
+    if(GM_getValue("adjustToggle")===undefined) {
+        GM_setValue("adjustToggle",false);
     }
 
     var globalFrac = [];
