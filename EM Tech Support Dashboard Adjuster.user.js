@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.32
+// @version      0.33
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -20,10 +20,19 @@
 /* globals jQuery, $, waitForKeyElements*/
 (function() {
     'use strict';
-
-    var adjustWindow = false;
-    var useNotifcations = true;
     var agentName;
+    try {
+        GM_getValue("notifyUser");
+    } catch (e) {
+        GM_setValue("notifyUser",false);
+        console.log(e);
+    }
+    try {
+        GM_getValue("adjustToggle");
+    } catch (e) {
+        GM_setValue("adjustToggle",false);
+        console.log(e);
+    }
 
     var globalFrac = [];
 
@@ -63,7 +72,75 @@
     window.setTimeout(execute,6000);
     function execute() {
         totalTasa();
-        if(adjustWindow) adjust();
+        if(GM_getValue("adjustToggle")) adjust();
+
+        var box = document.getElementById("chart_graph8");
+        var box2 = document.getElementById("chart_l83glbs1-ej9pm0fe3b");
+        var titlesElm = box.children[0].children[0].children[0].children[0]; //Title Bar
+        var titles = [];
+        var namesElm = box.children[0].children[0].children[1]; //Names (.children[0].innerText is first name)
+        var namesElm2 = box2.children[0].children[0].children[1];
+        console.log(namesElm2.children[0]);
+        var names = [];
+
+        for(let i = 0; i < titlesElm.childElementCount; i++) {
+            titles.push(titlesElm.children[i].innerText);
+        }
+
+        for(let i = 0; i < 1; i++) {
+            for(let j = 0; j < namesElm.childElementCount; j++) {
+                names.push([namesElm.children[j].children[0].innerText,               //Name
+                            namesElm.children[j].children[1].innerText,               //Status
+                            namesElm.children[j].children[1].style.backgroundColor,   //Status Color
+                            namesElm.children[j].children[2].innerText,               //Release Code
+                            namesElm.children[j].children[3].innerText,               //Caller Name
+                            namesElm.children[j].children[4].innerText,               //Connected ID
+                            convertTime(namesElm.children[j].children[5].innerText),  //Duration
+                            namesElm.children[j].children[5].style.backgroundColor,   //Duration Color
+                            namesElm.children[j].children[6].innerText,               //ACD
+                            ]);
+            }
+
+            for(let j = 0; j < namesElm2.childElementCount; j++) {
+                names.push([namesElm2.children[j].children[0].innerText,               //Name
+                            namesElm2.children[j].children[1].innerText,               //Status
+                            namesElm2.children[j].children[1].style.backgroundColor,   //Status Color
+                            namesElm2.children[j].children[2].innerText,               //Release Code
+                            namesElm2.children[j].children[3].innerText,               //Caller Name
+                            namesElm2.children[j].children[4].innerText,               //Connected ID
+                            convertTime(namesElm2.children[j].children[5].innerText),  //Duration
+                            namesElm2.children[j].children[5].style.backgroundColor,   //Duration Color
+                            namesElm2.children[j].children[6].innerText,               //ACD
+                            ]);
+            }
+        }
+
+        var durationsSorted = sortByColumn(names,6);
+        var loggedin = sortByColumn(trimLoggedOut(names),6);
+        var idleonly = isolateIdle(loggedin);
+
+        if(!document.getElementById("changeUserButton")) {
+            updateName(loggedin);
+        }
+        if(!document.getElementById("toggleNotifyButton")) {
+            toggleNotify(loggedin);
+        }
+        if(!document.getElementById("toggleAdjustButton")) {
+            toggleAdjust(loggedin);
+        }
+
+        if(GM_getValue("currentUser")===undefined) {
+            agentNaming(loggedin);
+        }
+
+        if(GM_getValue("notifyUser")) {
+            amNext(idleonly, agentName);
+            chatAlert(loggedin, GM_getValue("currentAgent"));
+        }
+        OOSAlert(loggedin, GM_getValue("currentAgent"));
+        ForcedRelAlert(loggedin, GM_getValue("currentAgent"));
+        console.log(loggedin);
+
         window.setTimeout(execute,1000);
     }
 
@@ -71,8 +148,6 @@
     function totalTasa() {
         var statTables = document.getElementsByClassName("c-tbl c-tbl--centered c-text-chart--board");
         var statTables2 = document.getElementsByClassName("c-text-chart--board__value-header");
-        console.log(statTables);
-        console.log(statTables2);
         var fraction = [];
         var leftTable = statTables[0];
         var leftTable1 = leftTable.children[0].children[0].children[0].children[0];
@@ -117,13 +192,6 @@
     }
 
     function adjust() {
-
-        var box = document.getElementById("chart_graph8");
-        var titlesElm = box.children[0].children[0].children[0].children[0]; //Title Bar
-        var titles = [];
-        var namesElm = box.children[0].children[0].children[1]; //Names (.children[0].innerText is first name)
-        var names = [];
-
         for(let i = 0; i < changesHeight.length; i++) {
             var heightelm = document.getElementById(changesHeight[i][0]);
             heightelm.style.height = changesHeight[i][1];
@@ -148,39 +216,6 @@
             headers[i].style.height = "0px";
         }
 
-        for(let i = 0; i < titlesElm.childElementCount; i++) {
-            titles.push(titlesElm.children[i].innerText);
-        }
-
-        for(let i = 0; i < 1; i++) {
-            for(let j = 0; j < namesElm.childElementCount; j++) {
-                names.push([namesElm.children[j].children[0].innerText,
-                            namesElm.children[j].children[1].innerText,
-                            namesElm.children[j].children[1].style.backgroundColor,
-                            namesElm.children[j].children[2].innerText,
-                            namesElm.children[j].children[3].innerText,
-                            namesElm.children[j].children[4].innerText,
-                            convertTime(namesElm.children[j].children[5].innerText),
-                            namesElm.children[j].children[5].style.backgroundColor,
-                            namesElm.children[j].children[6].innerText,
-                            namesElm.children[j].children[7].innerText,
-                            namesElm.children[j].children[8].innerText,
-                            namesElm.children[j].children[9].innerText,]);
-            }
-        }
-
-        var durationsSorted = sortByColumn(names,6);
-        var loggedin = sortByColumn(trimLoggedOut(names),6);
-        var idleonly = isolateIdle(loggedin);
-
-        if(!document.getElementById("changeUserButton")) {
-            updateName(loggedin);
-        }
-
-        if(GM_getValue("currentUser")===undefined&&adjustWindow) {
-            agentNaming(loggedin);
-        }
-
         for(let i = 1; i < globalFrac[0].childElementCount-1; i++) {
             if(i==1) {
             } else {
@@ -190,7 +225,6 @@
                 globalFrac[3].children[i].setAttribute("style","display:none");
             }
         }
-        console.log(globalFrac[0].children);
         globalFrac[0].children[6].setAttribute("style","display:none");
         globalFrac[1].children[6].setAttribute("style","display:none");
         globalFrac[2].children[6].setAttribute("style","display:none");
@@ -199,14 +233,6 @@
         globalFrac[1].children[1].innerText = globalFrac[1].children[6].innerText + "/" + globalFrac[1].children[4].innerText;
         globalFrac[2].children[1].innerText = globalFrac[2].children[6].innerText + "/" + globalFrac[2].children[4].innerText;
         globalFrac[3].children[1].innerText = globalFrac[3].children[6].innerText + "/" + globalFrac[3].children[4].innerText;
-
-        amNext(idleonly, agentName);
-        chatAlert(loggedin, GM_getValue("currentAgent"));
-        OOSAlert(loggedin, GM_getValue("currentAgent"));
-        ForcedRelAlert(loggedin, GM_getValue("currentAgent"));
-        console.log(loggedin);
-
-
     }
 
     function amNext(arr, name) {
@@ -382,18 +408,83 @@
     }
 
     function updateName(arr) {
-        if(useNotifcations) {
-            var changeUser = document.createElement("button");
-            changeUser.setAttribute("id","changeUserButton");
-            changeUser.setAttribute("style","position:absolute;float:bottom;left:380px;bottom:0px;z-index:99999;width:80px;height:48px;font-size:20px;");
-            changeUser.innerHTML = "Change User";
-            changeUser.addEventListener("mousedown", () => {agentNaming(arr,true);}, false);
-            document.body.appendChild(changeUser);
-            var username = document.createElement("div");
-            username.setAttribute("id","changeUserText");
-            username.setAttribute("style","position:absolute;float:bottom;left:470px;bottom:-5px;z-index:99999;width:120px;height:48px;color:#000;background-color:yellow;padding:3px;font-size:18px;text-align:center");
-            username.innerHTML = "Welcome, " + GM_getValue("currentAgent");
-            document.body.appendChild(username);
+        var changeUser = document.createElement("button");
+        changeUser.setAttribute("id","changeUserButton");
+        changeUser.setAttribute("style","position:absolute;float:bottom;left:380px;bottom:0px;z-index:99999;width:80px;height:48px;font-size:20px;");
+        changeUser.innerHTML = "Change User";
+        changeUser.addEventListener("mousedown", () => {agentNaming(arr,true);}, false);
+        document.body.appendChild(changeUser);
+        var username = document.createElement("div");
+        username.setAttribute("id","changeUserText");
+        username.setAttribute("style","position:absolute;float:bottom;left:470px;bottom:-5px;z-index:99999;width:120px;height:48px;color:#000;background-color:yellow;padding:3px;font-size:18px;text-align:center");
+        username.innerHTML = "Welcome, " + GM_getValue("currentAgent");
+        document.body.appendChild(username);
+    }
+
+    function toggleNotify(arr) {
+        var toggleNotify = document.createElement("button");
+        toggleNotify.setAttribute("id","toggleNotifyButton");
+        toggleNotify.setAttribute("style","position:absolute;float:bottom;left:600px;bottom:0px;z-index:99999;width:120px;height:48px;font-size:20px;");
+        if(GM_getValue("notifyUser")) {
+            toggleNotify.innerText = "Turn Notify Off";
+        } else if(!GM_getValue("notifyUser")) {
+            toggleNotify.innerText = "Turn Notify On";
+        }
+        toggleNotify.addEventListener("mousedown", () => {toggleNotifications(arr);}, false);
+        document.body.appendChild(toggleNotify);
+    }
+
+    function toggleNotifications(arr) {
+        var toggleNotify = document.getElementById("toggleNotifyButton");
+        try {
+            if(GM_getValue("notifyUser")==true){
+                GM_setValue("notifyUser",false);
+            } else if(GM_getValue("notifyUser")==false){
+                GM_setValue("notifyUser",true);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+
+        console.log(GM_getValue("notifyUser"));
+
+        if(GM_getValue("notifyUser")==true) {
+            toggleNotify.innerText = "Turn Notify Off";
+        } else if(GM_getValue("notifyUser")==false) {
+            toggleNotify.innerText = "Turn Notify On";
+        }
+    }
+
+    function toggleAdjust(arr) {
+        var toggleAdjust = document.createElement("button");
+        toggleAdjust.setAttribute("id","toggleAdjustButton");
+        toggleAdjust.setAttribute("style","position:absolute;float:bottom;left:720px;bottom:0px;z-index:99999;width:120px;height:48px;font-size:20px;");
+        if(GM_getValue("adjustToggle")) {
+            toggleAdjust.innerText = "Turn Adjust Off";
+        } else if(!GM_getValue("adjustToggle")) {
+            toggleAdjust.innerText = "Turn Adjust On";
+        }
+        toggleAdjust.addEventListener("mousedown", () => {changeAdjust(arr);}, false);
+        document.body.appendChild(toggleAdjust);
+    }
+
+    function changeAdjust(arr) {
+        var toggleAdjust = document.getElementById("toggleAdjustButton");
+        if(GM_getValue("adjustToggle")==true) {
+            GM_setValue("adjustToggle",false);
+            location.reload();
+        } else if(GM_getValue("adjustToggle")==false) {
+            GM_setValue("adjustToggle",true);
+        } else if(GM_getValue("adjustToggle")===undefined) {
+            GM_setValue("adjustToggle",false);
+        }
+
+        console.log(GM_getValue("adjustToggle"));
+
+        if(GM_getValue("adjustToggle")==true) {
+            toggleAdjust.innerText = "Turn Adjust Off";
+        } else if(GM_getValue("adjustToggle")==false) {
+            toggleAdjust.innerText = "Turn Adjust On";
         }
     }
 
