@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.35
+// @version      0.39
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -11,7 +11,6 @@
 // @grant        GM_setValue
 // @grant        GM_getValue
 // @grant        GM_cookie
-// @grant        GM_SuperValue
 // @grant        GM_info
 // @grant        GM_addStyle
 // @grant        GM_notification
@@ -88,45 +87,50 @@
         var titlesElm = box.children[0].children[0].children[0].children[0]; //Title Bar
         var titles = [];
         var namesElm = box.children[0].children[0].children[1]; //Names (.children[0].innerText is first name)
+        console.log(namesElm);
         var namesElm2 = box2.children[0].children[0].children[1];
-        console.log(namesElm2.children[0]);
+        console.log(namesElm2);
         var names = [];
 
         for(let i = 0; i < titlesElm.childElementCount; i++) {
             titles.push(titlesElm.children[i].innerText);
         }
 
-        for(let i = 0; i < 1; i++) {
-            for(let j = 0; j < namesElm.childElementCount; j++) {
-                names.push([namesElm.children[j].children[0].innerText,               //Name
-                            namesElm.children[j].children[1].innerText,               //Status
-                            namesElm.children[j].children[1].style.backgroundColor,   //Status Color
-                            namesElm.children[j].children[2].innerText,               //Release Code
-                            namesElm.children[j].children[3].innerText,               //Caller Name
-                            namesElm.children[j].children[4].innerText,               //Connected ID
-                            convertTime(namesElm.children[j].children[5].innerText),  //Duration
-                            namesElm.children[j].children[5].style.backgroundColor,   //Duration Color
-                            namesElm.children[j].children[6].innerText,               //ACD
-                            ]);
-            }
-
-            for(let j = 0; j < namesElm2.childElementCount; j++) {
-                names.push([namesElm2.children[j].children[0].innerText,               //Name
-                            namesElm2.children[j].children[1].innerText,               //Status
-                            namesElm2.children[j].children[1].style.backgroundColor,   //Status Color
-                            namesElm2.children[j].children[2].innerText,               //Release Code
-                            namesElm2.children[j].children[3].innerText,               //Caller Name
-                            namesElm2.children[j].children[4].innerText,               //Connected ID
-                            convertTime(namesElm2.children[j].children[5].innerText),  //Duration
-                            namesElm2.children[j].children[5].style.backgroundColor,   //Duration Color
-                            namesElm2.children[j].children[6].innerText,               //ACD
-                            ]);
-            }
+        for(let j = 0; j < namesElm.childElementCount; j++) {
+            names.push([namesElm.children[j].children[0].innerText,               //Name
+                        namesElm.children[j].children[1].innerText,               //Status
+                        namesElm.children[j].children[1].style.backgroundColor,   //Status Color
+                        namesElm.children[j].children[2].innerText,               //Release Code
+                        namesElm.children[j].children[3].innerText,               //Caller Name
+                        namesElm.children[j].children[4].innerText,               //Connected ID
+                        convertTime(namesElm.children[j].children[5].innerText),  //Duration
+                        namesElm.children[j].children[5].style.backgroundColor,   //Duration Color
+                        namesElm.children[j].children[6].innerText,               //ACD
+                       ]);
+            console.log(namesElm.children[j].children[0].innerText);
         }
 
+        for(let j = 0; j < namesElm2.childElementCount; j++) {
+            names.push([namesElm2.children[j].children[0].innerText,               //Name
+                        namesElm2.children[j].children[1].innerText,               //Status
+                        namesElm2.children[j].children[1].style.backgroundColor,   //Status Color
+                        namesElm2.children[j].children[2].innerText,               //Release Code
+                        namesElm2.children[j].children[3].innerText,               //Caller Name
+                        namesElm2.children[j].children[4].innerText,               //Connected ID
+                        convertTime(namesElm2.children[j].children[5].innerText),  //Duration
+                        namesElm2.children[j].children[5].style.backgroundColor,   //Duration Color
+                        namesElm2.children[j].children[6].innerText,               //ACD
+                       ]);
+        }
+        console.log(names);
+        
+
         var durationsSorted = sortByColumn(names,6);
+        //console.log(durationsSorted);
         var loggedin = sortByColumn(trimLoggedOut(names),6);
+        //console.log(loggedin);
         var idleonly = isolateIdle(loggedin);
+        //console.log(idleonly);
 
         if(!document.getElementById("changeUserButton")) {
             updateName(loggedin);
@@ -148,7 +152,6 @@
         }
         OOSAlert(loggedin, GM_getValue("currentAgent"));
         ForcedRelAlert(loggedin, GM_getValue("currentAgent"));
-        console.log(loggedin);
 
         window.setTimeout(execute,1000);
     }
@@ -455,8 +458,6 @@
             console.log(e);
         }
 
-        console.log(GM_getValue("notifyUser"));
-
         if(GM_getValue("notifyUser")==true) {
             toggleNotify.innerText = "Turn Notify Off";
         } else if(GM_getValue("notifyUser")==false) {
@@ -487,8 +488,6 @@
         } else if(GM_getValue("adjustToggle")===undefined) {
             GM_setValue("adjustToggle",false);
         }
-
-        console.log(GM_getValue("adjustToggle"));
 
         if(GM_getValue("adjustToggle")==true) {
             toggleAdjust.innerText = "Turn Adjust Off";
