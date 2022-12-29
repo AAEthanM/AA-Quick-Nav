@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.39
+// @version      0.41
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -87,9 +87,7 @@
         var titlesElm = box.children[0].children[0].children[0].children[0]; //Title Bar
         var titles = [];
         var namesElm = box.children[0].children[0].children[1]; //Names (.children[0].innerText is first name)
-        console.log(namesElm);
         var namesElm2 = box2.children[0].children[0].children[1];
-        console.log(namesElm2);
         var names = [];
 
         for(let i = 0; i < titlesElm.childElementCount; i++) {
@@ -107,7 +105,6 @@
                         namesElm.children[j].children[5].style.backgroundColor,   //Duration Color
                         namesElm.children[j].children[6].innerText,               //ACD
                        ]);
-            console.log(namesElm.children[j].children[0].innerText);
         }
 
         for(let j = 0; j < namesElm2.childElementCount; j++) {
@@ -122,7 +119,6 @@
                         namesElm2.children[j].children[6].innerText,               //ACD
                        ]);
         }
-        console.log(names);
         
 
         var durationsSorted = sortByColumn(names,6);
