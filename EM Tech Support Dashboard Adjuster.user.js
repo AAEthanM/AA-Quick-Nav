@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.41
+// @version      0.42
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -138,15 +138,15 @@
             toggleAdjust(loggedin);
         }
 
-        if(GM_getValue("currentUser")===undefined) {
-            agentNaming(loggedin);
+        if(GM_getValue("currentAgent")===undefined) {
+            agentNaming(names);
         }
 
-        if(GM_getValue("notifyUser")) {
-            amNext(idleonly, agentName);
-            chatAlert(loggedin, GM_getValue("currentAgent"));
-        }
-        OOSAlert(loggedin, GM_getValue("currentAgent"));
+        amNext(idleonly, agentName);
+        chatAlert(loggedin, GM_getValue("currentAgent"));
+        
+        OOSAlert(names, GM_getValue("currentAgent"));
+        
         ForcedRelAlert(loggedin, GM_getValue("currentAgent"));
 
         window.setTimeout(execute,1000);
@@ -345,12 +345,12 @@
         }
     }
     function chatAlert(arr, name) {
+        console.log(arr);
+        console.log(name);
         var index = locateEntry(arr,name,0);
-        if(arr.length>0) {
+        console.log("Index: " + index);
         var agentState = arr[index][1];
-        } else {
-            agentState = "";
-        }
+
         if(agentState == "Chat Alerting") {
             if(!GM_getValue("chatAlert")) {
                 //GM_notification(chatAlertNotify);
@@ -364,19 +364,12 @@
 
     function OOSAlert(arr, name) {
         var index = locateEntry(arr,name,0);
-        if(arr.length>0) {
         var agentState = arr[index][3];
-        } else {
-            agentState = "";
-        }
         if(agentState == "OOS") { //&& !GM_getValue("OOSAlert")) {
-            if(!GM_getValue("OOSAlert")) {
-                //GM_notification(chatAlertNotify);
-                GM_setValue("OOSAlert",true);
-                dongSound();
-            } else {
-                GM_setValue("OOSAlert",false);
-            }
+            //GM_notification(chatAlertNotify);
+            GM_setValue("OOSAlert",true);
+            dongSound();
+            alert("You are in OOS.");
         }
     }
 
@@ -392,6 +385,7 @@
                 //GM_notification(chatAlertNotify);
                 GM_setValue("ForcedRelAlert",true);
                 dongSound();
+                alert("You are in Forced Release.");
             } else {
                 GM_setValue("ForcedRelAlert",false);
             }
@@ -405,7 +399,7 @@
                 GM_setValue("currentAgent", agentName);
                 var username = document.getElementById("changeUserText");
                 username.innerHTML = "Welcome, " + agentName;
-                window.location = window.location.href;
+                location.reload();
             } else {
                 alert("User not found. Please enter name as seen on Dashboard.");
                 agentNaming(arr);
