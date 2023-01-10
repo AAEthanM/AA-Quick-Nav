@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.48
+// @version      0.49
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -89,6 +89,7 @@
         var namesElm = box.children[0].children[0].children[1]; //Names (.children[0].innerText is first name)
         var namesElm2 = box2.children[0].children[0].children[1];
         var names = [];
+        var tier1 = [];
 
         for(let i = 0; i < titlesElm.childElementCount; i++) {
             titles.push(titlesElm.children[i].innerText);
@@ -96,6 +97,19 @@
 
         for(let j = 0; j < namesElm.childElementCount; j++) {
             names.push([namesElm.children[j].children[0].innerText,               //Name
+                        namesElm.children[j].children[1].innerText,               //Status
+                        namesElm.children[j].children[1].style.backgroundColor,   //Status Color
+                        namesElm.children[j].children[2].innerText,               //Release Code
+                        namesElm.children[j].children[3].innerText,               //Caller Name
+                        namesElm.children[j].children[4].innerText,               //Connected ID
+                        convertTime(namesElm.children[j].children[5].innerText),  //Duration
+                        namesElm.children[j].children[5].style.backgroundColor,   //Duration Color
+                        namesElm.children[j].children[6].innerText,               //ACD
+                       ]);
+        }
+
+        for(let j = 0; j < namesElm.childElementCount; j++) {
+            tier1.push([namesElm.children[j].children[0].innerText,               //Name
                         namesElm.children[j].children[1].innerText,               //Status
                         namesElm.children[j].children[1].style.backgroundColor,   //Status Color
                         namesElm.children[j].children[2].innerText,               //Release Code
@@ -124,6 +138,7 @@
         var durationsSorted = sortByColumn(names,6);
         //console.log(durationsSorted);
         var loggedin = sortByColumn(trimLoggedOut(names),6);
+        var tier1loggedinIdle = isolateIdle(sortByColumn(trimLoggedOut(tier1),6));
         //console.log(loggedin);
         var idleonly = isolateIdle(loggedin);
         //console.log(idleonly);
@@ -142,7 +157,7 @@
             agentNaming(names);
         }
 
-        amNext(idleonly, agentName);
+        amNext(tier1loggedinIdle, GM_getValue("currentAgent"));
         chatAlert(names, GM_getValue("currentAgent"));
         
         OOSAlert(names, GM_getValue("currentAgent"));
@@ -244,25 +259,20 @@
     }
 
     function amNext(arr, name) {
-        if(arr.length == 0) {
-        } else {
-            if(!GM_getValue("amINext")) {
-                try {
-                    if(arr[arr.length-1][0] == name) {
-                        GM_setValue("amINext",true);
-                        GM_notification(amNextNotify);
-                        dingSound();
-                    } else {
-                        GM_setValue("amINext",false);
-                    }
-                } catch (e) {
-                    console.log(e);
+        console.log(arr);
+        console.log(GM_getValue("amINext"));
+        if(!GM_getValue("amINext")) {
+                if(arr[arr.length-1][0] == name) {
+                    GM_setValue("amINext",true);
+                    GM_notification(amNextNotify);
+                    dingSound();
+                } else {
+                    GM_setValue("amINext",false);
                 }
-            }
+        }
 
-            if(GM_getValue("amINext") && arr[arr.length-1][0] != name) {
-                GM_setValue("amINext",false);
-            }
+        if(GM_getValue("amINext") && arr[arr.length-1][0] != name) {
+            GM_setValue("amINext",false);
         }
     }
 
