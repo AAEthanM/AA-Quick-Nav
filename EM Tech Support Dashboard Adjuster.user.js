@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.42
+// @version      0.48
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -143,11 +143,11 @@
         }
 
         amNext(idleonly, agentName);
-        chatAlert(loggedin, GM_getValue("currentAgent"));
+        chatAlert(names, GM_getValue("currentAgent"));
         
         OOSAlert(names, GM_getValue("currentAgent"));
         
-        ForcedRelAlert(loggedin, GM_getValue("currentAgent"));
+        ForcedRelAlert(names, GM_getValue("currentAgent"));
 
         window.setTimeout(execute,1000);
     }
