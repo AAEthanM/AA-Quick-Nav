@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.49
+// @version      0.50
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -77,7 +77,7 @@
         ["graph19","-93px"],
     ];
 
-    window.setTimeout(execute,6000);
+    window.setTimeout(execute,8000);
     function execute() {
         totalTasa();
         if(GM_getValue("adjustToggle")) adjust();
@@ -121,6 +121,8 @@
                        ]);
         }
 
+        console.log(tier1);
+
         for(let j = 0; j < namesElm2.childElementCount; j++) {
             names.push([namesElm2.children[j].children[0].innerText,               //Name
                         namesElm2.children[j].children[1].innerText,               //Status
@@ -138,7 +140,8 @@
         var durationsSorted = sortByColumn(names,6);
         //console.log(durationsSorted);
         var loggedin = sortByColumn(trimLoggedOut(names),6);
-        var tier1loggedinIdle = isolateIdle(sortByColumn(trimLoggedOut(tier1),6));
+        var tier1loggedinIdle = isolateIdle(sortByColumn(tier1,6));
+        console.log(tier1loggedinIdle);
         //console.log(loggedin);
         var idleonly = isolateIdle(loggedin);
         //console.log(idleonly);
@@ -259,7 +262,6 @@
     }
 
     function amNext(arr, name) {
-        console.log(arr);
         console.log(GM_getValue("amINext"));
         if(!GM_getValue("amINext")) {
                 if(arr[arr.length-1][0] == name) {
