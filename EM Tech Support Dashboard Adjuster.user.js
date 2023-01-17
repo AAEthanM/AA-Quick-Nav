@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Dashboard Adjuster
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      0.50
+// @version      0.51
 // @description  Condenses the tech support dashboard to allow for smaller windows without obscuring information
 // @author       You
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/AA%20EMTS%20Dashboard%20Adjuster.user.js
@@ -161,7 +161,7 @@
         }
 
         amNext(tier1loggedinIdle, GM_getValue("currentAgent"));
-        chatAlert(names, GM_getValue("currentAgent"));
+        chatAlert(loggedin, GM_getValue("currentAgent"));
         
         OOSAlert(names, GM_getValue("currentAgent"));
         
@@ -262,8 +262,9 @@
     }
 
     function amNext(arr, name) {
-        console.log(GM_getValue("amINext"));
-        if(!GM_getValue("amINext")) {
+        if(arr.length>0) {
+            console.log(GM_getValue("amINext"));
+            if(!GM_getValue("amINext")) {
                 if(arr[arr.length-1][0] == name) {
                     GM_setValue("amINext",true);
                     GM_notification(amNextNotify);
@@ -271,10 +272,13 @@
                 } else {
                     GM_setValue("amINext",false);
                 }
-        }
+            }
 
-        if(GM_getValue("amINext") && arr[arr.length-1][0] != name) {
-            GM_setValue("amINext",false);
+            if(GM_getValue("amINext") && arr[arr.length-1][0] != name) {
+                GM_setValue("amINext",false);
+            }
+        } else {
+            //location.reload();
         }
     }
 
