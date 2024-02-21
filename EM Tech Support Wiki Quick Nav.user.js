@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.4.57
+// @version      1.5.0
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -19,7 +19,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "11/18/22";
+const currdate = "2/21/24";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -189,6 +189,7 @@ const currdate = "11/18/22";
         }
     }
 
+    /*
     var boxText;
     var suggestionbox = addDiv("AALCSuggestionBox","",
                                "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+40+10)+"px;min-width:109.5%;",
@@ -250,6 +251,7 @@ const currdate = "11/18/22";
 
     }
 
+
     GM_SuperValue.set("linksStored",linksStored);
 
     makeButton("Add Current Page","","AALCAddCurrent","font-size:12px;padding:0px;position:relative;float:right;right:-2px;display:" +
@@ -260,6 +262,7 @@ const currdate = "11/18/22";
     addClick("AALCAddCurrent",() => {
         addCurrentPage();
     });
+    */
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Function Access
 
