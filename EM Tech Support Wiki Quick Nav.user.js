@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.5.01
+// @version      1.5.02
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -189,7 +189,7 @@ const currdate = "2/21/24";
         }
     }
 
-    /*
+    
     var boxText;
     var suggestionbox = addDiv("AALCSuggestionBox","",
                                "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+40+10)+"px;min-width:109.5%;",
@@ -203,6 +203,7 @@ const currdate = "2/21/24";
         deleteLinks();
     });
     var sideBarSpacing = addDiv("AALCSpacing","","height:20px;",coverbox4,"last","",'div');
+
 
     if(!shownButtons.length) suggestionTitle.innerHTML = refreshFrequent();
 
@@ -248,7 +249,6 @@ const currdate = "2/21/24";
             GM_SuperValue.set("linksStored",linksStored);
             window.location = window.location.href;
         });
-
     }
 
 
@@ -262,7 +262,7 @@ const currdate = "2/21/24";
     addClick("AALCAddCurrent",() => {
         addCurrentPage();
     });
-    */
+    
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Function Access
 
