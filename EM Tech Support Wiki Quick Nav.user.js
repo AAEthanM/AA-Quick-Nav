@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.5.02
+// @version      1.5.1
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -185,7 +185,7 @@ const currdate = "2/21/24";
     var shownButtons = [];
     for(let i = 0; i < linksSorted.length; i++) {
         if(!linksSorted[i][3]) {
-            shownButtons.push([linksSorted[i][0],linksSorted[i][1]]);
+            shownButtons.push([linksSorted[i][0],linksSorted[i][1],""]);
         }
     }
 
@@ -207,8 +207,11 @@ const currdate = "2/21/24";
 
     if(!shownButtons.length) suggestionTitle.innerHTML = refreshFrequent();
 
+    console.log(shownButtons);
+    var shownButtonsShortened = truncateLinks(shownButtons);
+
     for(let i = 0; i < Math.min(frequentPagesCount,shownButtons.length); i++) {
-        var elmt = addDiv("AALCShown"+(i+1),"suggestionList","top:"+(40+(40*i))+"px;",suggestionbox,"last","<u>"+shownButtons[i][0]+"</u>",'div');
+        var elmt = addDiv("AALCShown"+(i+1),"suggestionList","top:"+(40+(40*i))+"px;",suggestionbox,"last","<u>"+shownButtonsShortened[i][2]+"</u>",'div');
         addClick("AALCShown"+(i+1),() => {
             window.location = linksStored[locateEntry(linksStored,shownButtons[i][0])][2];
         });
@@ -250,6 +253,8 @@ const currdate = "2/21/24";
             window.location = window.location.href;
         });
     }
+
+    console.log(shownButtonsShortened)
 
 
     GM_SuperValue.set("linksStored",linksStored);
@@ -489,7 +494,6 @@ const currdate = "2/21/24";
     //Refresh Cookies to have the storage arrays access fresh data when reloading page
     function refreshCookies() {
         buttons = JSON.parse(GM_getValue("masterButtons"));
-        console.log(JSON.parse(GM_getValue("masterButtons")));
         for(let i = 0; i < JSON.parse(GM_getValue("masterButtons")).length; i++) {
             if(getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"name") && getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"url")) {
                 buttons[i][0] = getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"name");
@@ -617,6 +621,19 @@ const currdate = "2/21/24";
         }
     }
 
+    function truncateLinks(list) {
+        var lengthLimit = 38;
+        for(let i = 0; i < list.length; i++) {
+            if(list[i][0].length>=lengthLimit) {
+                list[i][2] = list[i][0].substring(0,lengthLimit) + "...";
+            } else {
+                list[i][2] = list[i][0]
+            }
+        }
+        console.log(list)
+        return list;
+    }
+
     //Function to globally set how many rows of buttons there are according to how many total and how many buttons per row are visible
     function setButtonLimit() {
         s = Math.ceil(JSON.parse(GM_getValue("masterButtons")).length/buttonsPerRow);
@@ -717,8 +734,8 @@ const currdate = "2/21/24";
             return false;
         }
     }
-    console.log(parseJSONSafely(GM_getValue("masterButtons")));
-    console.log(parseJSONSafely(""));
+    //console.log(parseJSONSafely(GM_getValue("masterButtons")));
+    //console.log(parseJSONSafely(""));
 
 })();
 
