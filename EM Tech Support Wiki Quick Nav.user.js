@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.5.2
+// @version      1.5.31
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -111,7 +111,7 @@ const currdate = "2/21/24";
     else if(!GM_getValue("isShowing")) {coverbox4.style.display = 'none';}
     else {alert(errors.badHide)}
     var coverbox = addDiv("AAQNBox","cover",navAttr.concat('height:'+resizeBox()+'px !important;'),insertDiv,"first","",'div');
-    var coverbox2 = addDiv("AAQNBox2","cover",'min-height:' + (2*vScalingAttr+hBorder-1) + 'px',insertDiv,"first","",'div');
+    var coverbox2 = addDiv("AAQNBox2","cover",'min-height:' + (2*vScalingAttr+hBorder-1) + 'px;min-width:100%;',insertDiv,"first","",'div');
     var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:20px',insertDiv,"first","",'div');
 
     var editText = addDiv("AAQNEditText","editingButtonsText","top:5px;left:5px;display:none;",coverbox4,"first","Edit Mode Activated",'div');
@@ -147,7 +147,7 @@ const currdate = "2/21/24";
     //Adds unique ID to each button that is generated dynamically for static category buttons
     for(let i = 0; i < buttonsStatic.length; i++) {
         makeButton(buttonsStatic[i][0],buttonsStatic[i][1],buttonsStatic[i][2],
-                   defAttr.concat("display:inline-block;width:24%;top:0px;left:"+(hScalingAttr*i+(-10))+"px"),
+                   defAttr.concat("display:inline-block;width:23.5%;top:0px;left:"+(hScalingAttr*i+(-10))+"px"),
                    true, coverbox2, "first",)
         addClick(buttonsStatic[i][2],function() {navigateToURL(buttonsStatic[i][1])});
     }
@@ -160,7 +160,7 @@ const currdate = "2/21/24";
         toggleStatus = '\u2193 Toggle Show/Hide \u2193';
     } else {toggleStatus = 'Toggle Show/Hide'; alert(errors.toggleSet)}
     makeButton(toggleStatus,"","AAQNButtonToggle",
-               defAttr.concat(toggleAttr,"font-size:15px;width:99%;top:"+(vScalingAttr+2)+"px;left:-10px;"),
+               defAttr.concat(toggleAttr,"font-size:15px;width:98.5%;top:"+(vScalingAttr+2)+"px;left:-10px;"),
                false, coverbox2, "first");
     var toggleButton = document.getElementById("AAQNButtonToggle");
     toggleButton.style.fontSize = "15px";
@@ -189,7 +189,7 @@ const currdate = "2/21/24";
         }
     }
 
-    
+
     var boxText;
     var suggestionbox = addDiv("AALCSuggestionBox","",
                                "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+40+10)+"px;min-width:109.5%;",
@@ -267,7 +267,7 @@ const currdate = "2/21/24";
     addClick("AALCAddCurrent",() => {
         addCurrentPage();
     });
-    
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Function Access
 
