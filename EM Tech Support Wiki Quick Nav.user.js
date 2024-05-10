@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.5.1
+// @version      1.5.11
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -284,6 +284,7 @@ const currdate = "2/21/24";
                 if(buttons[i+(j*buttonsPerRow)][0].toString().includes("IO ")) {bColorIO = "color:blue;";} //Account for Intelligent Openings Links, turn them blue to note moving to external page
                 else {bColorIO = "color:black;";}
                 if(flag) bAttr = defAttr.concat("color:red;"); else bAttr = defAttr;
+                if(buttons[i+(j*buttonsPerRow)][0].length>20) buttons[i+(j*buttonsPerRow)][0] = buttons[i+(j*buttonsPerRow)][0].substring(0,20) + "..."
                 makeButton(buttons[i+(j*buttonsPerRow)][0], buttons[i+(j*buttonsPerRow)][1], buttons[i+(j*buttonsPerRow)][2],
                            bAttr.concat(navAttr,bColorIO,""+
                                         "position:absolute;width:"+(Math.floor(180/buttonsPerRow)-2)+"px;"+
@@ -622,7 +623,7 @@ const currdate = "2/21/24";
     }
 
     function truncateLinks(list) {
-        var lengthLimit = 38;
+        var lengthLimit = 40;
         for(let i = 0; i < list.length; i++) {
             if(list[i][0].length>=lengthLimit) {
                 list[i][2] = list[i][0].substring(0,lengthLimit) + "...";
