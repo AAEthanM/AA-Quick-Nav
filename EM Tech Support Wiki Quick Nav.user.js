@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.5.11
+// @version      1.5.12
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -40,7 +40,7 @@ const currdate = "2/21/24";
         ["Home","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Home.aspx"],
         ["EMS","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Electromechanical%20Product%20Lines.aspx"],
         ["ACS","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Access%20Control%20Product%20Lines.aspx"],
-        ["Alert","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Product%20Alert%20Index.aspx"],
+        ["Alerts","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Product%20Alert%20Index.aspx"],
     ];
 
     var preButtons = [ //List main butons
