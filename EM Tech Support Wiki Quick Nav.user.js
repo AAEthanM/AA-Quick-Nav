@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.5.31
+// @version      1.5.41
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -19,12 +19,12 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "2/21/24";
+const currdate = "5/22/24";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Constants for later access
-    const hScalingAttr = 45;
+    const hScalingAttr = 45.5;
     const vScalingAttr = 30;
     const hBorder = 5;
     const leftPush = -4;
@@ -36,14 +36,16 @@ const currdate = "2/21/24";
     var buttons = [];
     var buttonsStatic = [];
 
-    var preButtonsStatic = [ //List category buttons
+    //List category buttons that stay static and cant be edited
+    var preButtonsStatic = [
         ["Home","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Home.aspx"],
         ["EMS","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Electromechanical%20Product%20Lines.aspx"],
         ["ACS","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Access%20Control%20Product%20Lines.aspx"],
         ["Alerts","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Product%20Alert%20Index.aspx"],
     ];
 
-    var preButtons = [ //List main butons
+    //List of buttons in the customizable section
+    var preButtons = [
         ["80 Series","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/80%20Series.aspx"],
         ["56-","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/56-.aspx"],
         ["59-","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/59-.aspx"],
@@ -62,16 +64,10 @@ const currdate = "2/21/24";
         ["10 Line","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/10%20Line.aspx"],
         ["Yale 6000","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/6000%20Series.aspx"],
         ["8800FL","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/8800FL.aspx"],
-
-        ["IO Home","https://secure.intelligentopenings.com/en/partner-area/partner-area-start/information/"],
-        ["IO Aperio","https://secure.intelligentopenings.com/en/partner-area/partner-area-start/information/aperio/"],
-        ["IO IWP","https://secure.intelligentopenings.com/en/partner-area/partner-area-start/information/wiegand/"],
-        ["IO IP Enbd","https://secure.intelligentopenings.com/en/partner-area/partner-area-start/information/ip-enabled/"],
-        ["IO Multi","https://secure.intelligentopenings.com/en/partner-area/partner-area-start/information/multi-family/"],
-        ["IO Persona","https://secure.intelligentopenings.com/en/partner-area/partner-area-start/information/persona/"],
         //["",""],
     ];
 
+    //Table of errors to throw when applicable
     var errors = {
         "editBlank":     "Quick Nav Error: Bad Button Edit, one or both new button entries were left blank. Changes were not made.",
         "editURL":       "Quick Nav Error: Bad Button Edit, invalid URL entered (must include http:// or https://). Changes were not made.",
@@ -85,12 +81,13 @@ const currdate = "2/21/24";
     var references = {};
     var defButtons = [];
 
-    //Adds unique ID to each button that is generated dynamically for the main buttons, adds new dimension to default array
+    //Adds unique ID to each button that is generated dynamically for the main section, adds new dimension to default array
     for(let i = 0; i < preButtons.length; i++) {
         buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
         defButtons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
     }
 
+    //Reset persistent flags if an error in the JSON is found
     if(!parseJSONSafely(GM_getValue("masterButtons"))) {
         GM_setValue("masterButtons",JSON.stringify(buttons));
         GM_setValue("totalButtons",buttons.length);
@@ -100,37 +97,60 @@ const currdate = "2/21/24";
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Functional Code, Run at Startup
     //Creation of area box, static buttons within, add event listeners for clicks
+
+    //Find current show/hide status and set text color, show/hide accordingly
     var firstToggleColor = GM_getValue("isShowing") ? "color:#C40000;" : "color:#038387;";
     var navAttr = GM_getValue("isShowing") ? "display:block;" : "display:none;";
+
+    //Set default editing value to false
     GM_setValue("isEdit",false);
+
     var toggleAttr = firstToggleColor.concat("display:block;");
     var s = setButtonLimit();
 
-    var coverbox4 = addDiv("AAQNBox4","cover","border:2px solid #038387;padding:8px;top:0px;height:fit-content;min-width:91%;",insertDiv,"first","",'div');
+    //Create box for link suggestions
+    //Creating box4 needs to come before all others to stack the sections correctly
+    var coverbox4 = addDiv("AAQNBox4","cover","border:3px solid #038387;padding:8px;top:0px;height:fit-content;min-width:91%;",insertDiv,"first","",'div');
+
+    //Show suggestion box if set to show buttons
     if(GM_getValue("isShowing")) {coverbox4.style.display = 'block';}
     else if(!GM_getValue("isShowing")) {coverbox4.style.display = 'none';}
     else {alert(errors.badHide)}
+
+
+    //if(GM_getValue("totalButtons")>buttons.length) {GM_setValue("totalButtons",buttons.length)}
+    //Create box for main button section
     var coverbox = addDiv("AAQNBox","cover",navAttr.concat('height:'+resizeBox()+'px !important;'),insertDiv,"first","",'div');
+
+    //Create box for static category buttons
     var coverbox2 = addDiv("AAQNBox2","cover",'min-height:' + (2*vScalingAttr+hBorder-1) + 'px;min-width:100%;',insertDiv,"first","",'div');
+
+    //Create box for version info and adding current page to button list
     var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:20px',insertDiv,"first","",'div');
 
+    //Create text in the link suggestion section that shows when edit mode is enabled. Add click handler to text to disable edit mode
     var editText = addDiv("AAQNEditText","editingButtonsText","top:5px;left:5px;display:none;",coverbox4,"first","Edit Mode Activated",'div');
     addClick(editText.id,toggleEdit, false);
 
+    //Forming version text and info
     var vStr = "Quick Nav v" + GM_info.script.version + "<br></br>" + currdate
     var versionStr = addDiv("AAQNVersion","dummy","line-height:50%;display:block;margin-bottom:0em;font-size:10px;position:absolute;top:0px;",coverbox3,"first",vStr,'div');
 
+    //Create edit icon and set click handler to toggle edit mode
     makeButton("", "", "AAQNEdit", navAttr, false, coverbox3, "first","editIcon");
     addClick("AAQNEdit",toggleEdit);
 
+    //Create button to set the buttons to the hard-coded defaults, only when edit mode is enabled
     makeButton("Default","","AAQNSetDefaults","display:none;top:4px;width:50px;",false,coverbox4,"last","defaultButton");
     addClick("AAQNSetDefaults",setDefaults);
 
+    //Create button to add a new custom button, add click handler
     makeButton("","","AAQNIncButton","top:40px;left:-28px;"+
                "background-image:url(https://cdn-icons-png.flaticon.com/128/1828/1828919.png);"
                ,false,coverbox3,"last","editingButtons");
     addClick("AAQNIncButton",addButton);
 
+    //Create button to remove the last button in the list, add click handler
     makeButton("","","AAQNDecButton","top:60px;left:-28px;"+
                "background-image:url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHXAPDoIPop7SR4oP3dc4ICRzDkrr2Y6z_p8DW6Bg&s);"
                ,false,coverbox3,"last","editingButtons");
@@ -147,20 +167,25 @@ const currdate = "2/21/24";
     //Adds unique ID to each button that is generated dynamically for static category buttons
     for(let i = 0; i < buttonsStatic.length; i++) {
         makeButton(buttonsStatic[i][0],buttonsStatic[i][1],buttonsStatic[i][2],
-                   defAttr.concat("display:inline-block;width:23.5%;top:0px;left:"+(hScalingAttr*i+(-10))+"px"),
+                   defAttr.concat("display:inline-block;width:24.5%;top:0px;left:"+((hScalingAttr-0.5)*i-10)+"px"),
                    true, coverbox2, "first",)
         addClick(buttonsStatic[i][2],function() {navigateToURL(buttonsStatic[i][1])});
     }
 
+
     //Add Button for Toggling Visibility of Quick Nav, change colors when pressed, hide boxes
-    var toggleStatus;
+    var toggleStatus = "";
+
+    //If buttons are set to show, set text and arrow direction when collapsing/extending
     if(GM_getValue("isShowing")) {
         toggleStatus = '\u2191 Toggle Show/Hide \u2191'; //Change direction of arrows depending on cascade status
     } else if(!GM_getValue("isShowing")) {
         toggleStatus = '\u2193 Toggle Show/Hide \u2193';
     } else {toggleStatus = 'Toggle Show/Hide'; alert(errors.toggleSet)}
+
+    //Create button that toggles whether or not the main buttons are being shown
     makeButton(toggleStatus,"","AAQNButtonToggle",
-               defAttr.concat(toggleAttr,"font-size:15px;width:98.5%;top:"+(vScalingAttr+2)+"px;left:-10px;"),
+               defAttr.concat(toggleAttr,"font-size:15px;width:99.5%;height:32px;top:"+(vScalingAttr+1)+"px;left:-10px;"),
                false, coverbox2, "first");
     var toggleButton = document.getElementById("AAQNButtonToggle");
     toggleButton.style.fontSize = "15px";
@@ -172,17 +197,22 @@ const currdate = "2/21/24";
 
     //ASSA ABLOY Link Counter Add-on
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //Gather current URL for count storage
     var currURL = window.location.href.toString();
+    //Trim the fat and get just the name of the Sharepoint page instead of the https:// etc.
     var nameURL = formatEntry(currURL.substring(82,window.location.href.toString().length-5));
+    //Retrieve current link count from persistent memory
     var linksStored = GM_SuperValue.get("linksStored");
-
+    //Sort the links by usage amount
     var linksSorted = sortLinks();
-
+    //Filter links seen in list
     for(let i = 0; i < linksSorted.length; i++) {
         filterLink(i,linksSorted);
     }
 
     var shownButtons = [];
+
     for(let i = 0; i < linksSorted.length; i++) {
         if(!linksSorted[i][3]) {
             shownButtons.push([linksSorted[i][0],linksSorted[i][1],""]);
@@ -191,12 +221,16 @@ const currdate = "2/21/24";
 
 
     var boxText;
+    //Format suggestion box on the page
     var suggestionbox = addDiv("AALCSuggestionBox","",
                                "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+40+10)+"px;min-width:109.5%;",
                                coverbox4,"last","<b><u>Suggested Buttons:</b></u><br></br>",'div');
+
     var suggestionTitle = addDiv("AALCSuggestionTitle","",
                                  "position:relative;top:10px;",
                                  suggestionbox,"last","",'div');
+
+    //Make button to clear the suggested links and clear out the cookie that stores them and set click handler
     makeButton("Clear Suggested","","AALCClearStored","color:red;display:none;position:absolute;font-size:9px;left:110px;top:-5px;width:15px;height:25px;padding:0px;",false,suggestionbox,"first","");
     var clearBtn = document.getElementById("AALCClearStored");
     addClick("AALCClearStored",() => {
@@ -204,17 +238,21 @@ const currdate = "2/21/24";
     });
     var sideBarSpacing = addDiv("AALCSpacing","","height:20px;",coverbox4,"last","",'div');
 
-
+    //Refresh the link suggestions if there are no main buttons seen
     if(!shownButtons.length) suggestionTitle.innerHTML = refreshFrequent();
 
-    console.log(shownButtons);
+    //Truncate the links to remove extraneous data
     var shownButtonsShortened = truncateLinks(shownButtons);
 
+    //Loop over how many suggestions are being shown and create add/ignore buttons alongside them
     for(let i = 0; i < Math.min(frequentPagesCount,shownButtons.length); i++) {
+        //Add the actual text for the suggested link
         var elmt = addDiv("AALCShown"+(i+1),"suggestionList","top:"+(40+(40*i))+"px;",suggestionbox,"last","<u>"+shownButtonsShortened[i][2]+"</u>",'div');
         addClick("AALCShown"+(i+1),() => {
             window.location = linksStored[locateEntry(linksStored,shownButtons[i][0])][2];
         });
+
+        //Click handler for redirecting to the suggested page if the title is clicked directly
         document.getElementById("AALCShown"+(i+1)).addEventListener('mousedown', e => {
             if (e.button === 1) {
                 window.open(linksStored[locateEntry(linksStored,shownButtons[i][0])][2]);
@@ -222,25 +260,35 @@ const currdate = "2/21/24";
             }
         });
 
+        //Add specific Add and Ignore buttons on the suggested links
         makeButton("Add","","AALCAdd"+(i+1),"top:"+(40+(40*i))+"px;right:2px;",false,suggestionbox,"last","suggestionChange");
         makeButton("Ignore","","AALCIgnore"+(i+1),"top:"+(40+(40*i))+"px;right:25px;",false,suggestionbox,"last","suggestionChange");
+
+        //Add click handler for Add button
         addClick("AALCAdd"+(i+1),() => {
+            //Create references for buttons to navigate around
             var testelm1 = document.getElementById("AALCAdd"+(i+1));
             var testelm2 = document.getElementById("AALCShown"+(i+1));
             var testelm3 = document.getElementById("AALCIgnore"+(i+1));
+            //Remove suggested link text, Add button, and Ignore button when clicked
             testelm1.remove();
             testelm2.remove();
             testelm3.remove();
+
             shownButtons.splice(shownButtons.length,1)
             addButton(false,shownButtons[i][0],linksStored[locateEntry(linksStored,shownButtons[i][0])][2]);
             linksSorted = sortLinks();
             suggestionTitle.innerHTML = refreshFrequent(shownButtons.length-1);
             window.location = window.location.href;
         });
+
+        //Add click handler for Ignore button
         addClick("AALCIgnore"+(i+1),() => {
+            //Create references for suggested link text, Add button, and Ignore button
             var testelm1 = document.getElementById("AALCAdd"+(i+1));
             var testelm2 = document.getElementById("AALCShown"+(i+1));
             var testelm3 = document.getElementById("AALCIgnore"+(i+1));
+            //Remove suggested link text, Add button, and Ignore button when clicked
             testelm1.remove();
             testelm2.remove();
             testelm3.remove();
@@ -253,9 +301,6 @@ const currdate = "2/21/24";
             window.location = window.location.href;
         });
     }
-
-    console.log(shownButtonsShortened)
-
 
     GM_SuperValue.set("linksStored",linksStored);
 
@@ -271,8 +316,7 @@ const currdate = "2/21/24";
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Function Access
 
-    //Main loop to instantiate the buttons that are invisible on page load, set style, color if applicable, insert in bounding box
-    function mainButtons(flag) {
+    function mainButtons(flag) { //Main loop to instantiate the buttons that are invisible on page load, set style, color if applicable, insert in bounding box
         var totalButtonIndex = 0;
         for(let j = 0; j < setButtonLimit(); j++) {
             for(let i = 0; i < buttonsPerRow; i++) {
@@ -281,13 +325,11 @@ const currdate = "2/21/24";
                 var bColorIO = "";
                 var bAttr = "";
                 if(buttons[i+(j*buttonsPerRow)] == undefined) {break;}
-                if(buttons[i+(j*buttonsPerRow)][0].toString().includes("IO ")) {bColorIO = "color:blue;";} //Account for Intelligent Openings Links, turn them blue to note moving to external page
-                else {bColorIO = "color:black;";}
                 if(flag) bAttr = defAttr.concat("color:red;"); else bAttr = defAttr;
                 if(buttons[i+(j*buttonsPerRow)][0].length>20) buttons[i+(j*buttonsPerRow)][0] = buttons[i+(j*buttonsPerRow)][0].substring(0,20) + "..."
                 makeButton(buttons[i+(j*buttonsPerRow)][0], buttons[i+(j*buttonsPerRow)][1], buttons[i+(j*buttonsPerRow)][2],
                            bAttr.concat(navAttr,bColorIO,""+
-                                        "position:absolute;width:"+(Math.floor(180/buttonsPerRow)-2)+"px;"+
+                                        "position:absolute;width:"+(Math.floor(180/buttonsPerRow)-1)+"px;"+
                                         "left:"+(Math.floor(180/buttonsPerRow)*i+leftPush+(-6))+"px;"+
                                         "top:"+(vScalingAttr*j+j)+"px;"),
                            true, coverbox, "last","buttonDummy");
@@ -296,8 +338,7 @@ const currdate = "2/21/24";
         }
     }
 
-    //Dynamically add div with function, size, location, and ID
-    function addDiv(id, cls, style, loc="", itemloc="",name,type) {
+    function addDiv(id, cls, style, loc="", itemloc="",name,type) { //Dynamically add div with function, size, location, and ID
         var elm = document.createElement(type);
         if(name) elm.innerHTML = name;
         elm.setAttribute("id",id);
@@ -311,8 +352,7 @@ const currdate = "2/21/24";
         return elm;
     }
 
-    //Hide main buttons as a transition to updating them with new info
-    function hideMainButtons() {
+    function hideMainButtons() { //Hide main buttons as a transition to updating them with new info
         var totalButtonIndex = 0;
         var elm;
         for(let i = 0; i < JSON.parse(GM_getValue("masterButtons")).length; i++) {
@@ -325,8 +365,7 @@ const currdate = "2/21/24";
         }
     }
 
-    //Create button with specifications, prop will override CSS style in cls
-    function makeButton(name, url, id, prop, isLink, loc = "", itemloc = "", cls = "") {
+    function makeButton(name, url, id, prop, isLink, loc = "", itemloc = "", cls = "") { //Create button with specifications, prop will override CSS style in cls
         var button = document.createElement("button");
         button.type = "button";
         if(name.length>14) prop+="font-size:9px;";
@@ -344,31 +383,28 @@ const currdate = "2/21/24";
         }
     }
 
-    //Add event listener to button with desired anonymous function
-    function addClick(id, func) {
+    function addClick(id, func) { //Add event listener to button with desired anonymous function
         var button = document.getElementById(id);
         references[id] = func;
         button.addEventListener("click", func, false);
     }
 
-    //Navigate to specified URL, used in anonymous functions to not be called on instantiation
-    function navigateToURL(url) {
+    function navigateToURL(url) { //Navigate to specified URL, used in anonymous functions to not be called on instantiation
         window.location = url;
     }
 
-    //Remove event listener from specified button
-    function removeClick(id, func) {
+    function removeClick(id, func) { //Remove event listener from specified button
         var elm = document.getElementById(id);
         elm.removeEventListener("click",func);
     }
 
-    //Function to toggle visibility when Show/Hide is pressed, change colors, hide boxes
-    function toggleVisible() {
+    function toggleVisible() { //Function to toggle visibility when Show/Hide is pressed, change colors, hide boxes
         var totalButtonIndex = 0;
+        //Find and create reference to show/hide button and set defaults button
         var toggleButton = document.getElementById("AAQNButtonToggle");
         var setDef = document.getElementById("AAQNSetDefaults");
 
-        for(let i =0; i < buttons.length; i++) {
+        for(let i =0; i < buttons.length; i++) { //Iterate over how many buttons there are
             if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
             totalButtonIndex++;
             var navBtns = document.getElementById(buttons[i][2].toString());
@@ -418,22 +454,26 @@ const currdate = "2/21/24";
         }
     }
 
-    //Toggle Edit Mode, color buttons for visiblity, auto-update box size based on amount of visible buttons
-    function toggleEdit() {
+    function toggleEdit() { //Toggle Edit Mode, color buttons for visiblity, auto-update box size based on amount of visible buttons
         var totalButtonIndex = 0;
+
+        //Find and create reference to editing buttons
         var editText = document.getElementById("AAQNEditText");
         var setDef = document.getElementById("AAQNSetDefaults");
         var incButton = document.getElementById("AAQNIncButton");
         var decButton = document.getElementById("AAQNDecButton");
         var clearBtn = document.getElementById("AALCClearStored");
+
         if(GM_getValue("isEdit")) { //STOP EDITING
             GM_setValue("isEdit",false);
             suggestionbox.style.height = suggestionbox.style.height-40;
+            //Hide all editing related buttons
             editText.style.display = 'none';
             setDef.style.display = 'none';
             incButton.style.display = 'none';
             decButton.style.display = 'none';
             clearBtn.style.display = 'none';
+            //
             for(let j = 0; j < s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
                     if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
@@ -449,15 +489,18 @@ const currdate = "2/21/24";
         else { //START EDITING
             GM_setValue("isEdit",true);
             suggestionbox.style.height = suggestionbox.style.height+40;
+            //Show all editing related buttons
             editText.style.display = 'block';
             setDef.style.display = 'block';
             incButton.style.display = 'block';
             decButton.style.display = 'block';
             clearBtn.style.display = 'block';
-            for(let j = 0; j < s; j++) {
+            console.log(buttons)
+            for(let j = 0; j <= s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
                     if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
                     totalButtonIndex++;
+                    //console.log("TEST: " + buttons[i+(j*buttonsPerRow)] + "\n" + i + "\n" + j)
                     navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
                     navBtns.style.background = "red";
                     removeClick(buttons[i+(j*buttonsPerRow)][2],references[buttons[i+(j*buttonsPerRow)][2]]);
@@ -467,17 +510,16 @@ const currdate = "2/21/24";
         }
     }
 
-    //Set cookie for value access across page reloads
-    function setCookie(name,value,type) {
+    function setCookie(name,value,type) { //Set cookie for value access across page reloads
         var expires = "";
         var date = new Date();
+        //Set expiry date for cookie to be in 100 years
         date.setTime(date.getTime() + (100*365*24*60*60*1000));
         expires = "; expires=" + date.toUTCString();
         document.cookie = name.concat(type||"") + "=" + (value || "") + expires + "; path=/";
     }
 
-    //Get cookie value across page reloads
-    function getCookie(name) {
+    function getCookie(name) { //Get cookie value across page reloads
         var nameEQ = name + "=";
         var ca = document.cookie.split(';');
         for(var i=0;i < ca.length;i++) {
@@ -487,13 +529,11 @@ const currdate = "2/21/24";
         }
     }
 
-    //Erase cookies when setting defaults buttons
-    function eraseCookie(name) {
+    function eraseCookie(name) { //Erase cookies when setting defaults buttons
         document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     }
 
-    //Refresh Cookies to have the storage arrays access fresh data when reloading page
-    function refreshCookies() {
+    function refreshCookies() { //Refresh Cookies to have the storage arrays access fresh data when reloading page
         buttons = JSON.parse(GM_getValue("masterButtons"));
         for(let i = 0; i < JSON.parse(GM_getValue("masterButtons")).length; i++) {
             if(getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"name") && getCookie(JSON.parse(GM_getValue("masterButtons"))[i][2]+"url")) {
@@ -504,12 +544,11 @@ const currdate = "2/21/24";
         GM_setValue("masterButtons",JSON.stringify(buttons));
     }
 
-    //Return button array to defaults, without using cookies for button data
-    function setDefaults() {
+    function setDefaults() { //Return button array to defaults, without using cookies for button data
         var test = confirm(errors.resetDefaults)
         if(test) {
             GM_setValue("masterButtons",JSON.stringify(defButtons));
-            GM_setValue("totalButtons",24);
+            GM_setValue("totalButtons",preButtons.length);
             for(let i = 0; i < buttons.length; i++) {
                 eraseCookie(buttons[i][2]+"name");
                 eraseCookie(buttons[i][2]+"url");
@@ -518,8 +557,7 @@ const currdate = "2/21/24";
         }
     }
 
-    //Prompt for new button/change existing button details
-    function getNewButton(id) {
+    function getNewButton(id) { //Prompt for new button/change existing button details
         var elm,name,url,nid,uid;
         if(!document.getElementById(id)) {
         } else {
@@ -542,19 +580,18 @@ const currdate = "2/21/24";
         }
     }
 
-    //Checks if given URL is valid to be added to buttons
-    function isValidHttpUrl(string) {
+    function isValidHttpUrl(string) { //Checks if given URL is valid to be added to buttons
         let url;
         try {
             url = new URL(string);
         } catch (_) {
             return false;
         }
-        return url.protocol === "http:" || url.protocol === "https:";
+        return url.protocol === "https:" || url.protocol === "http:";
     }
 
-    //Increment amount of buttons
-    function addButton(pmt=true,name,link) {
+    function addButton(pmt=true,name,link) { //Increment amount of buttons
+        //If you are adding a button and the cookie says there's more button then there are...
         if(GM_getValue("totalButtons")>=buttons.length) {
             if(pmt) {
                 var title = prompt("Enter Title for new Button");
@@ -566,6 +603,7 @@ const currdate = "2/21/24";
             if(!title || !url) {
                 alert(errors.editBlank);
             } else {
+                //Commit list of buttons to persistent memory
                 var nid = "AAQNButton"+(buttons.length+1)+"name";
                 var uid = "AAQNButton"+(buttons.length+1)+"url"
                 buttons.push([title,url,"AAQNButton"+(buttons.length+1)]);
@@ -582,7 +620,7 @@ const currdate = "2/21/24";
             }
 
         } else {
-
+            //...freak out and reset if the cookie says there's more button then there are...
             GM_setValue("totalButtons",GM_getValue("totalButtons")+1);
             setButtonLimit();
             hideMainButtons();
@@ -594,8 +632,7 @@ const currdate = "2/21/24";
         }
     }
 
-    //Decrement amount of buttons
-    function remButton() {
+    function remButton() { //Decrement amount of buttons
         if(!GM_getValue("totalButtons")) {
             GM_setValue("totalButtons",buttons.length);
         } else if(GM_getValue("totalButtons") == 1) {
@@ -622,7 +659,7 @@ const currdate = "2/21/24";
         }
     }
 
-    function truncateLinks(list) {
+    function truncateLinks(list) { //
         var lengthLimit = 40;
         for(let i = 0; i < list.length; i++) {
             if(list[i][0].length>=lengthLimit) {
@@ -631,22 +668,19 @@ const currdate = "2/21/24";
                 list[i][2] = list[i][0]
             }
         }
-        console.log(list)
         return list;
     }
 
-    //Function to globally set how many rows of buttons there are according to how many total and how many buttons per row are visible
-    function setButtonLimit() {
+    function setButtonLimit() { //Function to globally set how many rows of buttons there are according to how many total and how many buttons per row are visible
         s = Math.ceil(JSON.parse(GM_getValue("masterButtons")).length/buttonsPerRow);
         return s;
     }
 
-    //Update size of bounding box to account for total amount of buttons
-    function resizeBox() {
-        return GM_getValue("totalButtons") ? ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow))+1 : (s*(vScalingAttr+1)+1);
+    function resizeBox() { //Update size of bounding box to account for total amount of buttons
+        return GM_getValue("totalButtons") ? ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow)) : (s*(vScalingAttr+1)+1);
     }
 
-    function sortLinks() {
+    function sortLinks() { //
         linksStored = GM_SuperValue.get("linksStored");
         if(!linksStored) {
             linksStored = [[nameURL,0,currURL]];
@@ -665,7 +699,7 @@ const currdate = "2/21/24";
         return linksStored.sort(function(a, b) {return b[1] - a[1];});
     }
 
-    function filterLink(j, arr) {
+    function filterLink(j, arr) { //
         var links = JSON.parse(GM_getValue("masterButtons")).concat(buttonsStatic);
         for(let i = 0; i < links.length; i++) {
             if(links[i][1] == arr[j][2]) {
@@ -674,7 +708,7 @@ const currdate = "2/21/24";
         }
     }
 
-    function refreshFrequent(amt=shownButtons.length) {
+    function refreshFrequent(amt=shownButtons.length) { //Check if there are any pages stored in the suggested links array, if not, say so
         boxText = "";
         var pageCount = Math.min(amt,frequentPagesCount);
         if(!pageCount) {
@@ -684,7 +718,7 @@ const currdate = "2/21/24";
         }
     }
 
-    function pageFound(arr,url) {
+    function pageFound(arr,url) { //Check whether or not a given page is found in the button array
         for(let i = 0; i < arr.length; i++) {
             if(currURL == arr[i][1]) {
                 return true;
@@ -693,7 +727,7 @@ const currdate = "2/21/24";
         return false
     }
 
-    function addCurrentPage(name, url) {
+    function addCurrentPage(name, url) { //Add the current wiki page as a button, add the formatted link to the button array, refresh page to add button
         if(!pageFound(JSON.parse(GM_getValue("masterButtons")),currURL)) {
             addButton(false,document.getElementById("DeltaPlaceHolderPageTitleInTitleArea").innerText,currURL);
             linksStored.splice(locateEntry(linksStored,nameURL));
@@ -701,14 +735,14 @@ const currdate = "2/21/24";
         }
     }
 
-    function deleteLinks() {
+    function deleteLinks() { //Clear suggested links and delete entries in persistent storage
         if(confirm("Clear suggested link data? This is reset all link counts and reset all ignored links.")) {
             GM_deleteValue("linksStored");
             window.location = currURL;
         }
     }
 
-    function formatEntry(str) {
+    function formatEntry(str) { //Change special characters sequences to their formatted characters
         while(str.includes("%20")) {
             str = str.toString().replace("%20"," ");
         }
@@ -718,7 +752,7 @@ const currdate = "2/21/24";
         return str;
     }
 
-    function locateEntry(arr, str) {
+    function locateEntry(arr, str) { //Simple search for entries in 2D array
         for(let i = 0; i < arr.length; i++) {
             if(arr[i][0] == str) {
                 return i;
@@ -735,9 +769,6 @@ const currdate = "2/21/24";
             return false;
         }
     }
-    //console.log(parseJSONSafely(GM_getValue("masterButtons")));
-    //console.log(parseJSONSafely(""));
-
 })();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -801,9 +832,9 @@ GM_addStyle ( `
         min-width: 100%;
         left:0px;
         top: 0px;
-        border: 2px solid red;
+        border: 3px solid red;
         opacity: 0.8;
-        border: 2px solid #038387;
+        border: 3px solid #038387;
         min-width: 100%;
     }
     .defaultButton {
