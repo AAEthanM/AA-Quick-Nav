@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.5.42
+// @version      1.5.43
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -231,7 +231,7 @@ const currdate = "5/22/24";
                                  suggestionbox,"last","",'div');
 
     //Make button to clear the suggested links and clear out the cookie that stores them and set click handler
-    makeButton("Clear Suggested","","AALCClearStored","color:red;display:none;position:absolute;font-size:9px;left:110px;top:-5px;width:15px;height:25px;padding:0px;",false,suggestionbox,"first","");
+    makeButton("Clear Suggested","","AALCClearStored","color:red;display:none;position:absolute;font-size:9px;left:110px;top:-10px;width:15px;height:30px;padding:0px;",false,suggestionbox,"first","");
     var clearBtn = document.getElementById("AALCClearStored");
     addClick("AALCClearStored",() => {
         deleteLinks();
@@ -365,7 +365,7 @@ const currdate = "5/22/24";
         }
     }
 
-    function makeButton(name, url, id, prop, isLink, loc = "", itemloc = "", cls = "") { //Create button with specifications, prop will override CSS style in cls
+    function makeButton(name, url, id, prop, isLink, loc = "", itemloc = "", cls = "") { //Create button with specifications, "prop" will override CSS style in cls
         var button = document.createElement("button");
         button.type = "button";
         if(name.length>14) prop+="font-size:9px;";
@@ -405,18 +405,15 @@ const currdate = "5/22/24";
         var setDef = document.getElementById("AAQNSetDefaults");
 
         for(let i =0; i < buttons.length; i++) { //Iterate over how many buttons there are
-            if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
-            totalButtonIndex++;
-            var navBtns = document.getElementById(buttons[i][2].toString());
-            if(GM_getValue("isShowing")) {navBtns.style.display = 'none';}
+            if(totalButtonIndex >= GM_getValue("totalButtons")) {break;} //break condition if the index is too high
+            totalButtonIndex++; //secondary iterative increment
+            var navBtns = document.getElementById(buttons[i][2].toString()); //Collect relevant buttons current in the nav section
+            if(GM_getValue("isShowing")) {navBtns.style.display = 'none';} //Display the buttons
             else if(!GM_getValue("isShowing")) {navBtns.style.display = 'block';}
             else {alert(errors.badHide)}
         }
 
-        for(let i = 0; i < document.getElementsByClassName("editIcon").length; i++) {
-            document.getElementsByClassName("editIcon")[i].style.display = "none";
-        }
-        if(GM_getValue("isShowing")) {
+        if(GM_getValue("isShowing")) { //Hide editing buttons and change text color of visibility button text
             for(let i = 0; i < document.getElementsByClassName("editingButtons").length; i++) {
                 document.getElementsByClassName("editingButtons")[i].style.display = "none";
             }
@@ -431,15 +428,12 @@ const currdate = "5/22/24";
             GM_setValue("isShowing",false);
             coverbox.style.display = 'none';
             coverbox4.style.display = 'none';
-        } else {
+        } else { //Hide editing buttons and change text color of visibility button text
             toggleButton.innerHTML = '\u2191 Toggle Show/Hide \u2191';
             toggleButton.style.color = '#C40000';
             GM_setValue("isShowing",true);
             coverbox.style.display = 'block';
             coverbox4.style.display = 'block';
-            for(let i = 0; i < document.getElementsByClassName("editIcon").length; i++) {
-                document.getElementsByClassName("editIcon")[i].style.display = "block";
-            }
             if(GM_getValue("isEdit")) {
                 for(let i = 0; i < document.getElementsByClassName("editingButtons").length; i++) {
                     document.getElementsByClassName("editingButtons")[i].style.display = "block";
@@ -559,18 +553,20 @@ const currdate = "5/22/24";
 
     function getNewButton(id) { //Prompt for new button/change existing button details
         var elm,name,url,nid,uid;
-        if(!document.getElementById(id)) {
+        if(!document.getElementById(id)) { //Check if the button exists first
         } else {
+            //Create new button with user-prompted title and link
             elm = document.getElementById(id);
             name = prompt("Enter new title to replace " + elm.innerHTML);
             url = prompt("Enter new URL to replace " + elm.innerHTML);
-            if(!name || !url) {
+
+            if(!name || !url) { //Error handling if title or link are blank
                 alert(errors.editBlank);
                 return;
-            } else if(!isValidHttpUrl(url)){
+            } else if(!isValidHttpUrl(url)){ //Error if URL is not formatted properly
                 alert(errors.editURL);
                 return;
-            } else {
+            } else { //Create the button if no error
                 elm.innerHTML = name;
                 nid = id+"name";
                 uid = id+"url"
@@ -582,60 +578,74 @@ const currdate = "5/22/24";
 
     function isValidHttpUrl(string) { //Checks if given URL is valid to be added to buttons
         let url;
-        try {
+        try { //Check if passed URL is valid
             url = new URL(string);
         } catch (_) {
             return false;
         }
+        //Return if URL passes https or http formatting, fail if not
         return url.protocol === "https:" || url.protocol === "http:";
     }
 
     function addButton(pmt=true,name,link) { //Increment amount of buttons
-        //If you are adding a button and the cookie says there's more button then there are...
+        //If you are adding a button and the cookie says there's more button then there are......
         if(GM_getValue("totalButtons")>=buttons.length) {
-            if(pmt) {
-                var title = prompt("Enter Title for new Button");
+            if(pmt) { //If a prompt is needed...
+                var title = prompt("Enter Title for new Button"); //...Collect Title and Link for new button...
                 var url = prompt("Enter Link for new Button");
-            } else {
+            } else { //...else use current title and link
                 title = name;
                 url = link;
             }
-            if(!title || !url) {
+            if(!title || !url) { //Error if the title or the link are bad
                 alert(errors.editBlank);
             } else {
                 //Commit list of buttons to persistent memory
+                //Create reference to new button
                 var nid = "AAQNButton"+(buttons.length+1)+"name";
                 var uid = "AAQNButton"+(buttons.length+1)+"url"
+
+                //Add it to the button array
                 buttons.push([title,url,"AAQNButton"+(buttons.length+1)]);
+
+                //Apply it to persistent memory
                 GM_setValue("masterButtons", JSON.stringify(buttons));
                 setCookie(nid,title);
                 setCookie(uid,url);
+
+                //Increment total button count in integer form (can just update based on existing persistent memory but... nah)
                 GM_setValue("totalButtons",GM_getValue("totalButtons")+1);
+
+                //Do a full button refresh
                 hideMainButtons();
                 mainButtons();
+                //Must be called twice to properly refresh edit states
                 toggleEdit();
                 toggleEdit();
 
+                //Resize box to accomodate potential new row of buttons
                 coverbox.style.height = resizeBox() + "px";
             }
 
-        } else {
-            //...freak out and reset if the cookie says there's more button then there are...
+        } else { //......freak out and reset if the cookie says there's more button then there are...
             GM_setValue("totalButtons",GM_getValue("totalButtons")+1);
             setButtonLimit();
             hideMainButtons();
             mainButtons();
+
+            //Must be called twice to properly refresh edit states
             toggleEdit();
             toggleEdit();
 
+            //Resize box
             coverbox.style.height = resizeBox() + "px";
         }
     }
 
     function remButton() { //Decrement amount of buttons
-        if(!GM_getValue("totalButtons")) {
-            GM_setValue("totalButtons",buttons.length);
-        } else if(GM_getValue("totalButtons") == 1) {
+        if(!GM_getValue("totalButtons")) { //If the cookie is not set properly,
+            GM_setValue("totalButtons",buttons.length); //Fix it by setting it to current button count
+        } else if(GM_getValue("totalButtons") == 1) { //Edge case error if only one button remains and the user deletes it
             alert(errors.lastButton);
         } else {
             GM_setValue("totalButtons",GM_getValue("totalButtons")-1);
@@ -650,8 +660,7 @@ const currdate = "5/22/24";
             eraseCookie("AAQNButton" + (GM_getValue("totalButtons") + 1) + "name");
             refreshCookies();
 
-            //hideMainButtons();
-            //mainButtons(true);
+            //Must be called twice to properly refresh edit states
             toggleEdit();
             toggleEdit();
 
@@ -661,11 +670,13 @@ const currdate = "5/22/24";
     }
 
     function truncateLinks(list) { //
+        //Set page title character limit
         var lengthLimit = 40;
-        for(let i = 0; i < list.length; i++) {
+
+        for(let i = 0; i < list.length; i++) { //For all pages in suggestion list, if the title is longer than the character limit...
             if(list[i][0].length>=lengthLimit) {
-                list[i][2] = list[i][0].substring(0,lengthLimit) + "...";
-            } else {
+                list[i][2] = list[i][0].substring(0,lengthLimit) + "..."; //...Clip it down to character limit and add ellipsis
+            } else { //If it's not, don't adjust the page and use the entire page name in the array
                 list[i][2] = list[i][0]
             }
         }
