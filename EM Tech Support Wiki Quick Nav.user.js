@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.5.43
+// @version      1.5.44
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -16,10 +16,11 @@
 // @grant        GM_addStyle
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require      https://userscripts-mirror.org/scripts/source/107941.user.js
+// @noframes
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "5/22/24";
+const currdate = "6/4/24";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -35,6 +36,8 @@ const currdate = "5/22/24";
 
     var buttons = [];
     var buttonsStatic = [];
+    var references = {};
+    var defButtons = [];
 
     //List category buttons that stay static and cant be edited
     var preButtonsStatic = [
@@ -78,10 +81,8 @@ const currdate = "5/22/24";
         "resetDefaults": "Are you sure you want to set Quick Nav to defaults?",
     }
 
-    var references = {};
-    var defButtons = [];
-
     //Adds unique ID to each button that is generated dynamically for the main section, adds new dimension to default array
+    //Button array: Title, Links, Element ID
     for(let i = 0; i < preButtons.length; i++) {
         buttons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
         defButtons.push([preButtons[i][0],preButtons[i][1],("AAQNButton"+(i+1)).toString()]);
@@ -207,8 +208,13 @@ const currdate = "5/22/24";
     //Sort the links by usage amount
     var linksSorted = sortLinks();
     //Filter links seen in list
-    for(let i = 0; i < linksSorted.length; i++) {
-        filterLink(i,linksSorted);
+    for(let j = 0; j < linksSorted.length; j++) {
+        var links = JSON.parse(GM_getValue("masterButtons")).concat(buttonsStatic);
+        for(let i = 0; i < links.length; i++) {
+            if(links[i][1] == linksSorted[j][2]) {
+                linksSorted[j][3] = true;
+            }
+        }
     }
 
     var shownButtons = [];
@@ -277,7 +283,7 @@ const currdate = "5/22/24";
 
             shownButtons.splice(shownButtons.length,1)
             addButton(false,shownButtons[i][0],linksStored[locateEntry(linksStored,shownButtons[i][0])][2]);
-            linksSorted = sortLinks();
+            //linksSorted = sortLinks();
             suggestionTitle.innerHTML = refreshFrequent(shownButtons.length-1);
             window.location = window.location.href;
         });
@@ -293,7 +299,7 @@ const currdate = "5/22/24";
             testelm2.remove();
             testelm3.remove();
             shownButtons.splice(shownButtons.length,1)
-            linksSorted = sortLinks();
+            //linksSorted = sortLinks();
             suggestionTitle.innerHTML = refreshFrequent(shownButtons.length-1);
 
             linksStored[locateEntry(linksStored,testelm2.innerHTML.replace("<u>","").replace("</u>",""))][3] = true;
@@ -489,12 +495,10 @@ const currdate = "5/22/24";
             incButton.style.display = 'block';
             decButton.style.display = 'block';
             clearBtn.style.display = 'block';
-            console.log(buttons)
             for(let j = 0; j <= s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
                     if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
                     totalButtonIndex++;
-                    //console.log("TEST: " + buttons[i+(j*buttonsPerRow)] + "\n" + i + "\n" + j)
                     navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
                     navBtns.style.background = "red";
                     removeClick(buttons[i+(j*buttonsPerRow)][2],references[buttons[i+(j*buttonsPerRow)][2]]);
@@ -502,6 +506,7 @@ const currdate = "5/22/24";
                 }
             }
         }
+        console.log("EDITING TOGGLED: " + GM_getValue("isEdit"));
     }
 
     function setCookie(name,value,type) { //Set cookie for value access across page reloads
@@ -539,8 +544,7 @@ const currdate = "5/22/24";
     }
 
     function setDefaults() { //Return button array to defaults, without using cookies for button data
-        var test = confirm(errors.resetDefaults)
-        if(test) {
+        if(confirm(errors.resetDefaults)) {
             GM_setValue("masterButtons",JSON.stringify(defButtons));
             GM_setValue("totalButtons",preButtons.length);
             for(let i = 0; i < buttons.length; i++) {
@@ -661,8 +665,8 @@ const currdate = "5/22/24";
             refreshCookies();
 
             //Must be called twice to properly refresh edit states
-            toggleEdit();
-            toggleEdit();
+            //toggleEdit();
+            //toggleEdit();
 
 
             coverbox.style.height = resizeBox() + "px";
@@ -689,10 +693,16 @@ const currdate = "5/22/24";
     }
 
     function resizeBox() { //Update size of bounding box to account for total amount of buttons
-        return GM_getValue("totalButtons") ? ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow)) : (s*(vScalingAttr+1)+1);
+        if(GM_getValue("totalButtons") != 0) {
+            return ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow)+1)
+        } else {
+            return 0
+        }
+        //return GM_getValue("totalButtons") ? ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow)) : (s*(vScalingAttr+1)+1);
     }
 
     function sortLinks() { //
+        //Retrieve links from persistent storage
         linksStored = GM_SuperValue.get("linksStored");
         if(!linksStored) {
             linksStored = [[nameURL,0,currURL]];
@@ -709,15 +719,6 @@ const currdate = "5/22/24";
             }
         }
         return linksStored.sort(function(a, b) {return b[1] - a[1];});
-    }
-
-    function filterLink(j, arr) { //
-        var links = JSON.parse(GM_getValue("masterButtons")).concat(buttonsStatic);
-        for(let i = 0; i < links.length; i++) {
-            if(links[i][1] == arr[j][2]) {
-                arr[j][3] = true;
-            }
-        }
     }
 
     function refreshFrequent(amt=shownButtons.length) { //Check if there are any pages stored in the suggested links array, if not, say so
@@ -755,16 +756,18 @@ const currdate = "5/22/24";
     }
 
     function formatEntry(str) { //Change special characters sequences to their formatted characters
+        //White space conversion
         while(str.includes("%20")) {
             str = str.toString().replace("%20"," ");
         }
+        //Backslash conversion
         while(str.includes("%27")) {
             str = str.toString().replace("%27","\'");
         }
         return str;
     }
 
-    function locateEntry(arr, str) { //Simple search for entries in 2D array
+    function locateEntry(arr, str) { //Simple search for entries in second dimension of 2D array
         for(let i = 0; i < arr.length; i++) {
             if(arr[i][0] == str) {
                 return i;
