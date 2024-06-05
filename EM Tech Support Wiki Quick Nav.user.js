@@ -329,7 +329,7 @@ const currdate = "6/4/24";
     test.src = brian;
 
     const newspaperSpinning = [
-        { transform: "rotate(0)" },
+        { transform: "rotate(0) scale(100)" },
         { transform: "rotate(360deg) scale(1)" },
         { transform: "translateY(0px)" },
         { transform: "translateY(-800px)" },
