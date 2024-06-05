@@ -329,14 +329,14 @@ const currdate = "6/4/24";
     test.src = brian;
 
     const newspaperSpinning = [
-        { transform: "rotate(0) scale(100)" },
-        { transform: "rotate(360deg) scale(1)" },
+        { transform: "rotate(0) scale(1)" },
+        { transform: "rotate(360deg) scale(100)" },
         { transform: "translateY(0px)" },
         { transform: "translateY(-800px)" },
     ];
 
     const newspaperTiming = {
-        duration: 2000,
+        duration: 10000,
         iterations: 1,
     };
 
