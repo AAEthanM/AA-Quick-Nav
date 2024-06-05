@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.5.45
+// @version      1.5.46
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -33,6 +33,7 @@ const currdate = "6/4/24";
     const insertDiv = document.getElementById('DeltaPlaceHolderLeftNavBar');
     const buttonsPerRow = 3;
     const frequentPagesCount = 5;
+    const brian = "https://static.wikia.nocookie.net/surrealmemes/images/9/98/Commander_Brian.png"
 
     var buttons = [];
     var buttonsStatic = [];
@@ -319,6 +320,26 @@ const currdate = "6/4/24";
     addCurrent.style.fontSize = "12px";
     addClick("AALCAddCurrent",() => {
         addCurrentPage();
+    });
+
+    var test = document.createElement("img");
+    test.setAttribute("id","BrianGriffin");
+    suggestionbox.insertBefore(test,suggestionbox.lastChild);
+    test.setAttribute("style", "float:left;position:absolute;padding:0px;z-index:1500;min-width:0px;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;");
+    test.src = brian;
+
+    const newspaperSpinning = [
+        { transform: "rotate(0) scale(1)" },
+        { transform: "rotate(360deg) scale(0)" },
+    ];
+
+    const newspaperTiming = {
+        duration: 2000,
+        iterations: 1,
+    };
+
+    test.addEventListener("click", () => {
+        test.animate(newspaperSpinning, newspaperTiming);
     });
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
