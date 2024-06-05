@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.5.46
+// @version      1.5.45
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -329,8 +329,10 @@ const currdate = "6/4/24";
     test.src = brian;
 
     const newspaperSpinning = [
-        { transform: "rotate(0) scale(1)" },
-        { transform: "rotate(360deg) scale(0)" },
+        { transform: "rotate(0)" },
+        { transform: "rotate(360deg) scale(1)" },
+        { transform: "translateY(0px)" },
+        { transform: "translateY(-800px)" },
     ];
 
     const newspaperTiming = {
@@ -340,6 +342,10 @@ const currdate = "6/4/24";
 
     test.addEventListener("click", () => {
         test.animate(newspaperSpinning, newspaperTiming);
+        test.animate([{transform: "scale(0)"}],{duration: 1});
+        Promise.all(test.getAnimations().map((animation) => animation.finished)).then(
+            () => test.remove(),
+        );
     });
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
