@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.5.44
+// @version      1.5.45
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -224,12 +224,13 @@ const currdate = "6/4/24";
             shownButtons.push([linksSorted[i][0],linksSorted[i][1],""]);
         }
     }
+    console.log(linksSorted);
 
 
     var boxText;
     //Format suggestion box on the page
     var suggestionbox = addDiv("AALCSuggestionBox","",
-                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+40+10)+"px;min-width:109.5%;",
+                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+80)+"px;min-width:100%;",
                                coverbox4,"last","<b><u>Suggested Buttons:</b></u><br></br>",'div');
 
     var suggestionTitle = addDiv("AALCSuggestionTitle","",
@@ -310,11 +311,12 @@ const currdate = "6/4/24";
 
     GM_SuperValue.set("linksStored",linksStored);
 
-    makeButton("Add Current Page","","AALCAddCurrent","font-size:12px;padding:0px;position:relative;float:right;right:-2px;display:" +
+    //Create button to add the current page as a button if it hasn't been added already
+    makeButton("Add Current Page","","AALCAddCurrent","font-size:20px;height:20px;top:-5px;width:100px;padding:0px;position:relative;float:right;right:-5px;display:" +
                (pageFound(JSON.parse(GM_getValue("masterButtons")),currURL)||pageFound(buttonsStatic,currURL) ? "none" : "block") +";"
                ,false,coverbox3,"first");
     var addCurrent = document.getElementById("AALCAddCurrent");
-    addCurrent.style.fontSize = "11px";
+    addCurrent.style.fontSize = "12px";
     addClick("AALCAddCurrent",() => {
         addCurrentPage();
     });
@@ -506,7 +508,6 @@ const currdate = "6/4/24";
                 }
             }
         }
-        console.log("EDITING TOGGLED: " + GM_getValue("isEdit"));
     }
 
     function setCookie(name,value,type) { //Set cookie for value access across page reloads
@@ -551,14 +552,13 @@ const currdate = "6/4/24";
                 eraseCookie(buttons[i][2]+"name");
                 eraseCookie(buttons[i][2]+"url");
             }
-            window.location = window.location.href;
+            window.location = window.location.href; //Forcibly refresh the page
         }
     }
 
     function getNewButton(id) { //Prompt for new button/change existing button details
         var elm,name,url,nid,uid;
-        if(!document.getElementById(id)) { //Check if the button exists first
-        } else {
+        if(document.getElementById(id)) { //Check if the button exists first
             //Create new button with user-prompted title and link
             elm = document.getElementById(id);
             name = prompt("Enter new title to replace " + elm.innerHTML);
@@ -725,7 +725,7 @@ const currdate = "6/4/24";
         boxText = "";
         var pageCount = Math.min(amt,frequentPagesCount);
         if(!pageCount) {
-            return "No recent pages found.";
+            return "No recent pages found. Navigate to buttonless pages to see suggestions.";
         } else {
             return ""
         }
