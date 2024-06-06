@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.5.45
+// @version      1.5.46
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/testing/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -25,7 +25,6 @@ const currdate = "6/5/24";
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Constants for later access
-    const brianpage = "Guide to ANSI Specs"
     const hScalingAttr = 45.5;
     const vScalingAttr = 30;
     const hBorder = 5;
@@ -35,6 +34,7 @@ const currdate = "6/5/24";
     const buttonsPerRow = 3;
     const frequentPagesCount = 5;
     const brian = "https://static.wikia.nocookie.net/surrealmemes/images/9/98/Commander_Brian.png"
+    const brianpage = "Electromechanical Product Lines"
 
     var buttons = [];
     var buttonsStatic = [];
