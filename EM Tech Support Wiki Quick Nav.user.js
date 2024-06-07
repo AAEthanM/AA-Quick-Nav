@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.6.0m
+// @version      1.6.01m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
-// @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
-// @updateURL    https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
+// @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/testing/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
+// @updateURL    https://github.com/AAEthanM/AA-User-Scripts/raw/testing/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
 // @match        https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/*
 // @icon         https://cdn.worldvectorlogo.com/logos/assa.svg
 // @grant        GM_setValue
@@ -20,7 +20,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "6/5/24";
+const currdate = "6/6/24";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,9 +104,6 @@ const currdate = "6/5/24";
     //Find current show/hide status and set text color, show/hide accordingly
     var firstToggleColor = GM_getValue("isShowing") ? "color:#C40000;" : "color:#038387;";
     var navAttr = GM_getValue("isShowing") ? "display:block;" : "display:none;";
-
-    //Set default editing value to false
-    GM_setValue("isEdit",false);
 
     var toggleAttr = firstToggleColor.concat("display:block;");
     var s = setButtonLimit();
@@ -232,7 +229,7 @@ const currdate = "6/5/24";
     var boxText;
     //Format suggestion box on the page
     var suggestionbox = addDiv("AALCSuggestionBox","",
-                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+40)+"px;min-width:100%;",
+                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+90)+"px;min-width:100%;",
                                coverbox4,"last","<b><u>Suggested Buttons:</b></u><br></br>",'div');
 
     var suggestionTitle = addDiv("AALCSuggestionTitle","",
@@ -323,16 +320,22 @@ const currdate = "6/5/24";
         addCurrentPage();
     });
 
+    //If editing is still set to true (page refresh while editing), disable flag in order to call toggleEdit() and re-set it to true
+    if(GM_getValue("isEdit")) {
+        GM_setValue("isEdit",false);
+        toggleEdit();
+    }
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Brian
     var test = document.createElement("img");
     test.setAttribute("id","BrianGriffin");
     suggestionbox.insertBefore(test,suggestionbox.lastChild);
-    test.setAttribute("style", "float:left;position:absolute;padding:0px;z-index:1500;min-width:0px;top:89%;left:-10px;display:none;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;");
+    test.setAttribute("style", "float:left;position:absolute;padding:0px;z-index:1500;min-width:0px;top:75%;left:-5px;display:none;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;");
     test.src = brian;
     if(formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
         test.style.display = "block";
-        suggestionbox.setAttribute("style","height:" + (parseInt(suggestionbox.style.height.substring(0, suggestionbox.style.height.length-2))-20) + "px");
+        suggestionbox.setAttribute("style","height:" + (parseInt(suggestionbox.style.height.substring(0, suggestionbox.style.height.length-2))) + "px");
     }
 
     const newspaperSpinning = [
