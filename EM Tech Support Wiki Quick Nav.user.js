@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.6.01m
+// @version      1.6.02m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/testing/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -20,7 +20,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "6/6/24";
+const currdate = "6/7/24";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ const currdate = "6/6/24";
     var references = {};
     var defButtons = [];
 
-    //List category buttons that stay static and cant be edited
+    //List category buttons that stay static and cant be edited6
     var preButtonsStatic = [
         ["Home","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Home.aspx"],
         ["EMS","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Electromechanical%20Product%20Lines.aspx"],
@@ -329,13 +329,14 @@ const currdate = "6/6/24";
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Brian
     var test = document.createElement("img");
+    var box4 = document.getElementById("AAQNBox4");
     test.setAttribute("id","BrianGriffin");
-    suggestionbox.insertBefore(test,suggestionbox.lastChild);
-    test.setAttribute("style", "float:left;position:absolute;padding:0px;z-index:1500;min-width:0px;top:75%;left:-5px;display:none;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;");
     test.src = brian;
+    test.setAttribute("style", "float:left;position:static;padding:0px;z-index:1500;margin-right:100%;min-width:0px;bottom:0%;left:-5px;display:none;vertical-align:bottom;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;");
+    box4.after(test);
     if(formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
         test.style.display = "block";
-        suggestionbox.setAttribute("style","height:" + (parseInt(suggestionbox.style.height.substring(0, suggestionbox.style.height.length-2))) + "px");
+        //suggestionbox.setAttribute("style","height:" + (parseInt(suggestionbox.style.height.substring(0, suggestionbox.style.height.length-2))) + "px");
     }
 
     const newspaperSpinning = [
