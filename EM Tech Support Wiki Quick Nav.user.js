@@ -20,7 +20,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "6/6/24";
+const currdate = "6/10/24";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ const currdate = "6/6/24";
     const buttonsPerRow = 3;
     const frequentPagesCount = 5;
     const brian = "https://static.wikia.nocookie.net/surrealmemes/images/9/98/Commander_Brian.png"
-    const brianpage = "Electromechanical Product Lines"
+    const brianpage = ""//"Electromechanical Product Lines"
 
     var buttons = [];
     var buttonsStatic = [];
@@ -334,10 +334,10 @@ const currdate = "6/6/24";
     test.src = brian;
     test.setAttribute("style", "float:left;position:fixed;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:100px;left:9px;display:none;vertical-align:bottom;width:90px;height:70px;");
     coverbox.before(test);
-    if(formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
+    //if(formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
         test.style.display = "block";
         //suggestionbox.setAttribute("style","height:" + (parseInt(suggestionbox.style.height.substring(0, suggestionbox.style.height.length-2))) + "px");
-    }
+    //}
 
     const newspaperSpinning = [
         { transform: "rotate(0)" },
