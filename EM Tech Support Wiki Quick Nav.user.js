@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.6.02m
+// @version      1.6.03m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
-// @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
-// @updateURL    https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
+// @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/testing/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
+// @updateURL    https://github.com/AAEthanM/AA-User-Scripts/raw/testing/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
 // @match        https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/*
 // @icon         https://cdn.worldvectorlogo.com/logos/assa.svg
 // @grant        GM_setValue
@@ -20,7 +20,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "6/7/24";
+const currdate = "6/10/24";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -229,7 +229,7 @@ const currdate = "6/7/24";
     var boxText;
     //Format suggestion box on the page
     var suggestionbox = addDiv("AALCSuggestionBox","",
-                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+90)+"px;min-width:100%;",
+                               "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+(Math.min(frequentPagesCount,shownButtons.length) > 0 ? 40 : 90))+"px;min-width:100%;",
                                coverbox4,"last","<b><u>Suggested Buttons:</b></u><br></br>",'div');
 
     var suggestionTitle = addDiv("AALCSuggestionTitle","",
@@ -504,7 +504,6 @@ const currdate = "6/7/24";
 
         if(GM_getValue("isEdit")) { //STOP EDITING
             GM_setValue("isEdit",false);
-            suggestionbox.style.height = suggestionbox.style.height-40;
             //Hide all editing related buttons
             editText.style.display = 'none';
             setDef.style.display = 'none';
@@ -526,7 +525,6 @@ const currdate = "6/7/24";
         }
         else { //START EDITING
             GM_setValue("isEdit",true);
-            suggestionbox.style.height = suggestionbox.style.height+40;
             //Show all editing related buttons
             editText.style.display = 'block';
             setDef.style.display = 'block';
