@@ -332,7 +332,7 @@ const currdate = "6/6/24";
     var box4 = document.getElementById("AAQNBox4");
     test.setAttribute("id","BrianGriffin");
     test.src = brian;
-    test.setAttribute("style", "float:left;position:absolute;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:2%;left:3px;display:none;vertical-align:bottom;width:100px;height:80px;");
+    test.setAttribute("style", "float:left;position:fixed;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:100px;left:9px;display:none;vertical-align:bottom;width:90px;height:70px;");
     coverbox.before(test);
     if(formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
         test.style.display = "block";
