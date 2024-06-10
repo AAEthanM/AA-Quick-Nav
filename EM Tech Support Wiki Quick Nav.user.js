@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.6.03m
+// @version      1.6.04m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/testing/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -332,8 +332,8 @@ const currdate = "6/10/24";
     var box4 = document.getElementById("AAQNBox4");
     test.setAttribute("id","BrianGriffin");
     test.src = brian;
-    test.setAttribute("style", "float:left;position:static;padding:0px;z-index:1500;margin-right:100%;min-width:0px;bottom:0%;left:-5px;display:none;vertical-align:bottom;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;");
-    box4.after(test);
+    test.setAttribute("style", "float:left;position:fixed;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:100px;left:9px;display:none;vertical-align:bottom;width:90px;height:70px;");
+    coverbox.before(test);
     if(formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
         test.style.display = "block";
         //suggestionbox.setAttribute("style","height:" + (parseInt(suggestionbox.style.height.substring(0, suggestionbox.style.height.length-2))) + "px");
