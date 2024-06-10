@@ -332,8 +332,8 @@ const currdate = "6/6/24";
     var box4 = document.getElementById("AAQNBox4");
     test.setAttribute("id","BrianGriffin");
     test.src = brian;
-    test.setAttribute("style", "float:left;position:static;padding:0px;z-index:1500;margin-right:100%;min-width:0px;bottom:0%;left:-5px;display:none;vertical-align:bottom;width:"+hScalingAttr+"px;height:"+vScalingAttr+"px;");
-    box4.after(test);
+    test.setAttribute("style", "float:left;position:absolute;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:2%;left:3px;display:none;vertical-align:bottom;width:100px;height:80px;");
+    coverbox.before(test);
     if(formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
         test.style.display = "block";
         //suggestionbox.setAttribute("style","height:" + (parseInt(suggestionbox.style.height.substring(0, suggestionbox.style.height.length-2))) + "px");
