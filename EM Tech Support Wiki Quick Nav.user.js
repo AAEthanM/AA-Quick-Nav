@@ -4,8 +4,8 @@
 // @version      1.6.04t
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
-// @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/testing/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
-// @updateURL    https://github.com/AAEthanM/AA-User-Scripts/raw/testing/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
+// @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
+// @updateURL    https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
 // @match        https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/*
 // @icon         https://cdn.worldvectorlogo.com/logos/assa.svg
 // @grant        GM_setValue
