@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.6.05t
+// @version      1.6.06t
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
-// @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
-// @updateURL    https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
+// @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/testing/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
+// @updateURL    https://github.com/AAEthanM/AA-User-Scripts/raw/testing/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
 // @match        https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/*
 // @icon         https://cdn.worldvectorlogo.com/logos/assa.svg
 // @grant        GM_setValue
@@ -206,6 +206,7 @@ const currdate = "6/10/24";
     var linksStored = GM_SuperValue.get("linksStored");
     //Sort the links by usage amount
     var linksSorted = sortLinks();
+    console.log(linksSorted);
     //Filter links seen in list
     for(let j = 0; j < linksSorted.length; j++) {
         var links = JSON.parse(GM_getValue("masterButtons")).concat(buttonsStatic);
@@ -223,7 +224,6 @@ const currdate = "6/10/24";
             shownButtons.push([linksSorted[i][0],linksSorted[i][1],""]);
         }
     }
-    console.log(linksSorted);
 
 
     var boxText;
@@ -332,7 +332,7 @@ const currdate = "6/10/24";
     var box4 = document.getElementById("AAQNBox4");
     test.setAttribute("id","BrianGriffin");
     test.src = brian;
-    test.setAttribute("style", "float:left;position:fixed;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:100px;left:9px;display:none;vertical-align:bottom;width:90px;height:70px;");
+    test.setAttribute("style", "float:left;position:relative;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:-184px;left:-10px;display:none;vertical-align:bottom;width:90px;height:70px;");
     coverbox.before(test);
     //if(formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
         test.style.display = "block";
@@ -346,7 +346,7 @@ const currdate = "6/10/24";
     ];
 
     const newspaperTiming = {
-        duration: 3000,
+        duration: 1000,
         iterations: 1,
     };
 
@@ -747,7 +747,7 @@ const currdate = "6/10/24";
                 linksStored[i][1]++;
                 break;
             } else {
-                if(i==linksStored.length-1&&currURL.substring(currURL.length-5,currURL.length)==".aspx") {
+                if(i==linksStored.length-1&&currURL.substring(currURL.length-5,currURL.length)==".aspx"&&currURL.substring(0, 82) =="https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/") {
                     linksStored.push([nameURL,0,currURL])
                 }
             }
