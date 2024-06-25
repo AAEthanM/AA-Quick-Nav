@@ -134,7 +134,7 @@ const currdate = "6/10/24";
     addClick(editText.id,toggleEdit, false);
 
     //Forming version text and info
-    var vStr = "Quick Nav v" + GM_info.script.version + "<br></br>" + currdate
+    var vStr = "AAQN v" + GM_info.script.version + "<br></br>" + currdate
     var versionStr = addDiv("AAQNVersion","dummy","line-height:50%;display:block;margin-bottom:0em;font-size:10px;position:absolute;top:0px;",coverbox3,"first",vStr,'div');
 
     //Create edit icon and set click handler to toggle edit mode
