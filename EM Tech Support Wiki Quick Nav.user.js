@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.7.03m
+// @version      1.7.04m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -35,7 +35,8 @@ const currdate = "6/25/24";
     const frequentPagesCount = 5;
     const brian = "https://static.wikia.nocookie.net/surrealmemes/images/9/98/Commander_Brian.png"
     const showBrian = true;
-    const brianpage = ""//"Electromechanical Product Lines"
+    const huntBrian = false;
+    const brianpage = "Electromechanical Product Lines"
 
     var buttons = [];
     var buttonsStatic = [];
@@ -335,24 +336,28 @@ const currdate = "6/25/24";
     test.src = brian;
     test.setAttribute("style", "float:left;position:relative;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:-184px;left:-10px;display:none;vertical-align:bottom;width:90px;height:70px;");
     coverbox.before(test);
-    //if(formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
-    if(showBrian) { test.style.display = "block"; } else { test.style.display = "none"; }
-        //suggestionbox.setAttribute("style","height:" + (parseInt(suggestionbox.style.height.substring(0, suggestionbox.style.height.length-2))) + "px");
-    //}
+    if(showBrian) {
+        if(huntBrian && formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
+            suggestionbox.setAttribute("style","height:" + (parseInt(suggestionbox.style.height.substring(0, suggestionbox.style.height.length-2))) + "px");
+            test.style.display = "block";
+        } else if(!huntBrian) {
+            test.style.display = "block";
+        }
+    }
 
-    const newspaperSpinning = [
+    const keyframes = [
         { transform: "rotate(0)" },
         { transform: "rotate(360deg)" },
         { transform: "translateX(-100px)" },
     ];
 
-    const newspaperTiming = {
+    const keytimes = {
         duration: 1000,
         iterations: 1,
     };
 
     test.addEventListener("click", () => {
-        test.animate(newspaperSpinning, newspaperTiming);
+        test.animate(keyframes, keytimes);
         Promise.all(test.getAnimations().map((animation) => animation.finished)).then(
             () => test.remove(),
         );
