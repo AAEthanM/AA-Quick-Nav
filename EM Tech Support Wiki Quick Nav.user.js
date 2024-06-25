@@ -34,7 +34,7 @@ const currdate = "6/25/24";
     const buttonsPerRow = 3;
     const frequentPagesCount = 5;
     const brian = "https://static.wikia.nocookie.net/surrealmemes/images/9/98/Commander_Brian.png"
-    const showBrian = false;
+    const showBrian = true;
     const brianpage = ""//"Electromechanical Product Lines"
 
     var buttons = [];
