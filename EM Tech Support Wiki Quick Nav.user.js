@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.7.04m
+// @version      1.7.05m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -69,7 +69,7 @@ const currdate = "6/25/24";
         ["ML20900","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/ML20900.aspx"],
         ["Aperio Qs","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/Aperio%20-%20Required%20Questions.aspx"],
         ["10 Line","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/10%20Line.aspx"],
-        ["Yale 6000","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/6000%20Series.aspx"],
+        ["6000 Series","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/6000%20Series.aspx"],
         ["8800FL","https://assaabloy.sharepoint.com/sites/AMER-ENG-810W/Trial%20Run%20810WIRE%20Wiki/8800FL.aspx"],
         //["",""],
     ];
@@ -269,8 +269,8 @@ const currdate = "6/25/24";
         });
 
         //Add specific Add and Ignore buttons on the suggested links
-        makeButton("Add","","AALCAdd"+(i+1),"top:"+(40+(40*i))+"px;right:2px;",false,suggestionbox,"last","suggestionChange");
-        makeButton("Ignore","","AALCIgnore"+(i+1),"top:"+(40+(40*i))+"px;right:25px;",false,suggestionbox,"last","suggestionChange");
+        makeButton("Add","","AALCAdd"+(i+1),"top:"+(40+(40*i))+"px;right:-12px;width:30px",false,suggestionbox,"last","suggestionChange");
+        makeButton("Ignore","","AALCIgnore"+(i+1),"top:"+(40+(40*i))+"px;right:20px;width:40px",false,suggestionbox,"last","suggestionChange");
 
         //Add click handler for Add button
         addClick("AALCAdd"+(i+1),() => {
@@ -372,13 +372,12 @@ const currdate = "6/25/24";
             for(let i = 0; i < buttonsPerRow; i++) {
                 if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
                 totalButtonIndex++;
-                var bColorIO = "";
                 var bAttr = "";
                 if(buttons[i+(j*buttonsPerRow)] == undefined) {break;}
                 if(flag) bAttr = defAttr.concat("color:red;"); else bAttr = defAttr;
                 if(buttons[i+(j*buttonsPerRow)][0].length>20) buttons[i+(j*buttonsPerRow)][0] = buttons[i+(j*buttonsPerRow)][0].substring(0,20) + "..."
                 makeButton(buttons[i+(j*buttonsPerRow)][0], buttons[i+(j*buttonsPerRow)][1], buttons[i+(j*buttonsPerRow)][2],
-                           bAttr.concat(navAttr,bColorIO,""+
+                           bAttr.concat(navAttr,""+
                                         "position:absolute;width:"+(Math.floor(180/buttonsPerRow)-1)+"px;"+
                                         "left:"+(Math.floor(180/buttonsPerRow)*i+leftPush+(-6))+"px;"+
                                         "top:"+(vScalingAttr*j+j)+"px;"),
