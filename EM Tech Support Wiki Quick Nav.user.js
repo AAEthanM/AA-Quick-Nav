@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.7.05m
+// @version      1.7.08m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -20,7 +20,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "6/25/24";
+const currdate = "07/09/24";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -108,7 +108,7 @@ const currdate = "6/25/24";
     var navAttr = GM_getValue("isShowing") ? "display:block;" : "display:none;";
 
     var toggleAttr = firstToggleColor.concat("display:block;");
-    var s = setButtonLimit();
+    var s = Math.ceil(JSON.parse(GM_getValue("masterButtons")).length/buttonsPerRow);
 
     //Create box for link suggestions
     //Creating box4 needs to come before all others to stack the sections correctly
@@ -330,54 +330,96 @@ const currdate = "6/25/24";
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Brian
-    var test = document.createElement("img");
-    var box4 = document.getElementById("AAQNBox4");
-    test.setAttribute("id","BrianGriffin");
-    test.src = brian;
-    test.setAttribute("style", "float:left;position:relative;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:-184px;left:-10px;display:none;vertical-align:bottom;width:90px;height:70px;");
-    coverbox.before(test);
+    var homeButton = document.getElementById("ctl00_onetidProjectPropertyTitleGraphic");
+    homeButton.style.pointerEvents = "none";
+
+    var brianImg = document.createElement("img");
+    brianImg.setAttribute("id","BrianGriffin");
+    brianImg.src = brian;
+    brianImg.setAttribute("style", "float:left;position:relative;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:-184px;left:-10px;display:none;vertical-align:bottom;width:90px;height:70px;");
+    coverbox.before(brianImg);
     if(showBrian) {
         if(huntBrian && formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
             suggestionbox.setAttribute("style","height:" + (parseInt(suggestionbox.style.height.substring(0, suggestionbox.style.height.length-2))) + "px");
-            test.style.display = "block";
+            brianImg.style.display = "block";
         } else if(!huntBrian) {
-            test.style.display = "block";
+            brianImg.style.display = "block";
         }
     }
 
-    const keyframes = [
-        { transform: "rotate(0)" },
-        { transform: "rotate(360deg)" },
-        { transform: "translateX(-100px)" },
-    ];
+    const woahAssaAbloy = document.createElement("div");
+    woahAssaAbloy.setAttribute("id","brianTest");
+    woahAssaAbloy.setAttribute("style", "color: white;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;" +
+                        "white-space:pre;line-height:3;pointer-events:none;width:1px;font-family:Impact;font-size:24px;float:left;position:relative;text-align:center;padding:0px;z-index:2500;margin-right:100%;top:-294px;left:-10px;display:none;vertical-align:bottom;width:90px;height:70px;");
+    var panel = document.getElementById("DeltaPlaceHolderLeftNavBar");
+    brianImg.appendChild(woahAssaAbloy);
 
-    const keytimes = {
-        duration: 1000,
-        iterations: 1,
+    // and give it some content
+    const woahText = document.createTextNode("Woah\nAssa Abloy");
+
+    // add the text node to the newly created div
+    woahAssaAbloy.appendChild(woahText);
+
+    // add the newly created element and its content into the DOM
+    coverbox.before(woahAssaAbloy);
+
+    const keyframes1 = [
+        { transform: "translateX(0px)" },
+        { transform: "translateX(5px)" },
+        { transform: "translateX(0px)" },
+        { transform: "translateX(-5px)" },
+        { transform: "translateX(0px)" },
+    ]
+
+    const keytimes1 = {
+        duration: 500,
+        iterations: 5
     };
 
-    test.addEventListener("click", () => {
-        test.animate(keyframes, keytimes);
-        Promise.all(test.getAnimations().map((animation) => animation.finished)).then(
-            () => test.remove(),
-        );
+    const keyframes2 = [
+        { opacity: 0 },
+        { opacity: 1 },
+    ]
+
+    const keytimes2 = {
+        fill: "forwards",
+        duration: 1000,
+        iterations: 1
+    };
+
+    const keyframes3 = [
+        { opacity: 1 },
+        { opacity: 0 },
+    ]
+
+    const keytimes3 = {
+        fill: "forwards",
+        duration: 1000,
+        iterations: 1
+    };
+
+    brianImg.addEventListener("click", () => {
+        brianImg.setAttribute("style","float:left;position:relative;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:-184px;left:-10px;vertical-align:bottom;width:90px;height:70px;pointer-events:none;");
+        brianImg.animate(keyframes1, keytimes1);
+        woahAssaAbloy.style.display = "block";
+        woahAssaAbloy.animate(keyframes2, keytimes2);
+        Promise.all(brianImg.getAnimations().map((animation) => animation.finished)).then(() => woahAssaAbloy.animate(keyframes3, keytimes3));
+        Promise.all(brianImg.getAnimations().map((animation) => animation.finished)).then(() => brianImg.setAttribute("style","float:left;position:relative;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:-184px;left:-10px;vertical-align:bottom;width:90px;height:70px;pointer-events:auto;"));
     });
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Function Access
 
-    function mainButtons(flag) { //Main loop to instantiate the buttons that are invisible on page load, set style, color if applicable, insert in bounding box
+    function mainButtons() { //Main loop to instantiate the buttons that are invisible on page load, set style, color if applicable, insert in bounding box
         var totalButtonIndex = 0;
-        for(let j = 0; j < setButtonLimit(); j++) {
+        for(let j = 0; j < Math.ceil(JSON.parse(GM_getValue("masterButtons")).length/buttonsPerRow); j++) {
             for(let i = 0; i < buttonsPerRow; i++) {
                 if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
                 totalButtonIndex++;
-                var bAttr = "";
-                if(buttons[i+(j*buttonsPerRow)] == undefined) {break;}
-                if(flag) bAttr = defAttr.concat("color:red;"); else bAttr = defAttr;
-                if(buttons[i+(j*buttonsPerRow)][0].length>20) buttons[i+(j*buttonsPerRow)][0] = buttons[i+(j*buttonsPerRow)][0].substring(0,20) + "..."
+                //Truncate text to fit button size
+                if(buttons[i+(j*buttonsPerRow)][0].length>20) buttons[i+(j*buttonsPerRow)][0] = buttons[i+(j*buttonsPerRow)][0].substring(0,20) + "...";
                 makeButton(buttons[i+(j*buttonsPerRow)][0], buttons[i+(j*buttonsPerRow)][1], buttons[i+(j*buttonsPerRow)][2],
-                           bAttr.concat(navAttr,""+
+                           defAttr.concat(navAttr,""+
                                         "position:absolute;width:"+(Math.floor(180/buttonsPerRow)-1)+"px;"+
                                         "left:"+(Math.floor(180/buttonsPerRow)*i+leftPush+(-6))+"px;"+
                                         "top:"+(vScalingAttr*j+j)+"px;"),
@@ -522,8 +564,10 @@ const currdate = "6/25/24";
                     totalButtonIndex++;
                     var navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
                     navBtns.style.background = "#F0F0F0";
+                    //Remove editing click handler
                     removeClick(buttons[i+(j*buttonsPerRow)][2],references[buttons[i+(j*buttonsPerRow)][2]]);
                     refreshCookies();
+                    //Put click handler back to navigate to pages
                     addClick(buttons[i+(j*buttonsPerRow)][2], () => navigateToURL(buttons[i+(j*buttonsPerRow)][1]));
                 }
             }
@@ -542,7 +586,9 @@ const currdate = "6/25/24";
                     totalButtonIndex++;
                     navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
                     navBtns.style.background = "red";
+                    //Taking off click handler for navigating to pages
                     removeClick(buttons[i+(j*buttonsPerRow)][2],references[buttons[i+(j*buttonsPerRow)][2]]);
+                    //Adding click handler to make edits
                     addClick(buttons[i+(j*buttonsPerRow)][2], () => getNewButton([buttons[i+(j*buttonsPerRow)][2]]));
                 }
             }
@@ -552,8 +598,8 @@ const currdate = "6/25/24";
     function setCookie(name,value,type) { //Set cookie for value access across page reloads
         var expires = "";
         var date = new Date();
-        //Set expiry date for cookie to be in 100 years
-        date.setTime(date.getTime() + (100*365*24*60*60*1000));
+        //Set expiry date for cookie to be in 1 year
+        date.setTime(date.getTime() + (365*24*60*60*1000));
         expires = "; expires=" + date.toUTCString();
         document.cookie = name.concat(type||"") + "=" + (value || "") + expires + "; path=/";
     }
@@ -672,7 +718,6 @@ const currdate = "6/25/24";
 
         } else { //......freak out and reset if the cookie says there's more button then there are...
             GM_setValue("totalButtons",GM_getValue("totalButtons")+1);
-            setButtonLimit();
             hideMainButtons();
             mainButtons();
 
@@ -686,8 +731,8 @@ const currdate = "6/25/24";
     }
 
     function remButton() { //Decrement amount of buttons
-        if(!GM_getValue("totalButtons")) { //If the cookie is not set properly,
-            GM_setValue("totalButtons",buttons.length); //Fix it by setting it to current button count
+        if(!GM_getValue("totalButtons")) { //If the cookie is not set properly...
+            GM_setValue("totalButtons",buttons.length); //...Fix it by setting it to current button count
         } else if(GM_getValue("totalButtons") == 1) { //Edge case error if only one button remains and the user deletes it
             alert(errors.lastButton);
         } else {
@@ -726,18 +771,12 @@ const currdate = "6/25/24";
         return list;
     }
 
-    function setButtonLimit() { //Function to globally set how many rows of buttons there are according to how many total and how many buttons per row are visible
-        s = Math.ceil(JSON.parse(GM_getValue("masterButtons")).length/buttonsPerRow);
-        return s;
-    }
-
     function resizeBox() { //Update size of bounding box to account for total amount of buttons
         if(GM_getValue("totalButtons") != 0) {
             return ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow)+1)
         } else {
             return 0
         }
-        //return GM_getValue("totalButtons") ? ((vScalingAttr+1)*Math.ceil(GM_getValue("totalButtons")/buttonsPerRow)) : (s*(vScalingAttr+1)+1);
     }
 
     function sortLinks() { //
