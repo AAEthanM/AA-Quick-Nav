@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.7.09m
+// @version      1.7.10m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -421,8 +421,10 @@ const currdate = "07/09/24";
     let passiveSupported = false;
 
     var sharepointEdit = document.getElementsByClassName("ms-rtefocus-invalid ms-promotedActionButton");
-    sharepointEdit[0].setAttribute("id","sharepointEdit");
-    addClick("sharepointEdit",() => disableDarkMode());
+    if(sharepointEdit.length>0) {
+        sharepointEdit[0].setAttribute("id","sharepointEdit");
+        addClick("sharepointEdit",() => disableDarkMode());
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Function Access
