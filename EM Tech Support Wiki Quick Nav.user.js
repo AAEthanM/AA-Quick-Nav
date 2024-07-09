@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.7.08m
+// @version      1.7.09m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -37,6 +37,10 @@ const currdate = "07/09/24";
     const showBrian = true;
     const huntBrian = false;
     const brianpage = "Electromechanical Product Lines"
+
+    const mainColor = "#AA00EE";
+    const secondColor = "white";
+    const backColor = "black";
 
     var buttons = [];
     var buttonsStatic = [];
@@ -96,6 +100,7 @@ const currdate = "07/09/24";
     if(!parseJSONSafely(GM_getValue("masterButtons"))) {
         GM_setValue("masterButtons",JSON.stringify(buttons));
         GM_setValue("totalButtons",buttons.length);
+        GM_setValue("darkMode",false);
     }
 
 
@@ -130,8 +135,11 @@ const currdate = "07/09/24";
     //Create box for version info and adding current page to button list
     var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:20px',insertDiv,"first","",'div');
 
+    var darkModeButton = addDiv("AAQNDarkMode","editingButtonsText","top:5px;left:65px;display:none;width:10px;white-space:pre;",coverbox4,"first","Dark Mode",'div');
+    addClick("AAQNDarkMode",() => { setDarkMode(); GM_setValue("darkMode",GM_getValue("darkMode") ? false : true); window.location = window.location.href;}, false);
+
     //Create text in the link suggestion section that shows when edit mode is enabled. Add click handler to text to disable edit mode
-    var editText = addDiv("AAQNEditText","editingButtonsText","top:5px;left:5px;display:none;",coverbox4,"first","Edit Mode Activated",'div');
+    var editText = addDiv("AAQNEditText","editingButtonsText","top:5px;left:5px;display:none;",coverbox4,"first","Edit Mode",'div');
     addClick(editText.id,toggleEdit, false);
 
     //Forming version text and info
@@ -208,7 +216,6 @@ const currdate = "07/09/24";
     var linksStored = GM_SuperValue.get("linksStored");
     //Sort the links by usage amount
     var linksSorted = sortLinks();
-    console.log(linksSorted);
     //Filter links seen in list
     for(let j = 0; j < linksSorted.length; j++) {
         var links = JSON.parse(GM_getValue("masterButtons")).concat(buttonsStatic);
@@ -336,7 +343,7 @@ const currdate = "07/09/24";
     var brianImg = document.createElement("img");
     brianImg.setAttribute("id","BrianGriffin");
     brianImg.src = brian;
-    brianImg.setAttribute("style", "float:left;position:relative;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:-184px;left:-10px;display:none;vertical-align:bottom;width:90px;height:70px;");
+    brianImg.setAttribute("style", "background:none;float:left;position:relative;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:-184px;left:-10px;display:none;vertical-align:bottom;width:90px;height:70px;");
     coverbox.before(brianImg);
     if(showBrian) {
         if(huntBrian && formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
@@ -350,7 +357,7 @@ const currdate = "07/09/24";
     const woahAssaAbloy = document.createElement("div");
     woahAssaAbloy.setAttribute("id","brianTest");
     woahAssaAbloy.setAttribute("style", "color: white;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000;" +
-                        "white-space:pre;line-height:3;pointer-events:none;width:1px;font-family:Impact;font-size:24px;float:left;position:relative;text-align:center;padding:0px;z-index:2500;margin-right:100%;top:-294px;left:-10px;display:none;vertical-align:bottom;width:90px;height:70px;");
+                        "white-space:pre;line-height:3;pointer-events:none;width:1px;font-family:Impact;font-size:24px;float:left;position:relative;text-align:center;padding:0px;z-index:2500;margin-right:100%;top:-294px;left:-12px;display:none;vertical-align:bottom;width:90px;height:70px;");
     var panel = document.getElementById("DeltaPlaceHolderLeftNavBar");
     brianImg.appendChild(woahAssaAbloy);
 
@@ -402,10 +409,20 @@ const currdate = "07/09/24";
         brianImg.setAttribute("style","float:left;position:relative;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:-184px;left:-10px;vertical-align:bottom;width:90px;height:70px;pointer-events:none;");
         brianImg.animate(keyframes1, keytimes1);
         woahAssaAbloy.style.display = "block";
+        woahAssaAbloy.style.background = "none";
         woahAssaAbloy.animate(keyframes2, keytimes2);
         Promise.all(brianImg.getAnimations().map((animation) => animation.finished)).then(() => woahAssaAbloy.animate(keyframes3, keytimes3));
         Promise.all(brianImg.getAnimations().map((animation) => animation.finished)).then(() => brianImg.setAttribute("style","float:left;position:relative;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:-184px;left:-10px;vertical-align:bottom;width:90px;height:70px;pointer-events:auto;"));
     });
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    setDarkMode();
+
+    let passiveSupported = false;
+
+    var sharepointEdit = document.getElementsByClassName("ms-rtefocus-invalid ms-promotedActionButton");
+    sharepointEdit[0].setAttribute("id","sharepointEdit");
+    addClick("sharepointEdit",() => disableDarkMode());
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Function Access
@@ -509,6 +526,7 @@ const currdate = "07/09/24";
                 document.getElementsByClassName("editingButtons")[i].style.display = "none";
             }
             for(let i = 0; i < document.getElementsByClassName("editingButtonsText").length; i++) {
+                console.log(document.getElementsByClassName("editingButtonsText"));
                 document.getElementsByClassName("editingButtonsText")[i].style.display = "none";
             }
             for(let i = 0; i < document.getElementsByClassName("defaultButton").length; i++) {
@@ -548,6 +566,7 @@ const currdate = "07/09/24";
         var incButton = document.getElementById("AAQNIncButton");
         var decButton = document.getElementById("AAQNDecButton");
         var clearBtn = document.getElementById("AALCClearStored");
+        var darkBtn = document.getElementById("AAQNDarkMode");
 
         if(GM_getValue("isEdit")) { //STOP EDITING
             GM_setValue("isEdit",false);
@@ -557,6 +576,7 @@ const currdate = "07/09/24";
             incButton.style.display = 'none';
             decButton.style.display = 'none';
             clearBtn.style.display = 'none';
+            darkBtn.style.display = 'none';
             //
             for(let j = 0; j < s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
@@ -580,6 +600,7 @@ const currdate = "07/09/24";
             incButton.style.display = 'block';
             decButton.style.display = 'block';
             clearBtn.style.display = 'block';
+            darkBtn.style.display = 'block';
             for(let j = 0; j <= s; j++) {
                 for(let i = 0; i < buttonsPerRow; i++) {
                     if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
@@ -861,6 +882,64 @@ const currdate = "07/09/24";
             // Return a default object, or null based on use case.
             return false;
         }
+    }
+
+    function setDarkMode() {
+        //Dark Mode Conversion
+        var allDivs = document.getElementsByTagName("div");
+        var allClass = document.getElementsByClassName("ms-rteThemeForeColor-2-0");
+        var allClass2 = document.getElementsByClassName("ms-rteFontSize-2 ms-rteThemeFontFace-2 ms-rteThemeForeColor-5-0");
+        var allClass3 = document.getElementsByClassName("ms-rteThemeForeColor-5-0");
+        var allClass4 = document.getElementsByClassName("ExternalClass5ACC31C9AD96422785ACA1C8DCE9D42C");
+        var allClass5 = document.getElementsByClassName("suggestionList");
+        if(GM_getValue("darkMode")) {
+            var allLinks = document.getElementsByTagName("a");
+            for(let i=0;i<allLinks.length;i++) {
+                if(allLinks[i].href) {
+                    allLinks[i].style.color = mainColor
+                } else {
+                    allLinks[i].style.color = secondColor
+                }
+            }
+
+            for(let i=0;i<allDivs.length;i++) {
+                allDivs[i].style.backgroundColor = backColor;
+                allDivs[i].style.color = secondColor;
+                if(allDivs[i].href) allDivs[i].style.color = secondColor;
+            }
+
+            for(let i=0;i<allClass.length;i++) {
+                allClass[i].style.color = secondColor;
+            }
+
+            for(let i=0;i<allClass2.length;i++) {
+                allClass2[i].style.color = mainColor;
+            }
+
+            for(let i=0;i<allClass3.length;i++) {
+                allClass3[i].style.color = mainColor;
+            }
+
+            for(let i=0;i<allClass4.length;i++) {
+                allClass4[i].style.color = secondColor;
+                allClass4[i].style.textDecorationColor = mainColor;
+            }
+
+            for(let i=0;i<allClass5.length;i++) {
+                allClass5[i].style.color = secondColor;
+                allClass5[i].style.textDecorationColor = mainColor;
+                if(allClass5[i].href) allDivs[i].style.color = secondColor;
+            }
+        } else {
+            for(let i=0;i<allDivs.length;i++) {
+                allDivs[i].style.background = "none";
+            }
+        }
+    }
+
+    function disableDarkMode() {
+        GM_setValue("darkMode",false);
+        setDarkMode();
     }
 })();
 
