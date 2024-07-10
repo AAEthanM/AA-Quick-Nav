@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.7.11m
+// @version      1.7.12m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -20,7 +20,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "07/09/24";
+const currdate = "07/10/24";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -425,6 +425,8 @@ const currdate = "07/09/24";
         sharepointEdit[0].setAttribute("id","sharepointEdit");
         addClick("sharepointEdit",() => disableDarkMode());
     }
+
+    $('span:not([class!=""])').css('color', 'red');
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Function Access
@@ -894,6 +896,9 @@ const currdate = "07/09/24";
         var allClass3 = document.getElementsByClassName("ms-rteThemeForeColor-5-0");
         var allClass4 = document.getElementsByClassName("ExternalClass5ACC31C9AD96422785ACA1C8DCE9D42C");
         var allClass5 = document.getElementsByClassName("suggestionList");
+        var allClass6 = document.getElementsByClassName("ms-rteBackColor-4");
+        var allClass7 = document.getElementsByTagName("span");
+        var allClass8 = document.getElementsByClassName("ms-rteForeColor-8");
         if(GM_getValue("darkMode")) {
             var allLinks = document.getElementsByTagName("a");
             for(let i=0;i<allLinks.length;i++) {
@@ -930,7 +935,25 @@ const currdate = "07/09/24";
             for(let i=0;i<allClass5.length;i++) {
                 allClass5[i].style.color = secondColor;
                 allClass5[i].style.textDecorationColor = mainColor;
-                if(allClass5[i].href) allDivs[i].style.color = secondColor;
+                if(allClass5[i].href) allClass5[i].style.color = secondColor;
+            }
+
+            for(let i=0;i<allClass6.length;i++) {
+                allClass6[i].style.color = secondColor;
+                allClass6[i].style.backgroundColor = "unset";
+                allClass6[i].style.textDecorationColor = mainColor;
+            }
+
+            for(let i=0;i<allClass7.length;i++) {
+                allClass7[i].style.color = secondColor;
+                allClass7[i].style.backgroundColor = "unset";
+                allClass7[i].style.textDecorationColor = mainColor;
+            }
+
+            for(let i=0;i<allClass8.length;i++) {
+                allClass8[i].style.color = secondColor;
+                allClass8[i].style.backgroundColor = "unset";
+                allClass8[i].style.textDecorationColor = mainColor;
             }
         } else {
             for(let i=0;i<allDivs.length;i++) {
