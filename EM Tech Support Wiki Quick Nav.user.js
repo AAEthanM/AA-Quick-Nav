@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.7.12m
+// @version      1.7.13m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -899,13 +899,15 @@ const currdate = "07/10/24";
         var allClass6 = document.getElementsByClassName("ms-rteBackColor-4");
         var allClass7 = document.getElementsByTagName("span");
         var allClass8 = document.getElementsByClassName("ms-rteForeColor-8");
+        var allClass9 = document.getElementsByClassName("ms-rteThemeForeColor-6-0");
+        var allClass10 = document.getElementsByClassName("ms-rteFontSize-2 ms-rteThemeFontFace-2");
         if(GM_getValue("darkMode")) {
             var allLinks = document.getElementsByTagName("a");
             for(let i=0;i<allLinks.length;i++) {
                 if(allLinks[i].href) {
                     allLinks[i].style.color = mainColor
                 } else {
-                    allLinks[i].style.color = secondColor
+                    allLinks[i].style.color = mainColor
                 }
             }
 
@@ -939,21 +941,25 @@ const currdate = "07/10/24";
             }
 
             for(let i=0;i<allClass6.length;i++) {
-                allClass6[i].style.color = secondColor;
-                allClass6[i].style.backgroundColor = "unset";
+                allClass6[i].style.color = 'purple';
+                allClass6[i].style.backgroundColor = 'red';
                 allClass6[i].style.textDecorationColor = mainColor;
             }
 
             for(let i=0;i<allClass7.length;i++) {
-                allClass7[i].style.color = secondColor;
+                allClass7[i].style.color = 'white';
                 allClass7[i].style.backgroundColor = "unset";
                 allClass7[i].style.textDecorationColor = mainColor;
             }
 
             for(let i=0;i<allClass8.length;i++) {
-                allClass8[i].style.color = secondColor;
-                allClass8[i].style.backgroundColor = "unset";
+                allClass8[i].style.color = 'orange';
                 allClass8[i].style.textDecorationColor = mainColor;
+            }
+
+            for(let i=0;i<allClass9.length;i++) {
+                allClass9[i].style.color = 'yellow';
+                allClass9[i].style.textDecorationColor = mainColor;
             }
         } else {
             for(let i=0;i<allDivs.length;i++) {
