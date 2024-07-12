@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.7.14m
+// @version      1.7.15m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -20,7 +20,7 @@
 // ==/UserScript==
 /* globals jQuery, $, waitForKeyElements*/
 
-const currdate = "07/10/24";
+const currdate = "07/12/24";
 
 (function() {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ const currdate = "07/10/24";
     addClick("AAQNDarkMode",() => { setDarkMode()/*; GM_setValue("darkMode",GM_getValue("darkMode") ? false : true); window.location = window.location.href*/;}, false);
 
     //Create text in the link suggestion section that shows when edit mode is enabled. Add click handler to text to disable edit mode
-    var editText = addDiv("AAQNEditText","editingButtonsText","top:5px;left:5px;display:block;",coverbox4,"first","Edit Mode",'div');
+    var editText = addDiv("AAQNEditText","editingButtonsText","top:5px;left:5px;display:none;",coverbox4,"first","Edit Mode",'div');
     addClick(editText.id,toggleEdit, false);
 
     //Forming version text and info
@@ -335,6 +335,9 @@ const currdate = "07/10/24";
         GM_setValue("isEdit",false);
     }
 
+    toggleEdit();
+    toggleEdit();
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Brian
     var homeButton = document.getElementById("ctl00_onetidProjectPropertyTitleGraphic");
@@ -527,6 +530,9 @@ const currdate = "07/10/24";
         }
 
         if(GM_getValue("isShowing")) { //Hide editing buttons and change text color of visibility button text
+            for(let i = 0; i < document.getElementsByClassName("editIcon").length; i++) {
+                    document.getElementsByClassName("editIcon")[i].style.display = "block";
+            }
             for(let i = 0; i < document.getElementsByClassName("editingButtons").length; i++) {
                 document.getElementsByClassName("editingButtons")[i].style.display = "none";
             }
@@ -575,6 +581,7 @@ const currdate = "07/10/24";
         var decButton = document.getElementById("AAQNDecButton");
         var clearBtn = document.getElementById("AALCClearStored");
         var darkBtn = document.getElementById("AAQNDarkMode");
+        var editIcon = document.getElementById("AAQNEdit");
 
         if(GM_getValue("isEdit")) { //STOP EDITING
             GM_setValue("isEdit",false);
@@ -603,6 +610,7 @@ const currdate = "07/10/24";
         else { //START EDITING
             GM_setValue("isEdit",true);
             //Show all editing related buttons
+            editIcon.style.display = 'block';
             editText.style.display = 'block';
             setDef.style.display = 'block';
             incButton.style.display = 'block';
