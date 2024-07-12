@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.7.13m
+// @version      1.7.14m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -89,6 +89,7 @@ const currdate = "07/10/24";
         "resetDefaults": "Are you sure you want to set Quick Nav to defaults?",
     }
 
+
     //Adds unique ID to each button that is generated dynamically for the main section, adds new dimension to default array
     //Button array: Title, Links, Element ID
     for(let i = 0; i < preButtons.length; i++) {
@@ -136,10 +137,10 @@ const currdate = "07/10/24";
     var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:20px',insertDiv,"first","",'div');
 
     var darkModeButton = addDiv("AAQNDarkMode","editingButtonsText","top:5px;left:65px;display:none;width:10px;white-space:pre;",coverbox4,"first","Dark Mode",'div');
-    addClick("AAQNDarkMode",() => { setDarkMode(); GM_setValue("darkMode",GM_getValue("darkMode") ? false : true); window.location = window.location.href;}, false);
+    addClick("AAQNDarkMode",() => { setDarkMode()/*; GM_setValue("darkMode",GM_getValue("darkMode") ? false : true); window.location = window.location.href*/;}, false);
 
     //Create text in the link suggestion section that shows when edit mode is enabled. Add click handler to text to disable edit mode
-    var editText = addDiv("AAQNEditText","editingButtonsText","top:5px;left:5px;display:none;",coverbox4,"first","Edit Mode",'div');
+    var editText = addDiv("AAQNEditText","editingButtonsText","top:5px;left:5px;display:block;",coverbox4,"first","Edit Mode",'div');
     addClick(editText.id,toggleEdit, false);
 
     //Forming version text and info
@@ -332,7 +333,6 @@ const currdate = "07/10/24";
     //If editing is still set to true (page refresh while editing), disable flag in order to call toggleEdit() and re-set it to true
     if(GM_getValue("isEdit")) {
         GM_setValue("isEdit",false);
-        toggleEdit();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -416,17 +416,18 @@ const currdate = "07/10/24";
     });
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    setDarkMode();
+    //setDarkMode();
 
     let passiveSupported = false;
 
     var sharepointEdit = document.getElementsByClassName("ms-rtefocus-invalid ms-promotedActionButton");
     if(sharepointEdit.length>0) {
         sharepointEdit[0].setAttribute("id","sharepointEdit");
-        addClick("sharepointEdit",() => disableDarkMode());
+        addClick("sharepointEdit",() => {
+            GM_setValue("darkMode",false);
+            setDarkMode();
+        });
     }
-
-    $('span:not([class!=""])').css('color', 'red');
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //Function Access
@@ -548,6 +549,9 @@ const currdate = "07/10/24";
             coverbox.style.display = 'block';
             coverbox4.style.display = 'block';
             if(GM_getValue("isEdit")) {
+                for(let i = 0; i < document.getElementsByClassName("editIcon").length; i++) {
+                    document.getElementsByClassName("editIcon")[i].style.display = "block";
+                }
                 for(let i = 0; i < document.getElementsByClassName("editingButtons").length; i++) {
                     document.getElementsByClassName("editingButtons")[i].style.display = "block";
                 }
@@ -888,6 +892,7 @@ const currdate = "07/10/24";
         }
     }
 
+    /*
     function setDarkMode() {
         //Dark Mode Conversion
         var allDivs = document.getElementsByTagName("div");
@@ -941,7 +946,7 @@ const currdate = "07/10/24";
             }
 
             for(let i=0;i<allClass6.length;i++) {
-                allClass6[i].style.color = 'purple';
+                allClass6[i].style.color = 'white';
                 allClass6[i].style.backgroundColor = 'red';
                 allClass6[i].style.textDecorationColor = mainColor;
             }
@@ -967,11 +972,7 @@ const currdate = "07/10/24";
             }
         }
     }
-
-    function disableDarkMode() {
-        GM_setValue("darkMode",false);
-        setDarkMode();
-    }
+    */
 })();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1018,6 +1019,7 @@ GM_addStyle ( `
     }
     .editIcon {
         position:         absolute;
+        display:          block;
         float:            left;
         background-size:  14px !important;
         padding:          7px;
