@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.7.15m
+// @version      1.7.16m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -137,7 +137,7 @@ const currdate = "07/12/24";
     var coverbox3 = addDiv("AAQNBox3","cover",'border:none;min-height:20px',insertDiv,"first","",'div');
 
     var darkModeButton = addDiv("AAQNDarkMode","editingButtonsText","top:5px;left:65px;display:none;width:10px;white-space:pre;",coverbox4,"first","Dark Mode",'div');
-    addClick("AAQNDarkMode",() => { setDarkMode()/*; GM_setValue("darkMode",GM_getValue("darkMode") ? false : true); window.location = window.location.href*/;}, false);
+    addClick("AAQNDarkMode",() => { setDarkMode(); GM_setValue("darkMode",GM_getValue("darkMode") ? false : true); window.location = window.location.href;}, false);
 
     //Create text in the link suggestion section that shows when edit mode is enabled. Add click handler to text to disable edit mode
     var editText = addDiv("AAQNEditText","editingButtonsText","top:5px;left:5px;display:none;",coverbox4,"first","Edit Mode",'div');
@@ -419,9 +419,8 @@ const currdate = "07/12/24";
     });
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //setDarkMode();
 
-    let passiveSupported = false;
+    setDarkMode();
 
     var sharepointEdit = document.getElementsByClassName("ms-rtefocus-invalid ms-promotedActionButton");
     if(sharepointEdit.length>0) {
@@ -530,9 +529,6 @@ const currdate = "07/12/24";
         }
 
         if(GM_getValue("isShowing")) { //Hide editing buttons and change text color of visibility button text
-            for(let i = 0; i < document.getElementsByClassName("editIcon").length; i++) {
-                    document.getElementsByClassName("editIcon")[i].style.display = "block";
-            }
             for(let i = 0; i < document.getElementsByClassName("editingButtons").length; i++) {
                 document.getElementsByClassName("editingButtons")[i].style.display = "none";
             }
@@ -542,6 +538,9 @@ const currdate = "07/12/24";
             }
             for(let i = 0; i < document.getElementsByClassName("defaultButton").length; i++) {
                 document.getElementsByClassName("defaultButton")[i].style.display = "none";
+            }
+            for(let i = 0; i < document.getElementsByClassName("editIcon").length; i++) {
+                document.getElementsByClassName("editIcon")[i].style.display = "none";
             }
             toggleButton.innerHTML = '\u2193 Toggle Show/Hide \u2193';
             toggleButton.style.color = '#038387';
@@ -554,10 +553,10 @@ const currdate = "07/12/24";
             GM_setValue("isShowing",true);
             coverbox.style.display = 'block';
             coverbox4.style.display = 'block';
+            for(let i = 0; i < document.getElementsByClassName("editIcon").length; i++) {
+                document.getElementsByClassName("editIcon")[i].style.display = "block";
+            }
             if(GM_getValue("isEdit")) {
-                for(let i = 0; i < document.getElementsByClassName("editIcon").length; i++) {
-                    document.getElementsByClassName("editIcon")[i].style.display = "block";
-                }
                 for(let i = 0; i < document.getElementsByClassName("editingButtons").length; i++) {
                     document.getElementsByClassName("editingButtons")[i].style.display = "block";
                 }
@@ -567,6 +566,8 @@ const currdate = "07/12/24";
                 for(let i = 0; i < document.getElementsByClassName("defaultButton").length; i++) {
                     document.getElementsByClassName("defaultButton")[i].style.display = "block";
                 }
+                toggleEdit();
+                GM_setValue("isEdit",false);
             }
         }
     }
@@ -608,25 +609,27 @@ const currdate = "07/12/24";
             }
         }
         else { //START EDITING
-            GM_setValue("isEdit",true);
-            //Show all editing related buttons
-            editIcon.style.display = 'block';
-            editText.style.display = 'block';
-            setDef.style.display = 'block';
-            incButton.style.display = 'block';
-            decButton.style.display = 'block';
-            clearBtn.style.display = 'block';
-            darkBtn.style.display = 'block';
-            for(let j = 0; j <= s; j++) {
-                for(let i = 0; i < buttonsPerRow; i++) {
-                    if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
-                    totalButtonIndex++;
-                    navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
-                    navBtns.style.background = "red";
-                    //Taking off click handler for navigating to pages
-                    removeClick(buttons[i+(j*buttonsPerRow)][2],references[buttons[i+(j*buttonsPerRow)][2]]);
-                    //Adding click handler to make edits
-                    addClick(buttons[i+(j*buttonsPerRow)][2], () => getNewButton([buttons[i+(j*buttonsPerRow)][2]]));
+            if(GM_getValue("isShowing")) {
+               GM_setValue("isEdit",true);
+                //Show all editing related buttons
+                editIcon.style.display = 'block';
+                editText.style.display = 'block';
+                setDef.style.display = 'block';
+                incButton.style.display = 'block';
+                decButton.style.display = 'block';
+                clearBtn.style.display = 'block';
+                darkBtn.style.display = 'block';
+                for(let j = 0; j <= s; j++) {
+                    for(let i = 0; i < buttonsPerRow; i++) {
+                        if(totalButtonIndex >= GM_getValue("totalButtons")) {break;}
+                        totalButtonIndex++;
+                        navBtns = document.getElementById(buttons[i+(j*buttonsPerRow)][2].toString());
+                        navBtns.style.background = "red";
+                        //Taking off click handler for navigating to pages
+                        removeClick(buttons[i+(j*buttonsPerRow)][2],references[buttons[i+(j*buttonsPerRow)][2]]);
+                        //Adding click handler to make edits
+                        addClick(buttons[i+(j*buttonsPerRow)][2], () => getNewButton([buttons[i+(j*buttonsPerRow)][2]]));
+                    }
                 }
             }
         }
@@ -900,8 +903,9 @@ const currdate = "07/12/24";
         }
     }
 
-    /*
+    
     function setDarkMode() {
+        /*
         //Dark Mode Conversion
         var allDivs = document.getElementsByTagName("div");
         var allClass = document.getElementsByClassName("ms-rteThemeForeColor-2-0");
@@ -979,8 +983,8 @@ const currdate = "07/12/24";
                 allDivs[i].style.background = "none";
             }
         }
+        */
     }
-    */
 })();
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
