@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         EM Tech Support Wiki Quick Nav
 // @namespace    https://assaabloy.sharepoint.com/
-// @version      1.7.16m
+// @version      1.7.17m
 // @description  Add shortcuts to the internal 810 Wire Technical Suppot Team for easier navigation to frequently used pages or external pages.
 // @author       Ethan Millette, EMS Application Engineer
 // @downloadURL  https://github.com/AAEthanM/AA-User-Scripts/raw/main/EM%20Tech%20Support%20Wiki%20Quick%20Nav.user.js
@@ -241,6 +241,7 @@ const currdate = "07/12/24";
     var suggestionbox = addDiv("AALCSuggestionBox","",
                                "font-size:12px;position:relative;display:block;padding:0px;top:30px;left:-6px;height:"+(Math.min(frequentPagesCount,shownButtons.length)*40+(Math.min(frequentPagesCount,shownButtons.length) > 0 ? 40 : 90))+"px;min-width:100%;",
                                coverbox4,"last","<b><u>Suggested Buttons:</b></u><br></br>",'div');
+    coverbox4.style.height = parseInt(suggestionbox.style.height.substring(0,suggestionbox.style.height.length-2)) + 30 + "px";
 
     var suggestionTitle = addDiv("AALCSuggestionTitle","",
                                  "position:relative;top:10px;",
@@ -346,7 +347,7 @@ const currdate = "07/12/24";
     var brianImg = document.createElement("img");
     brianImg.setAttribute("id","BrianGriffin");
     brianImg.src = brian;
-    brianImg.setAttribute("style", "background:none;float:left;position:relative;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:-184px;left:-10px;display:none;vertical-align:bottom;width:90px;height:70px;");
+    brianImg.setAttribute("style", "background:none;float:left;position:absolute;padding:0px;z-index:1500;margin-right:100%;min-width:0px;top:15px;left:10px;display:none;vertical-align:bottom;width:90px;height:70px;");
     coverbox.before(brianImg);
     if(showBrian) {
         if(huntBrian && formatEntry(currURL).substring(76, (formatEntry(currURL).length-5)) == brianpage) {
@@ -905,7 +906,6 @@ const currdate = "07/12/24";
 
     
     function setDarkMode() {
-        /*
         //Dark Mode Conversion
         var allDivs = document.getElementsByTagName("div");
         var allClass = document.getElementsByClassName("ms-rteThemeForeColor-2-0");
@@ -983,7 +983,6 @@ const currdate = "07/12/24";
                 allDivs[i].style.background = "none";
             }
         }
-        */
     }
 })();
 
